@@ -22,7 +22,7 @@ extern "C" {
 
 void delay5ms(uint16_t);
 void delayseconds(uint16_t secs);
-void first_run(void);
+void init_EEPROM(void);
 void load_default(void);
 void check_led_type(void);
 void load_ID_to_buffer(void);

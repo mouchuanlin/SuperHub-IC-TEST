@@ -98,6 +98,42 @@
 // #pragma config statements should precede project file includes.
 // Use project enums instead of #define for ON and OFF.
 
+#define MODULE_OFF_TYPE   
+    
+    
+// Forward declaration.
+void 	buzzer_on(uint8_t count);
+uint8_t get_hub_type();
+void 	init_system();
+void    timer0_init();
+void    interrupt_init();
+void 	powerup_modem();
+void 	init_global_variables();
+uint8_t modem_module_start();
+uint8_t check_network_registration();
+uint8_t check_SIM_state();
+void 	init_stack_buffer();
+uint8_t wait_AT_cmd_response();
+uint8_t wait_SMS_setting();
+uint8_t alarm_or_report();
+void 	process_event_queue();
+void 	process_ADC();
+void 	process_RF_interrupt();
+uint8_t process_SMS_setup_state();
+uint8_t process_restart();
+void 	process_supervisory();
+void 	process_running_system();    
+
+void UART1_ISR();
+void UART2_ISR();
+void TMR0_ISR();
+void smoker_ISR();
+void superhub_ISR();
+void handle_LED();
+void handle_smoker();
+void handle_learn_btn_pressed();
+
+
 //uint8_t Alarm_f = 0;
 uint8_t Standby_f = 0;
 uint8_t Error_f = 0;
@@ -127,8 +163,8 @@ uint8_t 	err_count=0;
 uint8_t 	LED_count = 0;
 uint8_t 	error_status_count = 0;
 uint8_t 	alarm_count = 0;
-uint8_t 	rx2_cnt = 0;
-uint8_t 	rx2_buf[20];
+//uint8_t 	rx2_cnt = 0;
+//uint8_t 	rx2_buf[20];
 uint16_t 	exit_learn;
 uint8_t 	tamper_status = 1;
 uint8_t 	first_tamper = 1;
@@ -137,40 +173,21 @@ uint8_t 	learn_delay = 0;
 uint16_t 	test_9sec_count=0;
 uint8_t 	OTA_flag = 0;
 
-// TODO: moved this variable to here. 
-//uint8_t WDT_count = 0;
+
+
+// UART1 RC buffer
+// TODO: How big of the buffer should be???
+#define     RX1_BUF_MAX     80
+uint8_t 	rx1_cnt = 0;
+uint8_t 	rx1_buf[RX1_BUF_MAX];
+
+// UART2 RX buffer
+#define     RX2_BUF_MAX     20
+uint8_t 	rx2_cnt = 0;
+uint8_t 	rx2_buf[RX2_BUF_MAX];
+
+
+// 
+static uint8_t powerup_flag = true;
 	
-#define MODULE_OFF_TYPE   
-    
-    
-// Forward declaration.
-void 	buzzer_on(uint8_t count);
-uint8_t get_hub_type();
-void 	init_system();
-void 	powerup_modem();
-void 	init_global_variables();
-uint8_t modem_module_start();
-uint8_t check_network_registration();
-uint8_t check_SIM_state();
-void 	init_stack_buffer();
-uint8_t wait_AT_cmd_response();
-uint8_t wait_SMS_setting();
-uint8_t alarm_or_report();
-void 	process_event_queue();
-void 	process_ADC();
-void 	process_RF_interrupt();
-uint8_t process_SMS_setup_state();
-uint8_t process_restart();
-void 	process_supervisory();
-void 	process_running_system();    
-
-void UART1_ISR();
-void UART2_ISR();
-void TMR0_ISR();
-void smoker_ISR();
-void superhub_ISR();
-void handle_LED();
-void handle_smoker();
-void handle_learn_btn_pressed();
-
 #endif	/* CONFIG_H */

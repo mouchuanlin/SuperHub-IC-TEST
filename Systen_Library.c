@@ -1,9 +1,15 @@
+//
+// System_Library.c
+//
+
+
+#include <pic18f26k22.h>
+#include <xc.h>
 #include "initial.h"
 #include "EE_library.h"
 #include "Module_Library.h"
 #include "emc_library.h"
-#include <pic18f26k22.h>
-#include <xc.h>
+#include "System_Library.h"
 
 void load_ID_to_buffer(void);
 
@@ -39,7 +45,7 @@ void delayseconds(uint16_t secs)
     }
 }
 
-void first_run(void)
+void init_EEPROM(void)
 {
 #ifdef DEBUG
     uint8_t const APN[]="internet#";            //35#
@@ -241,6 +247,9 @@ void first_run(void)
     write_ee(0x00,0x00,VERSION[0]);
     write_ee(0x00,0x01,VERSION[1]);
     write_ee(0x00,0x02,VERSION[2]);
+    
+    // TODO: What's this for???
+    load_default();
 }
 
 void load_default(void)
@@ -395,7 +404,7 @@ void rsp_SUP_LBT(void)
         OSCCON = HIGH_FREQ_OSCCON;	// 4MHz
         T0CON = HIGH_FREQ_T0CON;             //1*4000 = 50,000us
         HL_freq = 1;
-        Uart_initial_BD2();
+        UART2_init();
         CREN1 = 0;          
         CREN1 = 1;
         RC2IE = 1;

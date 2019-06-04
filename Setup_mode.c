@@ -529,7 +529,7 @@ uint8_t set_n98(void)
 	if( key[3]=='*'&&key[4]=='*'&&key[5]=='#' )
 	{
         write_ee(0x00,0x00,0x00);
-		first_run();
+		init_EEPROM();
 		return('K');
 	}
 	else return('E');

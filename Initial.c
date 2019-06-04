@@ -19,7 +19,6 @@ void IO_init(void)
 
 //PORTC
     ANSELC = 0x00;    
-    // mlin - beeping
     SPK = 1;
     SPK_TRIS = OUTPUT;    
     VER_SELECT = 1;
@@ -62,38 +61,13 @@ void IO_init(void)
 //---------------------------------------------------
 void Uart_initial(void)
 {
-    // REGISTER 16-1: TxSTAx: TRANSMIT STATUS AND CONTROL REGISTER
-    TX1STA = 0x26;       // 0010 0110
-    // REGISTER 16-2: RCSTAx: RECEIVE STATUS AND CONTROL REGISTER
-    RC1STA = 0x90;       // 1001 0000
-    BAUDCON1 = 0xc8;     // 1100 1000
-    SPBRG1 = 103;        // 19200bps
-    SPBRGH1 = 0;
-    
-    
-    TX2STA = 0x26;       //00100110
-    RC2STA = 0x90;       //10010000
-    BAUDCON2 = 0xc8;     //11001000
-    SPBRG2 = 207;       //9600bps
-    SPBRGH2 = 0;
-    WPUB5 = 1;
-    RC2IE = 1;
+    Enable_Uart_IO();
+            
+    UART1_init();
+    UART2_init();
 }
 
-//---------------------------------------------------
-void Uart_initial_BD2(void)
-{   
-    TX2STA = 0x26;       //00100110
-    RC2STA = 0x90;       //10010000
-    BAUDCON2 = 0xc8;     //11001000
-    SPBRG2 = 207;       //9600bps
-    SPBRGH2 = 0;
-    WPUB5 = 1;
-    RC2IE = 1;
-}
-
-//---------------------------------------------------
-void Uart_initial_115200(void)
+void UART1_init(void)
 {
     // TxSTAx: TRANSMIT STATUS AND CONTROL REGISTER
     TX1STA = 0x26;       // 0010 0110 - 8-bit, 
@@ -104,8 +78,35 @@ void Uart_initial_115200(void)
     // mlin 
     SPBRG1 = 16;        // 115200 bps
 //    SPBRG1 = 103;       // 19200 bps
-    SPBRGH1 = 0;
+    SPBRGH1 = 0;    
 }
+
+//---------------------------------------------------
+void UART2_init(void)
+{   
+    TX2STA = 0x26;       //00100110
+    RC2STA = 0x90;       //10010000
+    BAUDCON2 = 0xc8;     //11001000
+    SPBRG2 = 207;       //9600bps
+    SPBRGH2 = 0;
+    WPUB5 = 1;
+    RC2IE = 1;
+}
+
+////---------------------------------------------------
+//void Uart_initial_115200(void)
+//{
+//    // TxSTAx: TRANSMIT STATUS AND CONTROL REGISTER
+//    TX1STA = 0x26;       // 0010 0110 - 8-bit, 
+//    // RCSTAx: RECEIVE STATUS AND CONTROL REGISTER
+//    RC1STA = 0x90;       //1001 0000  
+//    // BAUDCONx: BAUD RATE CONTROL REGISTER
+//    BAUDCON1 = 0xc8;     //11001000
+//    // mlin 
+//    SPBRG1 = 16;        // 115200 bps
+////    SPBRG1 = 103;       // 19200 bps
+//    SPBRGH1 = 0;
+//}
 
 //---------------------------------------------------
 void Uart_disable(void)

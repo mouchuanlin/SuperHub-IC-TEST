@@ -26,127 +26,28 @@
 // MAIN
 //
 int main(int argc, char** argv) 
-{
-    uint8_t cnt,rsp,temp;
-    uint8_t module_start_cnt;
-    uint8_t sms_time;
-	static uint8_t; // WDT_count;
-    
-    // System Init.
+{   
+    // System init - IO, timer, ADC, UART, interrupt
     init_system();
     
-    // TODO: What's this for???
-    init_stack_buffer();
+    if (powerup_flag)
+    {
+        // Buzzer for 10 times when power up - PORTx Output Latch bit value
+        buzzer_on(10);
+        // Programming default configuration in EE.
+        init_EEPROM();
+        powerup_flag = false;
+    }
     
-    // Global variable init.
-    module_start_cnt = 0;
-    init_global_variables();
-
-    // Buzzer for 10 times when power up - PORTx Output Latch bit value
-    buzzer_on(10);
-    
-    //Enable HIGH Priority interrupt 
-    GIE = 1;       
-
-//========================Module start(S)========================
-module_start:
-    SWDTEN = 1;
-    RF_wait_count = 0;
-    LED_flash_type = LED_REGISTER;
-    OSCCON = HIGH_FREQ_OSCCON;	// 4MHz
-    T0CON = HIGH_FREQ_T0CON;             //1*4000 = 50,000us
-    TMR0IF = 0;
-    TMR0IE = 1;
-    TMR0ON = 1;
-    HL_freq = 1;
-    
-    Enable_Uart_IO();
-    Uart_initial(); 
-    
-    // Modem init.
-    module_start_cnt++;
+    // Power up modem
     powerup_modem();
     
-    first_run();   
-    load_default();
-    
-    //----------- wait 10sec ----------
-    // TODO: What's this wait 10 seconds for???
-    delayseconds(10);     
-
-    //---- wait AT command respond-----
-    if (!wait_AT_cmd_response())        
-		goto module_start;
-        
-    //-------- wait SIM ready---------
-    if (!check_SIM_state())		
-        goto module_start;
- 
-    //-------- wait register network---------
-    if (!check_network_registration())
-        goto module_start;
-    
-    //--------- Alarm or Report ---------    
-alarm_start:    
-	if (!alarm_or_report())
-		goto module_start;
-	
-    //--------- Wait SMS Setting ---------
-	if (!wait_SMS_setting())
-		goto alarm_start;
-	
-//========================Module start(E)========================          
-    LED_RX_IN = 1;
-	
-	// TODO: why assign to 0 again ???
-    module_start_cnt = 0;   
-	
-    LED_flash_type = LED_OFF;
-    #ifdef MODULE_OFF_TYPE
-        MD_POWER = POWER_OFF;
-    #else
-        MD_RESET = 1;
-        delayseconds(1);
-        MD_RESET = 0;
-    #endif
-    Uart_disable();
-   // OSCCON = LOW_FREQ_OSCCON;
-   // HL_freq = 0;
-    //T0CON = LOW_FREQ_T0CON;             //1*4000 = 50,000us
-    //TMR0L = ((65535-LOW_FREQ_TMR0)%256);
-    //TMR0H = ((65535-LOW_FREQ_TMR0)/256);
-    TMR0IF = 0;
-    TMR0IE = 0;//
-    TMR0ON = 0;
-    PEIE = 1;
-    GIE = 1;      
-    SWDTEN = 0;
+    wait_AT_cmd_response();
+    //TL_module_first_run();    
     
 	while (TRUE)
 	{
-        //LED_flash_type = LED_OFF;;
-		process_running_system();
-        CLRWDT();
-		
-		// Events in queue
-		process_event_queue();
-		
-        // In SMS setup state???
-		if (!process_SMS_setup_state())
-			goto module_start;
-		
-        // Check ADC
-		process_ADC();
 
-        // RF interrupt
-		process_RF_interrupt();
-		
-        // Check supervisory state
-		process_supervisory();
-        
-		// Restart 
-		if (!process_restart())
-			goto module_start;
     }
 	  
     return (EXIT_SUCCESS);   
@@ -158,34 +59,61 @@ void init_system()
     OSCCON = HIGH_FREQ_OSCCON;  // 8MHz
     //MCLRE = 0;
     HL_freq = 1;
+    // Enable watchdog timer
+    // WDTEN<1:0>: Watchdog Timer Enable bits
     SWDTEN = 0;     
 
     IO_init();
     Uart_initial();      
     ADC_init();
     
+    // Init Timer0.
+    timer0_init();
+    
+    // Init interrupt
+    interrupt_init();
+}
+
+void timer0_init()
+{
+    // T0CON: TIMER0 CONTROL REGISTER
+    // 0x87 = b1000 0111 - Enable Timer0, 16 bit timer, 1:256 prescale value
     T0CON = HIGH_FREQ_T0CON;             //1*4000 = 50,000us
+    // Timer0 Register, High/Low Byte
     TMR0L = ((65535-HIGH_FREQ_TMR0)%256);
     TMR0H = ((65535-HIGH_FREQ_TMR0)/256);
     TMR0IF = 0;
     TMR0IE = 1;
-    
+}
+
+void interrupt_init()
+{
+    // INTEDG0: External Interrupt 0/1/2 Edge Select bit - rising edge.
     INTEDG0 = 1;
     INTEDG1 = 1;
     INTEDG2 = 1;
+    
     INT1IP = 1;     //High Priority
     INT2IP = 1;     //High Priority
+    
+    // IOCB: INTERRUPT-ON-CHANGE PORTB CONTROL REGISTER
     IOCB = 0x10;    //RB.4 IOC enable
     
     INTEDG0 = 0;    //Int0 falling edge
     INTEDG1 = 1;    //Int1 rising edge
+    
+    // Enable interrupt
     INT0IE = 1;     //Enable Int0 interrupt
     INT1IE = 1;     //Enable Int1 interrupt
     //INT2IE = 1;     //Enable Int2 interrupt
+    
     RBIE = 1;       //Enable IOC interrupt
 
-    RC1IE = 1;      //Enable UART0_RX interrupt
-    PEIE = 1;       //Enable LOW&HIGH Priority interrupt        
+    RC1IE = 1;      //Enable UART1_RX interrupt
+    PEIE = 1;       //Enable LOW&HIGH Priority interrupt   
+    
+    //Enable HIGH Priority interrupt 
+    GIE = 1; 
 }
 
 void init_stack_buffer()
@@ -249,8 +177,6 @@ void buzzer_on(uint8_t count)
 
 void powerup_modem()
 {
-    uint8_t cnt;
-
     MD_POWER = POWER_ON;
     delayseconds(2);
     MD_RESET = 1;
@@ -281,7 +207,8 @@ uint8_t wait_AT_cmd_response()
     //  4. 
     do{         
         ///// STEP 1. - change baudrate to 19200 bps in this function.
-        Uart_initial_115200();
+        //Uart_initial_115200();
+        //UART1_init();
         // mlin - setup modem baud rate
         ///// STEP 2. - +IPR to set modem baudrate to 19200 bps
         soutdata("AT+IPR=115200\r\n$");
@@ -293,7 +220,8 @@ uint8_t wait_AT_cmd_response()
         {
             delayseconds(3);
             ///// STEP 3. - We probably do need this since ???
-            Uart_initial_115200();
+            //Uart_initial_115200();
+            UART1_init();
             cnt = check_module_version(1);        
             if( cnt=='K' )
             {
@@ -524,7 +452,8 @@ uint8_t wait_SMS_setting()
                 if( check_csq()==0 )
                 {
                     ///// STEP 4. - Comment Uart_initial_115200() out. Call Uart_initial() to set to 19200.)
-                    Uart_initial_115200();
+                    //Uart_initial_115200();
+                    UART1_init();
                     //Uart_initial(); 
                     //soutdata("AT+IPR=19200\r\n$");
                     //wait_ok_respond(40);
@@ -550,8 +479,6 @@ uint8_t wait_SMS_setting()
 static uint8_t WDT_count = 0;
 void process_running_system()
 {       
-
-	
 	if( RF_wait_count==0)
 	{
 		SWDTEN = 1;
@@ -927,7 +854,7 @@ void process_RF_interrupt()
 		OSCCON = HIGH_FREQ_OSCCON;	// 4MHz
 		T0CON = HIGH_FREQ_T0CON;             //1*4000 = 50,000us
 		HL_freq = 1;
-		Uart_initial_BD2();
+		UART2_init();
 		CREN1 = 0;
 		RF_wait_count = 100;      
 		TMR0IE = 1;//
@@ -966,8 +893,9 @@ uint8_t process_restart()
 	return TRUE;
 }
 
+//void __interrupt() INTERRUPT_InterruptManagerHigh (void)
 void interrupt tc_int( void )
-{ 
+{
     uint8_t id[6];
     uint8_t zone,cnt;
     uint8_t temp;
@@ -989,10 +917,11 @@ void interrupt tc_int( void )
 void UART1_ISR()
 {
     uint8_t temp;
+    uint8_t junk;
         
     // RC1IE: EUSART1 Receive Interrupt Enable bit
     // RC1IF: EUSART1 Receive Interrupt Flag bit
-    if( RC1IE==1 && RC1IF==1 )
+    if ((RC1IE == 1) && (RC1IF == 1))
     {
         do{
         //    LED = ~LED;		
