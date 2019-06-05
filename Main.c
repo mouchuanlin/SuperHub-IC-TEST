@@ -30,21 +30,15 @@ int main(int argc, char** argv)
     // System init - IO, timer, ADC, UART, interrupt
     init_system();
     
-    if (powerup_flag)
-    {
-        // Buzzer for 10 times when power up - PORTx Output Latch bit value
-        buzzer_on(10);
-        // Programming default configuration in EE.
-        init_EEPROM();
-        powerup_flag = false;
-    }
+    // Buzzer for 10 times when power up - PORTx Output Latch bit value
+    buzzer_on(10);
     
-    // Power up modem
-    powerup_modem();
+    // Programming default configuration in EE.
+    init_EEPROM();
     
-    wait_AT_cmd_response();
-    //TL_module_first_run();    
-    
+    // Powerup modem, AT command to init modem.
+    init_modem();
+
 	while (TRUE)
 	{
 
@@ -165,14 +159,19 @@ uint8_t get_hub_type()
 
 void buzzer_on(uint8_t count)
 {
+    // Only run once during powerup.
+    if (!powerup_flag)
+        return;
+    
     for (uint8_t i = 0; i < count; i++)
-	{
+    {
         SPK = 1;
         delay5ms(20);
         SPK = 0;
         delay5ms(20);
         CLRWDT();
     }
+    powerup_flag = false;
 }
 
 void powerup_modem()

@@ -46,227 +46,108 @@ void delayseconds(uint16_t secs)
 }
 
 void init_EEPROM(void)
-{
-#ifdef DEBUG
-    uint8_t const APN[]="internet#";            //35#
-    //uint8_t const IP1[]="198.17.112.128#";       //01#
-    uint8_t const IP1[]="106.104.30.120#";
-#else
-    uint8_t const APN[]="#";                    //35#
-    uint8_t const IP1[]="#";                    //01#
-#endif
-#ifdef DEBUG
-    uint8_t const IP2[]="106.104.30.120#";                    //02#
-    uint8_t const IP3[]="106.104.30.120#";                    //03#
-    uint8_t const IP4[]="106.104.30.120#";                    //04#
-    uint8_t const IP_OTA[]="106.104.30.120#";                  //36#
-    uint16_t const PORT1 = 2020;                   //31#   
-    uint16_t const PORT2 = 2020;                   //32#   
-    uint16_t const PORT3 = 2020;                   //33#   
-    uint16_t const PORT4 = 2020;                   //34#   
-    uint16_t const PORT_OTA = 3030;                   //37# 
-#else
-    uint8_t const IP2[]="#";                    //02#
-    uint8_t const IP3[]="#";                    //03#
-    uint8_t const IP4[]="#";                    //04#
-    uint8_t const IP_OTA[]="#";                  //36#
-    uint16_t const PORT1 = 2020;                   //31#   
-    uint16_t const PORT2 = 2020;                   //32#   
-    uint16_t const PORT3 = 2020;                   //33#   
-    uint16_t const PORT4 = 2020;                   //34#   
-    uint16_t const PORT_OTA = 2020;                   //37#   
-#endif
-    uint8_t const ACCESS_CODE[]="1111#";        //05#
-    uint8_t const PROGRAM_ACK=0x01;              //06#
-    uint8_t const TEST_FREQ=15;                  //07#
-    uint8_t const SERVER_ACK_TIME=45;            //08#
-    uint8_t const UNIT_ACCNT[]="4007#";         //10#
-    uint8_t const LINE_CARD[]="7548#";             //11#
-    uint8_t const ZONE1='0';                  //12#
- //   uint8_t const ZONE2=20;                  //13#
-    uint8_t const TP_PIN=0;                  //14#
-    uint8_t const CYCLE = 3;                  //15#
-    uint8_t const RETRY = 30;                  //16#
-#ifndef DEBUG
-    uint8_t const SMS_WAIT_TIME = 10;             //09#
-#else
-    uint8_t const SMS_WAIT_TIME = 3;             //09#
-#endif
-    uint8_t const ENCRYPTION = 1;                 //95#
-   
-    uint8_t temp,cnt;
-    uint16_t int_d;
-    uint8_t page,addr;
+{   
     //---------Check Version-----------
-    if( read_ee(0x00,0x00)==VERSION[0] )
-    {
-        if( read_ee(0x00,0x01)==VERSION[1] )
-        {
-            if( read_ee(0x00,0x02)==VERSION[2] )
-                return;
-        }       
-    }
+    // This make sure we only run once.
+    if((read_ee(EE_PAGE0,  VER_ADDR0) == VERSION[0]) && 
+		(read_ee(EE_PAGE0, VER_ADDR1) == VERSION[1]) && 
+		(read_ee(EE_PAGE0, VER_ADDR2) == VERSION[2]))
+        return;
+
     //---------APN-----------
-    page = 0x00;
-    addr = 0x10;
-    cnt = 0;
-    do{
-        temp = APN[cnt];
-        write_ee(page,addr+cnt,temp);
-    }while(++cnt<31&&temp!='#');
+    write_EE_setting(EE_PAGE0, APN_ADDR, APN);
     //---------IP1-----------
-    page = 0x00;
-    addr = 0x30;
-    cnt = 0;
-    do{
-        temp = IP1[cnt];
-        write_ee(page,addr+cnt,temp);
-        cnt++;
-    }while(temp!='#');
+    write_EE_setting(EE_PAGE0, IP1_ADDR, IP1);
     //---------IP2-----------
-    page = 0x00;
-    addr = 0x50;
-    cnt = 0;
-    do{
-        temp = IP2[cnt];
-        write_ee(page,addr+cnt,temp);
-        cnt++;
-    }while(temp!='#');
+    write_EE_setting(EE_PAGE0, IP2_ADDR, IP2);
     //---------IP3-----------
-    page = 0x00;
-    addr = 0x70;
-    cnt = 0;
-    do{
-        temp = IP3[cnt];
-        write_ee(page,addr+cnt,temp);
-        cnt++;
-    }while(temp!='#');
+    write_EE_setting(EE_PAGE0, IP3_ADDR, IP3);
     //---------IP4-----------
-    page = 0x00;
-    addr = 0x90;
-    cnt = 0;
-    do{
-        temp = IP4[cnt];
-        write_ee(page,addr+cnt,temp);
-        cnt++;
-    }while(temp!='#');
+    write_EE_setting(EE_PAGE0, IP4_ADDR, IP4);
     //---------PORT1---------
-    page = 0x00;
-    addr = 0xB0;
-    int_d = PORT1;
-    write_ee(page,addr,(int_d>>8));
-    write_ee(page,(addr+1),(int_d&0x00ff));
+    write_ee(EE_PAGE0, PORT1_ADDR, (PORT1 >> 8));
+    write_ee(EE_PAGE0, (PORT1_ADDR+1), (PORT1 & 0x00ff));
     //---------PORT2---------
-    page = 0x00;
-    addr = 0xB2;
-    int_d = PORT2;
-    write_ee(page,addr,(int_d>>8));
-    write_ee(page,(addr+1),(int_d&0x00ff));
+    write_ee(EE_PAGE0, PORT2_ADDR, (PORT2 >> 8));
+    write_ee(EE_PAGE0, (PORT2_ADDR+1), (PORT2 & 0x00ff));
     //---------PORT3---------
-    page = 0x00;
-    addr = 0xB4;
-    int_d = PORT3;
-    write_ee(page,addr,(int_d>>8));
-    write_ee(page,(addr+1),(int_d&0x00ff));
+    write_ee(EE_PAGE0, PORT3_ADDR, (PORT3 >> 8));
+    write_ee(EE_PAGE0, (PORT3_ADDR+1),(PORT3 & 0x00ff));
     //---------PORT4---------
-    page = 0x00;
-    addr = 0xB6;
-    int_d = PORT4;
-    write_ee(page,addr,(int_d>>8));
-    write_ee(page,(addr+1),(int_d&0x00ff));
+    write_ee(EE_PAGE0, PORT4_ADDR, (PORT4 >> 8));
+    write_ee(EE_PAGE0, (PORT4_ADDR+1), (PORT4 & 0x00ff));
     //---------ACCESS_CODE-----------
-    page = 0x00;
-    addr = 0xC0;
-    cnt = 0;
-    do{
-        temp = ACCESS_CODE[cnt];
-        write_ee(page,addr+cnt,temp);
-        cnt++;
-    }while(temp!='#');
+    write_EE_setting(EE_PAGE0, ACCESS_CODE_ADDR, ACCESS_CODE);
     //---------PROGRAM_ACK-----------
-    write_ee(0x00,0xC7,PROGRAM_ACK);                //06#
+    write_ee(EE_PAGE0, PROGRAM_ACK_ADDR, PROGRAM_ACK);                //06#
     //---------TEST_FREQ-----------
-    write_ee(0x00,0xC8,TEST_FREQ);                  //07#
+    write_ee(EE_PAGE0, TESTING_FREQ_ADDR, TEST_FREQ);                  //07#
     //---------SERVER_ACK_TIME-----------
-    write_ee(0x00,0xC9,SERVER_ACK_TIME);            //08#
+    write_ee(EE_PAGE0, SERVER_ACK_TIME_ADDR, SERVER_ACK_TIME);            //08#
     //---------SMS_WAIT_TIME-----------
-    write_ee(0x00,0xB8,SMS_WAIT_TIME);              //09#
+    write_ee(EE_PAGE0, SMS_WAIT_TIME_ADDR, SMS_WAIT_TIME);              //09#
     //---------UNIT_ACCNT-----------
-    page = 0x00;                                    //10#
-    addr = 0xCA;
-    cnt = 0;
-    do{
-        temp = UNIT_ACCNT[cnt];
-        write_ee(page,addr+cnt,temp);
-        cnt++;
-    }while(temp!='#');
-    //---------LINE_CARD-----------                 
-    page = 0x00;                                    //11#
-    addr = 0xD0;
-    cnt = 0;
-    do{
-        temp = LINE_CARD[cnt];
-        write_ee(page,addr+cnt,temp);
-        cnt++;
-    }while(temp!='#');    
+    write_EE_setting(EE_PAGE0, UNIT_ACCT_ADDR, UNIT_ACCNT);
+    //---------LINE_CARD-----------                   
+    write_EE_setting(EE_PAGE0, LINE_CARD_ADDR, LINE_CARD);    
     //-----------ZONE---------------                
-    write_ee(0,0xB9,ZONE1);                         //12#
- //   write_ee(0,0xBA,ZONE2);                          //13#
-    write_ee(0x00,0xBB,TP_PIN);                      //14#
-    write_ee(0x00,0xBC,CYCLE);                      //15#
-    write_ee(0x00,0xBD,RETRY);                      //16# 
+    write_ee(EE_PAGE0, ZONE1_ADDR, ZONE1);				//12#
+ //   write_ee(0,0xBA,ZONE2);       					//13#
+    write_ee(EE_PAGE0, TP_PIN_ADDR, TP_PIN);            //14#
+    write_ee(EE_PAGE0, CYCLE_ADDR, CYCLE);              //15#
+    write_ee(EE_PAGE0, RETRY_TIMES_ADDR, RETRY);        //16# 
     //---------ENCRYPTION-----------
-    write_ee(0x00,0xE0,ENCRYPTION);                 //95#
+    write_ee(EE_PAGE0, ENCRYPTION_ADDR, ENCRYPTION);         //95#
         
-    write_ee(0x00,0x0f,0x00);   //MM
+	// TODO: What's this???
+    write_ee(EE_PAGE0, 0x0f, 0x00);   //MM
     
-    // Config setting 41#~56# device ID
-    for( cnt=0;cnt<(16*8);cnt++ )      //28
-        write_ee(1,cnt,0);    
+    // Device ID - 41#~56#
+    for(uint8_t i = 0; i <(16*8); i++ )      		//28
+        write_ee(EE_PAGE1, i, 0);    
     
     load_ID_to_buffer();
     
-    //---------IP OTA---------      //36
-    page = 0x01;
-    addr = 0xD0;
-    cnt = 0;
-    do{
-        temp = IP_OTA[cnt];
-        write_ee(page,addr+cnt,temp);
-        cnt++;
-    }while(temp!='#');
-    
-    //---------PORT OTA---------    //37
-    page = 0x01;
-    addr = 0xF0;
-    int_d = PORT_OTA;
-    write_ee(page,addr,(int_d>>8));
-    write_ee(page,(addr+1),(int_d&0x00ff));
+    //---------IP OTA---------      		//36
+    write_EE_setting(EE_PAGE1, IP_OTA_ADDR, IP_OTA); 
+    //---------PORT OTA---------    		//37
+    write_ee(EE_PAGE1, PORT_OTA_ADDR, (PORT_OTA >> 8));
+    write_ee(EE_PAGE1, (PORT_OTA_ADDR+1), (PORT_OTA & 0x00ff));
     
     //------------------------------
-    write_ee(0x00,0x00,VERSION[0]);
-    write_ee(0x00,0x01,VERSION[1]);
-    write_ee(0x00,0x02,VERSION[2]);
+    write_ee(EE_PAGE0, VER_ADDR0, VERSION[0]);
+    write_ee(EE_PAGE0, VER_ADDR1, VERSION[1]);
+    write_ee(EE_PAGE0, VER_ADDR2, VERSION[2]);
     
-    // TODO: What's this for???
     load_default();
 }
 
 void load_default(void)
 {
-    encryption = read_ee(0x00,0xE0);
-    respond_day = read_ee(0x00,0xC8);
-    test_enable = read_ee(0x00,0xBB);
+    encryption = read_ee(EE_PAGE0, ENCRYPTION_ADDR);
+    respond_day = read_ee(EE_PAGE0, TESTING_FREQ_ADDR);
+    test_enable = read_ee(EE_PAGE0, TP_PIN_ADDR);
 }
 
+void write_EE_setting(uint8_t page, uint8_t addr, uint8_t const setting[])
+{
+    uint8_t temp, cnt = 0;
+
+    do {
+        temp = setting[cnt];
+        write_ee(page, addr+cnt, temp);
+        cnt++;
+    } while (temp != '#');    
+}
 
 void check_led_type(void)
 {
-    if( read_ee(0x00,0x10)=='#'||read_ee(0x00,0x30)=='#')    
+    if((read_ee(EE_PAGE0, APN_ADDR)=='#') || (read_ee(EE_PAGE0, IP1_ADDR)=='#'))    
     {
         LED_flash_type = LED_NO_SET;
         IP_type = 0;
-    }else
+    }
+    else
     {
         LED_flash_type = LED_STANDBY;
         IP_type = 1;

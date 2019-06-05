@@ -40,15 +40,23 @@ void out_sbuf2(uint8_t tmp)
     TX2REG = tmp;
 }
 
+void init_modem()
+{
+    // Power up modem
+    powerup_modem(); 
+    
+    wait_AT_cmd_response();
+    //TL_module_first_run();  
+}
+
 //---------------------------------------------------
 uint8_t wait_ok_respond(uint16_t count)
 {
   	uint8_t temp;
-    uint8_t buffer[20]={0},buffer_p;
+    uint8_t buffer[20]={0}, buffer_p = 0;
     CREN1 = 0;
     RC1IE = 0;
     CREN1 = 1;
-    buffer_p = 0;
     CLRWDT();
   	do{
         T3CON = 0x71;
@@ -62,9 +70,9 @@ uint8_t wait_ok_respond(uint16_t count)
                 // RCREGx
 		 	 	temp=RC1REG;
                 buffer[buffer_p] = temp;
-                if( ++buffer_p>=20 )
+                if( ++buffer_p >= 20 )
                     buffer_p = 19;
-                if( temp==0x0a )
+                if (temp == LF)     // 0x0A, \n
                 {
                     if( buffer[0]=='O'&&buffer[1]=='K' )
                         temp = 'K';
@@ -85,6 +93,7 @@ uint8_t wait_ok_respond(uint16_t count)
         TMR3IF = 0;
         //LED = ~LED;
   	}while(--count!=0);
+    
   	TMR3ON = 0;
     RC1IE = 1;
   	return('N');
