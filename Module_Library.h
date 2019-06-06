@@ -20,8 +20,8 @@ extern "C" {
 #define CR 		0x0D
 #define LF 		0x0A
     
-void out_sbuf(uint8_t);
-void soutdata(uint8_t*);
+void out_sbuf(uint8_t tmp);
+void soutdata(uint8_t *dat);
 void out_sbuf2(uint8_t);
 uint8_t wait_ok_respond(uint16_t);
 uint8_t check_module_run(void);
@@ -30,8 +30,11 @@ uint8_t check_register(uint8_t);
 uint8_t check_csq(void);
 uint8_t check_module_version(uint8_t type);
 void write_EE_setting(uint8_t page, uint8_t addr, uint8_t const setting[]);
-void init_modem();
+//void init_modem();
 extern void powerup_modem();
+uint8_t GM_internet_init(void);
+uint8_t Check_OTA(void);
+
     
 #ifdef	__cplusplus
 }

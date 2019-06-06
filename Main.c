@@ -37,7 +37,8 @@ int main(int argc, char** argv)
     init_EEPROM();
     
     // Powerup modem, AT command to init modem.
-    init_modem();
+    //init_modem();
+    start_modem();
 
 	while (TRUE)
 	{
@@ -122,6 +123,67 @@ void init_stack_buffer()
         }while(++cnt<LOG_MAX_T);
     }
 }
+
+void start_modem()
+{
+//    CLRWDT();
+//    MD_POWER = POWER_ON;
+//    //__delay_ms(25000);
+//    delayseconds(25);
+    
+    powerup_modem();
+    
+    while (!md_config_ok())
+        restart_modem();
+    //md_started = true;
+}
+
+bool md_config_ok()
+{
+    if (!wait_AT_cmd_response())        
+		return false;
+        
+    //-------- wait SIM ready---------
+    if (!check_SIM_state())		
+		return false;
+ 
+    //-------- wait register network---------
+    if (!check_network_registration())
+		return false;
+    
+    //--------- Alarm or Report ---------    
+
+	if (!alarm_or_report())
+		return false;
+	
+    //--------- Wait SMS Setting ---------
+	if (!wait_SMS_setting())
+    	return false;
+    
+    return true;
+}
+
+void restart_modem()
+{
+    CLRWDT();
+    MD_POWER = POWER_OFF;
+//    __delay_ms(5000);
+    delayseconds(5);
+//    MD_POWER = POWER_ON;
+////    __delay_ms(25000);
+//    delayseconds(25);
+    
+    powerup_modem();
+}
+
+void stop_modem()
+{
+    MD_POWER = POWER_OFF;
+//    __delay_ms(5000);
+    //md_started = false;
+}
+
+
 
 void init_global_variables()
 {

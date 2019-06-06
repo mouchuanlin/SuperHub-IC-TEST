@@ -134,6 +134,15 @@ void handle_smoker();
 void handle_learn_btn_pressed();
 
 
+// Jen's simple_state_machine pronect
+void start_modem();
+void restart_modem();
+void stop_modem();
+
+bool md_config_ok();
+
+
+
 //uint8_t Alarm_f = 0;
 uint8_t Standby_f = 0;
 uint8_t Error_f = 0;

@@ -4,12 +4,6 @@
 #include <pic18f26k22.h>
 #include <xc.h>
 
-void putch(char data) {
-    while( ! TXIF) // check buffer
-        continue; // wait till ready
-    
-    TXREG = data; // send data
-}
 
 void out_sbuf(uint8_t tmp)
 {
@@ -40,14 +34,6 @@ void out_sbuf2(uint8_t tmp)
     TX2REG = tmp;
 }
 
-void init_modem()
-{
-    // Power up modem
-    powerup_modem(); 
-    
-    wait_AT_cmd_response();
-    //TL_module_first_run();  
-}
 
 //---------------------------------------------------
 uint8_t wait_ok_respond(uint16_t count)

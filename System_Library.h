@@ -115,6 +115,7 @@ uint8_t add_ID(uint8_t *ptr);
 uint8_t del_ID(uint8_t id);
 uint8_t check_supervisory(void);
 uint8_t send_trigger_to_RF(uint8_t type);
+void rsp_SUP_LBT(void);
 
 
 #ifdef	__cplusplus
