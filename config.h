@@ -196,7 +196,24 @@ uint8_t 	rx2_cnt = 0;
 uint8_t 	rx2_buf[RX2_BUF_MAX];
 
 
-// 
+// Powerup flag for buzzer
 static uint8_t powerup_flag = true;
+
+
+typedef enum State {
+	IDLE_Q_EMPTY,
+	IDLE_Q_NOT_EMPTY,
+	SMS,
+	ADD_SENSOR,
+	DEL_SENSOR,
+    SEND_TEST,
+	RF_INT,
+    TEMPER_INT,
+    SUPERVISORY,
+    ADC,
+    LED_CTRL  
+} STATE;
+
+STATE myStateMachine;
 	
 #endif	/* CONFIG_H */
