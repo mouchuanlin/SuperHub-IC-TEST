@@ -14,24 +14,28 @@
 #include "config.h"
 
 
-/*****************************************************
- * FUNCTION PROTOTYPES
- ****************************************************/
-void check_state();
-void control_leds();
+
 
 
 /*****************************************************
  * VARIABLES
  ****************************************************/
-enum STATE {
-    OPERATIONAL,
-    ADD_SENSOR,
-    DELETE_SENSOR,
-    LISTEN_SMS
-};
-
-enum STATE state;
+typedef enum State {
+    POWER_UP,
+    INIT,
+//	IDLE_Q_EMPTY,
+//	IDLE_Q_NOT_EMPTY,
+	SMS,
+	ADD_SENSOR,
+	DEL_SENSOR,
+    SEND_TEST,
+	RF_INTERRUPT,
+    TEMPER_INT,
+    SUPERVISORY,
+    ADC,
+    LED_CTRL,
+    OPERATIONAL
+} STATE;
 
 enum LED_PATTERNS {
     IDLE,           // LEDs off
@@ -50,7 +54,25 @@ enum LED_PATTERNS {
 };
 enum LED_PATTERNS ledPattern;
 
+/*****************************************************
+ * FUNCTION PROTOTYPES
+ ****************************************************/
+void check_state(STATE *state);
+void control_leds();
+
+void check_button();
+void check_alarm_tamper();
+void add_sensor() ;
+void delete_sensor()  ;
+void check_supervisory_NEW();
+
+
+
+
 bool readyForSleep = false;
+
+bool G_LED_STATE = 1, B_LED_STATE = 1;
+uint8_t g_tmr0_tick = 0, b_tmr0_tick = 0;
 
 
 #endif	/* STATE_H */

@@ -19,6 +19,10 @@
  ****************************************************/
 void save_sensors();                // Save learned sensor IDs to EEPROM
 void restore_sensors();             // Recall learned sensor IDs from EEPROM
+void clear_queue();
+bool queue_is_empty();
+uint8_t get_next_from_queue(uint8_t *index);
+
 
 
 /*****************************************************

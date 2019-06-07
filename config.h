@@ -99,6 +99,9 @@
 // Use project enums instead of #define for ON and OFF.
 
 #define MODULE_OFF_TYPE   
+
+#define _100milliseconds    780         // Timer0 interval for 8MHz clk
+#define TMR0_CFG            0x87
     
     
 // Forward declaration.
@@ -115,14 +118,13 @@ uint8_t check_SIM_state();
 void 	init_stack_buffer();
 uint8_t wait_AT_cmd_response();
 uint8_t wait_SMS_setting();
-uint8_t alarm_or_report();
 void 	process_event_queue();
 void 	process_ADC();
 void 	process_RF_interrupt();
 uint8_t process_SMS_setup_state();
 uint8_t process_restart();
 void 	process_supervisory();
-void 	process_running_system();    
+
 
 void UART1_ISR();
 void UART2_ISR();
@@ -132,6 +134,11 @@ void superhub_ISR();
 void handle_LED();
 void handle_smoker();
 void handle_learn_btn_pressed();
+void start_timer0();
+void reload_timer0();
+void enable_timer3();
+void reload_timer3_2s();
+void reload_timer3_5s();
 
 
 // Jen's simple_state_machine pronect
@@ -196,24 +203,13 @@ uint8_t 	rx2_cnt = 0;
 uint8_t 	rx2_buf[RX2_BUF_MAX];
 
 
-// Powerup flag for buzzer
-static uint8_t powerup_flag = true;
+bool g_op_state = false;
 
 
-typedef enum State {
-	IDLE_Q_EMPTY,
-	IDLE_Q_NOT_EMPTY,
-	SMS,
-	ADD_SENSOR,
-	DEL_SENSOR,
-    SEND_TEST,
-	RF_INT,
-    TEMPER_INT,
-    SUPERVISORY,
-    ADC,
-    LED_CTRL  
-} STATE;
 
-STATE myStateMachine;
+
+
+
+
 	
 #endif	/* CONFIG_H */

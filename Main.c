@@ -22,6 +22,10 @@
 #include "Module_LB_Telit.h"
 #include "emc_library.h"
 
+#include "state.h"
+
+STATE myState = POWER_UP;
+
 //
 // MAIN
 //
@@ -36,13 +40,21 @@ int main(int argc, char** argv)
     // Programming default configuration in EE.
     init_EEPROM();
     
-    // Powerup modem, AT command to init modem.
-    //init_modem();
+    // Powerup modem, send AT command to init modem.
     start_modem();
 
 	while (TRUE)
-	{
-
+	{   
+        //g_op_state = true;
+        if (g_op_state)
+        {
+            check_state(&myState);
+        }
+        else
+        {
+            SLEEP();							
+            NOP();
+        }
     }
 	  
     return (EXIT_SUCCESS);   
@@ -63,7 +75,8 @@ void init_system()
     ADC_init();
     
     // Init Timer0.
-    timer0_init();
+    // timer0_init();
+    start_timer0();
     
     // Init interrupt
     interrupt_init();
@@ -79,6 +92,50 @@ void timer0_init()
     TMR0H = ((65535-HIGH_FREQ_TMR0)/256);
     TMR0IF = 0;
     TMR0IE = 1;
+}
+
+// Timer0 used to control LEDs.
+void start_timer0()
+{
+    // T0CON: TIMER0 CONTROL REGISTER
+    /* t0con = 0x87: enable timer0, use as 16-bit counter, transition on
+     * internal instruction cycle, assign prescaler of: 1:256.
+     * Timer0 used to control LEDs.
+     */
+    T0CON = TMR0_CFG;             //1*4000 = 50,000us
+    TMR0L = ((65535-_100milliseconds)%256);//for 8MHz
+    TMR0H = ((65535-_100milliseconds)/256);
+    TMR0IF = 0;
+    TMR0IE = 1;
+    INTCONbits.GIE = 1;
+}
+
+void reload_timer0()
+{
+    TMR0L = ((65535-_100milliseconds)%256);//for 8MHz
+    TMR0H = ((65535-_100milliseconds)/256);
+}
+
+void enable_timer3()
+{
+    T3CON = 0b00110001;//    0x71;
+    INTCONbits.GIE = 0;
+    INTCONbits.PEIE = 1;
+    PIE2bits.TMR3IE = 1;
+    PIR2bits.TMR3IF = 0;
+    INTCONbits.GIE = 1;
+}
+/* Control button press timeout*/
+void reload_timer3_2s()
+{
+    TMR3H = 0x30;
+    TMR3L = 0;
+}
+
+void reload_timer3_5s()
+{
+    TMR3H = 0x78;
+    TMR3L = 0;
 }
 
 void interrupt_init()
@@ -151,10 +208,10 @@ bool md_config_ok()
     if (!check_network_registration())
 		return false;
     
-    //--------- Alarm or Report ---------    
-
-	if (!alarm_or_report())
-		return false;
+//    //--------- Alarm or Report ---------    
+//
+//	if (!alarm_or_report())
+//		return false;
 	
     //--------- Wait SMS Setting ---------
 	if (!wait_SMS_setting())
@@ -221,9 +278,9 @@ uint8_t get_hub_type()
 
 void buzzer_on(uint8_t count)
 {
-    // Only run once during powerup.
-    if (!powerup_flag)
-        return;
+//    // Only run once during powerup.
+//    if (!my_powerup_flag)
+//        return;
     
     for (uint8_t i = 0; i < count; i++)
     {
@@ -233,7 +290,6 @@ void buzzer_on(uint8_t count)
         delay5ms(20);
         CLRWDT();
     }
-    powerup_flag = false;
 }
 
 void powerup_modem()
@@ -445,44 +501,6 @@ uint8_t check_network_registration()
 	return TRUE;    
 }
 
-uint8_t alarm_or_report()
-{
-	uint8_t cnt,rsp,temp;
-	
-    if( LED_flash_type==LED_STANDBY )
-    {
-        LED_flash_type = LED_INTERNET;
-        rsp = check_emc_stack();
-        if( rsp=='U' )
-        {
-            #ifdef MODULE_OFF_TYPE
-                MD_POWER = POWER_OFF;
-             #else
-                MD_RESET = 1;
-            #endif
-			// TODO: what's this for???
-			delayseconds(30);
-            #ifndef MODULE_OFF_TYPE
-                MD_RESET = 0;
-            #endif
-            //goto module_start;
-			return FALSE;
-        }
-        
-        if( OTA_flag==1 )
-        {
-            rsp = Check_OTA();
-            if( rsp=='E' )
-                OTA_flag = 2;
-            else OTA_flag = 0;
-        }
-    }
-    check_led_type();	
-	
-	return TRUE;
-}
-
-
 uint8_t wait_SMS_setting()
 {
 	uint8_t cnt,rsp,temp;
@@ -537,310 +555,7 @@ uint8_t wait_SMS_setting()
 	return TRUE;
 }
 
-static uint8_t WDT_count = 0;
-void process_running_system()
-{       
-	if( RF_wait_count==0)
-	{
-		SWDTEN = 1;
-		SLEEP();   
-		NOP();
-		NOP();
-		//SWDTEN = 0;
-		if( ++WDT_count>=3 )
-		{            
-			WDT_count = 0;
-			//LED_G = ~LED_G;
-			if( first_test!=0 )
-			{
-				first_test--;
-				if( first_test!=0 )
-					first_test--;
-			}
-
-			if( VER_SELECT==1&&TEST_PIN==1 )
-			{
-				if( ++test_9sec_count==45 )   //100ms*90
-					add_event(TEST_PIN_T,0);
-			}else test_9sec_count = 0;
-	
-			if( ++adc_count>=(18000*0.9888) )       //[3600*10]*100ms=3600sec=1hr            //0.979  -1.56
-			{            
-				chk_supervisory++;    //----add supervisory
-				adc_count = 0;   
-				if( ++Respond_T_Hour>=24 )       //24
-				{
-					Respond_T_Hour = 0;
-					Respond_T_Day++;
-					if( Respond_T_Day>= respond_day )         
-					{
-						Respond_T_Day = 0;
-						add_event(TEST_CYCLE_S,0);             
-						rsp_SUP_LBT();
-						OTA_flag = 1;
-					}
-					if( BT_S_respond!=0 )
-						BT_S_respond--;
-					if( BT_L_respond!=0 )
-						BT_L_respond--;
-					if( EOL_respond!=0 )
-						EOL_respond--;
-					if( OTA_flag==2 )
-						OTA_flag = 1;
-				}            
-			}else if( (adc_count%300)==0 )        //every 10 mins check low battery
-			{
-				ADC_time = 1;
-			}
-		   
-			if( retry_count!=0 )
-			{
-				retry_count--;
-				if( retry_count!=0 )               
-					retry_count--;
-			}
-	
-			if( led_count!=0 )
-			{
-				if( --led_count==0 )
-				{
-					LED_RX_IN = 1;
-					LED_RX_OUT = 1;
-				}else{
-					if( --led_count==0 )
-					{
-						LED_RX_IN = 1;
-						LED_RX_OUT = 1;
-					}                        
-				}
-			}
-		
-			if( tamper_status!=0&&TAMPER_PIN==1  )
-			{
-				if( ++tamper_status>2 )
-				{
-					if( first_tamper==0 )                    
-						add_event(TAMPER_CLOSE_T,1);
-					first_tamper = 0;
-					tamper_status = 0;
-					SPK = 1;
-				}
-			}   
-	
-			if( learn_delay!=0 )
-			{
-				learn_delay--;
-				if( learn_delay!=0 )            
-					learn_delay--;                    
-			}
-		
-			if( learning_mode == KEY_NONE )
-			{                
-				if( retry_count==0 )
-				{
-					LED_B = 1;
-					LED_G = 1;
-				}else       //new add V104
-				{
-					LED_count++;
-					if( LED_count < 2 )                
-					{
-						LED_G = 0;     
-						LED_B = 0;
-					}
-					else
-					{
-						LED_G = 1;
-						LED_B = 1;
-					}                
-					if( LED_count>=25 )
-						LED_count = 0;
-				}
-			
-			}else{  
-				if( ++exit_learn>=300 )     //100*100ms=10Sec
-					learning_mode = KEY_NONE;
-				if( learning_mode==KEY_IN_LEARN)
-				{
-					LED_B = 0;
-					LED_G = 0;
-				}else if( learning_mode==KEY_ADD_ID )
-				{
-					LED_count++;
-					if( LED_count < 2 )                
-						LED_B = 0;     
-					else LED_B = 1;
-					LED_G = 0;
-					if( LED_count>=10 )
-						LED_count = 0;
-				}
-				else if( learning_mode==KEY_DEL_ID )
-				{
-					LED_count++;
-					if( LED_count < 2 )                
-						LED_G = 0;     
-					else LED_G = 1;
-					LED_B = 0;
-					if( LED_count>=10 )
-						LED_count = 0;          
-				}
-			}
-			if( ver_select == SMOKER )
-			{
-				if( alarm_count!=0 )
-				{
-					if( ALARM_PIN==1 )
-					{
-						if( ++alarm_count>=5 )
-						{
-							add_event(SMOKE_ALARM_T,1); 
-						// send_trigger_to_RF(1);
-							alarm_count = 0;
-						}
-					}else alarm_count = 0;
-				}
-				if( ERROR_PIN==1 )
-				{
-					if( ++err_count>=5 )   //100ms*10 = 1 sec
-					{
-						if( err_count==5 )
-						{
-						//   if( alarm_out(TAMPER_OPEN_T)==0 )
-						//      Tamper_open_f = 1;
-							add_event(TAMPER_OPEN_T,1);
-						}
-						err_count = 5;
-					}
-			   }else
-				{
-					if( err_count>=5 )
-					{
-					  //  if( alarm_out(TAMPER_CLOSE_T)==0 )
-						//    Tamper_close_f = 1;
-							add_event(TAMPER_CLOSE_T,1);
-					}
-					err_count = 0;
-				}   
-	
-				if( Standby_f==1 )
-				{
-					Standby_f = 0;
-					standby_count = 0;
-				}else{
-					standby_count++;            //100ms*4000=400Sec
-					if( standby_count>= 2000)
-					{
-						standby_count = 0;
-						Smoke_respond = 1;
-					}
-				}
-	
-				if( Error_f==1 )
-				{
-					Error_f = 0;
-					error_count++;
-					error_time_detect = 0;
-				}else
-				{                
-					if( error_count!=0 )
-					{
-						if( ++error_time_detect>=150 )  //100ms*300=30sec
-						{                    
-							if( error_count==1 )            
-							{
-								if( ++error_status_count>=5 )
-								{
-									if( BT_S_respond==0 )
-									{
-										add_event(LOW_BATTERY_T,1);
-										error_status_count = 0;
-										BT_S_respond = BT_EOL_RESEND;
-									}
-								}   
-							}else if( error_count==3 )
-							{
-								if( ++error_status_count>=5 )
-								{
-									if( EOL_respond==0 )
-									{
-										add_event(EOL_T,1);
-										error_status_count = 0;
-										EOL_respond = BT_EOL_RESEND;
-									}
-								}
-							}else error_status_count = 0;
-							error_count = 0;
-							error_time_detect = 0;                                            
-						}   
-					}else
-					{
-						if( ++error_time_detect>=150 )  //100ms*300=30sec
-						{ 
-							error_time_detect = 0;   
-							error_status_count = 0;                    
-						}
-					}
-				} 
-			}             
-			if( test_count!=0 )
-			{
-				test_time_detect++;
-				if( learning_mode == KEY_NONE )
-				{
-					if( test_count==5&&test_time_detect>5 ) //1sec
-					{
-						learning_mode = KEY_IN_LEARN;
-						exit_learn = 0;
-						test_count = 0;
-						test_time_detect = 0;
-					}else if( test_time_detect>=10 )  //100ms*20=2sec
-					{
-						test_count = 0;
-						test_time_detect = 0;
-					}
-				}else{                                                        
-					if( ++test_time_detect>=10 )  //100ms*20=2sec
-					{               
-						if( test_count==1 )
-						{
-							Test_click = 1;
-							add_event(GO_SMS_T,0);
-							learning_mode = KEY_NONE;
-						}else if( test_count==2 )
-						{
-							learning_mode = KEY_ADD_ID;                        
-						}else if( test_count==3 )
-						{
-							learning_mode = KEY_DEL_ID;                   
-						}else if( test_count==4 )
-						{
-							add_event(TEST_PIN_T,0);
-						 //   send_trigger_to_RF(0);
-							learning_mode = KEY_NONE;
-						}else if( test_count==5 )
-						{
-							learning_mode = KEY_NONE;
-						}                         
-						test_count = 0;
-						test_time_detect = 0;
-					}
-				}           
-			}
-			if( RF_wait_count!=0 )
-			{
-				LED_G = 0;
-				if( --RF_wait_count==0 )
-				{           
-				 //   OSCCON = LOW_FREQ_OSCCON;
-				 //   HL_freq = 0;
-					TMR0ON = 0;
-					//T0CON = LOW_FREQ_T0CON;             //1*4000 = 50,000us
-				}
-			}
-		}
-	}
-}
-
+    
 void process_event_queue()
 {
 	// Event queue is not empty
@@ -964,11 +679,11 @@ void interrupt tc_int( void )
 	// UART1 ISR - modem
     UART1_ISR();
 	
-	// UART2 ISR - RF receiver
-    UART2_ISR();
+	//UART2 ISR - RF receiver
+    //UART2_ISR();
 	
-	smoker_ISR();
-	superhub_ISR();
+	// smoker_ISR();
+	//superhub_ISR();
 	
 	// TMR0 ISR
 	TMR0_ISR();
@@ -1185,7 +900,8 @@ void TMR0_ISR()
 {
     // TMR0 Overflow Interrupt Flag bit
     if( TMR0IF==1 )
-    {                
+    {            
+        // TODO: What's this for???
         TMR0IF = 0;        
         if( HL_freq==0 )    //31.25KHz
         {
@@ -1195,92 +911,9 @@ void TMR0_ISR()
         {
             TMR0L = ((65536-HIGH_FREQ_TMR0)%256);
             TMR0H = ((65536-HIGH_FREQ_TMR0)/256);
-        }
-       // SPK = ~SPK;
-        if( first_test!=0 )
-            first_test--;
-    //    if( adc_count%2900==0 )       //for battery voltage test (every 5 mins) 電池電壓測試(每5分鐘)
-    //        add_event(TEST_CYCLE_S,2);
-        if( VER_SELECT==1&&TEST_PIN==1 )
-        {
-            if( ++test_9sec_count==90 )   //100ms*90
-                add_event(TEST_PIN_T,0);
-        }else test_9sec_count = 0;
-        
-        if( ++adc_count>=(36000*0.9888) )       //[3600*10]*100ms=3600sec=1hr            //0.979  -1.56
-        {            
-            chk_supervisory++;    //----add supervisory
-            adc_count = 0;   
-            if( ++Respond_T_Hour>=24 )       //24
-            {
-                Respond_T_Hour = 0;
-                Respond_T_Day++;
-                if( Respond_T_Day>= respond_day )         
-                {
-                    Respond_T_Day = 0;
-                    add_event(TEST_CYCLE_S,0);             
-                    rsp_SUP_LBT();
-                    OTA_flag = 1;
-                }
-                if( BT_S_respond!=0 )
-                    BT_S_respond--;
-                if( BT_L_respond!=0 )
-                    BT_L_respond--;
-                if( EOL_respond!=0 )
-                    EOL_respond--;
-            }   
-            if( OTA_flag==2 )
-                OTA_flag = 1;
-        }else if( (adc_count%600)==0 )        //every 10 mins check low battery
-            ADC_time = 1;
-               
-        if( retry_count!=0 )
-            retry_count--;
-        
-        if( led_count!=0 )
-        {
-            if( --led_count==0 )
-            {
-                LED_RX_IN = 1;
-                LED_RX_OUT = 1;
-            }
-        }
-        
-        if( tamper_status!=0&&TAMPER_PIN==1  )
-        {
-            if( ++tamper_status>5 )
-            {
-                if( first_tamper==0 )                    
-                    add_event(TAMPER_CLOSE_T,1);
-                first_tamper = 0;
-                tamper_status = 0;
-                SPK = 1;
-            }
-        }
-        
-        if( learn_delay!=0 )
-            learn_delay--;
-
-		// Blinking LED
-		handle_LED();
-
-		// Smoker specific 
-		handle_smoker();
+        } 
 		
-		handle_learn_btn_pressed();
-		
-        if( RF_wait_count!=0 )
-        {
-            LED_G = 0;
-            if( --RF_wait_count==0 )
-            {           
-               // OSCCON = LOW_FREQ_OSCCON;
-                HL_freq = 0;
-                T0CON = LOW_FREQ_T0CON;             //1*4000 = 50,000us
-                TMR0IE = 0;//
-                TMR0ON = 0;
-            }
-        }
+		//reload_timer0();
     }	
 }
 
@@ -1649,5 +1282,6 @@ uint8_t modem_module_start()
 {
     return 1;
 }	
+
 
 
