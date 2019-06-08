@@ -24,7 +24,17 @@
 
 #include "state.h"
 
-STATE myState = POWER_UP;
+// Global variables
+state_t myState = POWER_UP;
+bool readyForSleep = false;
+
+// LED
+bool            G_LED_STATE = 1, B_LED_STATE = 1;
+uint8_t         gled_tmr0_tick = 0, bled_tmr0_tick = 0;
+led_states_t    curr_led_state = IDLE;
+led_states_t    prev_led_state = IDLE;
+uint8_t         ver_select = 0;
+
 
 //
 // MAIN
@@ -38,7 +48,7 @@ int main(int argc, char** argv)
     buzzer_on(10);
     
     // Programming default configuration in EE.
-    init_EEPROM();
+    init_eeprom();
     
     // Powerup modem, send AT command to init modem.
     start_modem();
@@ -52,6 +62,7 @@ int main(int argc, char** argv)
         }
         else
         {
+            update_led_state(IDLE);
             SLEEP();							
             NOP();
         }
@@ -79,13 +90,19 @@ void init_system()
     start_timer0();
     
     // Init interrupt
-    interrupt_init();
+    int_init();
+    
+    // Smoke hub or super hub?
+    ver_select = get_hub_type();
+    
+    update_led_state(IDLE);
 }
 
 void timer0_init()
 {
     // T0CON: TIMER0 CONTROL REGISTER
-    // 0x87 = b1000 0111 - Enable Timer0, 16 bit timer, 1:256 prescale value
+    // 0x87 = b1000 0111 - Enable Timer0, 16 bit timer, 1:256 prescale value.
+    // TODO: how long per tick??? 50,000 us = 0.05 sec
     T0CON = HIGH_FREQ_T0CON;             //1*4000 = 50,000us
     // Timer0 Register, High/Low Byte
     TMR0L = ((65535-HIGH_FREQ_TMR0)%256);
@@ -102,6 +119,7 @@ void start_timer0()
      * internal instruction cycle, assign prescaler of: 1:256.
      * Timer0 used to control LEDs.
      */
+    // 0x87 = b1000 0111 - timer 0 ON, 1:256 prescale
     T0CON = TMR0_CFG;             //1*4000 = 50,000us
     TMR0L = ((65535-_100milliseconds)%256);//for 8MHz
     TMR0H = ((65535-_100milliseconds)/256);
@@ -138,7 +156,7 @@ void reload_timer3_5s()
     TMR3L = 0;
 }
 
-void interrupt_init()
+void int_init()
 {
     // INTEDG0: External Interrupt 0/1/2 Edge Select bit - rising edge.
     INTEDG0 = 1;
@@ -187,7 +205,9 @@ void start_modem()
 //    MD_POWER = POWER_ON;
 //    //__delay_ms(25000);
 //    delayseconds(25);
-    
+        
+    update_led_state(WAIT);
+       
     powerup_modem();
     
     while (!md_config_ok())
@@ -242,6 +262,7 @@ void stop_modem()
 
 
 
+
 void init_global_variables()
 {
     // Global variable init
@@ -256,6 +277,7 @@ void init_global_variables()
     ver_select = get_hub_type();
 }
 
+// TODO: Why input/output difference b/w smoke hub and super hub???
 uint8_t get_hub_type()
 {
     uint8_t hub_type = 0;
@@ -278,9 +300,11 @@ uint8_t get_hub_type()
 
 void buzzer_on(uint8_t count)
 {
-//    // Only run once during powerup.
-//    if (!my_powerup_flag)
-//        return;
+    // This make sure we only run first time.
+    if((read_ee(EE_PAGE0,  VER_ADDR0) == VERSION[0]) && 
+		(read_ee(EE_PAGE0, VER_ADDR1) == VERSION[1]) && 
+		(read_ee(EE_PAGE0, VER_ADDR2) == VERSION[2]))
+        return;
     
     for (uint8_t i = 0; i < count; i++)
     {
@@ -670,17 +694,14 @@ uint8_t process_restart()
 }
 
 //void __interrupt() INTERRUPT_InterruptManagerHigh (void)
-void interrupt tc_int( void )
+//void interrupt tc_int( void )
+void __interrupt isr()
 {
-    uint8_t id[6];
-    uint8_t zone,cnt;
-    uint8_t temp;
-
 	// UART1 ISR - modem
     UART1_ISR();
 	
 	//UART2 ISR - RF receiver
-    //UART2_ISR();
+    UART2_ISR();
 	
 	// smoker_ISR();
 	//superhub_ISR();
@@ -718,202 +739,20 @@ void UART2_ISR()
     // RC2IE: EUSART2 Receive Interrupt Enable bit
     if ((RC2IE == 1) && (RC2IF == 1))
     {
-        do{       	
-            temp = RC2REG;
-            //LED_G = 1;
-            LED_B = 0;
-            rx2_buf[rx2_cnt] = temp;
-            if( ++rx2_cnt>=20 )
-                rx2_cnt = 19;
-            //out_sbuf2(rx2_cnt+0x30);
-            if( temp=='\n' )
-            {         
-                if( rx2_cnt>=7 )
-                {
-                    cnt = 0;
-                    if( rx2_buf[rx2_cnt-7]=='$'&&rx2_buf[rx2_cnt-2]=='\r')                    
-                    {
-                        for(zone=rx2_cnt-7;zone<rx2_cnt;zone++ )
-                        {
-                            rx2_buf[cnt++] = rx2_buf[zone];
-                        }
-                        rx2_cnt = 7;
-                    }
-                }
-            /*    out_sbuf2('a');/////
-                    out_sbuf2('t');//////
-                   out_sbuf2('-');//////
-                   for( zone=0;zone<rx2_cnt;zone++ )
-                   {
-                       temp = rx2_buf[zone];
-                       out_sbuf2((temp>>4)+0x30);
-                        out_sbuf2((temp&0x0f)+0x30);
-                   }
-                    out_sbuf2(0x0d);//
-                    out_sbuf2(0x0a);//*/
-                if( rx2_buf[0]=='$'&&rx2_buf[5]=='\r'&&rx2_buf[6]=='\n' )     //rf data in  $+3byte serial+1byte status+<CR>+<LF>                    
-                {                
-               //    out_sbuf2('a');/////
-               //     out_sbuf2('t');//////
-               //    out_sbuf2('-');//////
-                    led_count = 10;
-                    LED_RX_IN = 0;
-                    rx2_cnt = 1;
-                    do{
-                        temp = (rx2_buf[rx2_cnt]>>4)&0x0f;
-                        if( temp>=10 )
-                        {
-                            temp += 0x41;
-                            temp -= 10;
-                        }else temp += 0x30;
-                        id[(rx2_cnt-1)*2] = temp;
-                    //    out_sbuf2(temp);////
-                        temp = rx2_buf[rx2_cnt]&0x0f;
-                        if( temp>=10 )
-                        {
-                            temp += 0x41;
-                            temp -= 10;
-                        }else temp += 0x30;
-                        id[(rx2_cnt-1)*2+1] = temp;
-                    //    out_sbuf2(temp);//////
-                    }while(++rx2_cnt<4); 
-                    temp = rx2_buf[4];
-                    //out_sbuf2((temp>>4)+0x30);
-                    //out_sbuf2((temp&0x0f)+0x30);
-                    //out_sbuf2(0x0d);//
-                    //out_sbuf2(0x0a);//
-                    //out_sbuf2('-');
-                    zone = check_ID(&id);       //respond zone number(3~30),error=0
-                   
-                    if( zone!=0 )
-                    {
-                        ID_LIST[zone-3][7] = 0;     //clear supervisory count
-                        LED_RX_OUT = 0;
-                    }
-                    if( learning_mode==KEY_NONE )
-                    {
-                        if( zone==0 )
-                        {
-                        /*    out_sbuf2('$');
-                            out_sbuf2('A');
-                            out_sbuf2('N');
-                            out_sbuf2(0x0d);
-                            out_sbuf2(0x0a);*/
-                        }else{                      //Supervisory,nc,nc,low BT,nc,test,tamper,trigger/alarm                                                                                           
-                            if( (rx2_buf[4]&0x01)!=0 )   //alarm
-                            {                                                                                                
-                                if( id[0]=='8')
-                                    add_event(SMOKE_ALARM_T,zone);
-                                else if( id[0]=='6' ) 
-                                    add_event(FLOOD_T,zone); 
-                                else if( id[0]=='2' )
-                                    add_event(CARBON_T,zone);
-                                else if( id[0]=='C' )
-                                    add_event(GLASS_T,zone);
-                                else if( id[0]=='9' )
-                                    add_event(MOTION_T,zone);
-                                else if( id[0]=='3' )
-                                    add_event(DOOR_T,zone);
-                                else if( id[0]=='1' )
-                                    add_event(PANIC_T,zone);
-                                else if( id[0]=='B' )
-                                    add_event(HVAC_T,zone);
-                                else if( id[0]=='5' )
-                                    add_event(APPLIANCE_T,zone);
-                                else if( id[0]=='4' )
-                                    add_event(RESERVE1_T,zone);
-                                else if( id[0]=='7' )
-                                    add_event(RESERVE2_T,zone);
-                                else if( id[0]=='A' )
-                                    add_event(RESERVE3_T,zone);
-                                else if( id[0]=='D' )
-                                    add_event(RESERVE4_T,zone);
-                                else if( id[0]=='E' )
-                                    add_event(RESERVE5_T,zone);
-                                else if( id[0]=='0' )
-                                    add_event(RESERVE6_T,zone);
-                                else if( id[0]=='F' )
-                                    add_event(RESERVE7_T,zone);
-                            }
-                            if( (rx2_buf[4]&0x04)!=0 )   //test
-                            {
-                                add_event(TEST_PIN_T,zone);                            
-                            }    
-                            if( ((rx2_buf[4]&0x02)!=0) )   //Tamper open
-                            {
-                                if( ID_LIST[zone-3][8]==0 )
-                                {
-                                    add_event(TAMPER_OPEN_T,zone);     
-                                    ID_LIST[zone-3][8]=1; 
-                                }
-                            }else                           //Tamper close
-                            {
-                                if( ID_LIST[zone-3][8]==1 )
-                                {
-                                    add_event(TAMPER_CLOSE_T,zone);     
-                                    ID_LIST[zone-3][8]=0; 
-                                }
-                            }
-                            if( (rx2_buf[4]&0x10)!=0 )   //Low Battery
-                            {
-                                add_event(LOW_BATTERY_T,zone);                            
-                            }     
-                            if( (rx2_buf[4]&0x80)!=0 )   //Supervisory
-                            {
-                                add_event(SUPERVISORY_T,zone);                            
-                            }     
-                            /*out_sbuf2('$');
-                            out_sbuf2('A');
-                            out_sbuf2('S');
-                            out_sbuf2(0x0d);
-                            out_sbuf2(0x0a);*/
-                        }
-                    }else{
-                        
-                        if( learning_mode==KEY_ADD_ID&&zone==0 )
-                            zone = add_ID(&id); 
-                        else if( learning_mode==KEY_DEL_ID&&zone!=0 )
-                            zone = del_ID(zone); 
-                        
-                        /*out_sbuf2('$');
-                        out_sbuf2('A');
-                        out_sbuf2('L');
-                        out_sbuf2(0x0d);
-                        out_sbuf2(0x0a);*/
-                    }    
-                    //send respond
-                    for( rx2_cnt=0;rx2_cnt<7;rx2_cnt++)
-                        out_sbuf2(rx2_buf[rx2_cnt]);
-                    //------------
-                }
-                rx2_cnt = 0;
-                CREN2 = 0;
-                NOP();
-                CREN2 = 1;
-            }
-        }while(RC2IF==1);
-       // RC1IF = 0;
+        update_led_state(RF_INT);
     }        	
 }
 
 void TMR0_ISR()
 {
-    // TMR0 Overflow Interrupt Flag bit
-    if( TMR0IF==1 )
-    {            
-        // TODO: What's this for???
-        TMR0IF = 0;        
-        if( HL_freq==0 )    //31.25KHz
-        {
-            TMR0L = ((65536-LOW_FREQ_TMR0)%256);
-            TMR0H = ((65536-LOW_FREQ_TMR0)/256);
-        }else
-        {
-            TMR0L = ((65536-HIGH_FREQ_TMR0)%256);
-            TMR0H = ((65536-HIGH_FREQ_TMR0)/256);
-        } 
-		
-		//reload_timer0();
+    // TMR0 Overflow Interrupt Flag bit          
+    if (TMR0IF)
+    {
+        TMR0IF = 0;
+        reload_timer0();
+        gled_tmr0_tick++;
+        bled_tmr0_tick++;
+        control_leds();
     }	
 }
 
@@ -983,137 +822,6 @@ void superhub_ISR()
 //            }
         }
     }
-}
-
-void handle_LED()
-{    
-	if( learning_mode == KEY_NONE )
-	{
-		if( LED_flash_type!=LED_OFF )
-		{
-			if( LED_flash_type==LED_REGISTER )
-			{
-				LED_count++;
-				if( LED_count < 5 )                
-					LED_G = 0;     
-				else LED_G = 1;
-				if( power_status==0 )
-					LED_B = 1;
-				else LED_B = 0;
-				if( LED_count>=20 )
-					LED_count = 0;
-			}else if( LED_flash_type==LED_STANDBY )
-			{
-				LED_count++;
-				if( LED_count < 5 )                
-					LED_B = 0;     
-				else LED_B = 1;
-				LED_G = 1;
-				if( LED_count>=20 )
-					LED_count = 0;
-			}else if( LED_flash_type==LED_INTERNET )
-			{
-				LED_B = ~LED_B;
-				LED_G = 1;
-			}else if( LED_flash_type==LED_NO_SET )
-			{
-				LED_count++;
-				if( LED_count<5 )
-				{
-					LED_B = 0;     
-					LED_G = 1;
-				}else if( LED_count<=9 )
-				{
-					LED_B = 1;     
-					LED_G = 0;               
-				}else LED_count = 0;
-			}else if( LED_flash_type==LED_NET_ERR )
-			{
-				LED_count++;         
-				if( LED_count==0 )
-				{
-					LED_B = 0;     
-					LED_G = 1;
-				}else if( LED_count==1 )
-				{
-					LED_B = 1;     
-					LED_G = 1;               
-				}else if( LED_count==2 )
-				{
-					LED_B = 0;     
-					LED_G = 1;               
-				}else if( LED_count==3 )
-				{
-					LED_B = 1;     
-					LED_G = 1;               
-				}else if( LED_count==4 )
-				{
-					LED_B = 1;     
-					LED_G = 0;               
-				}else if( LED_count==5 )
-				{
-					LED_B = 1;     
-					LED_G = 1;               
-				}else if( LED_count==6 )
-				{
-					LED_B = 1;     
-					LED_G = 0;               
-				}else if( LED_count==7 )
-				{
-					LED_B = 1;     
-					LED_G = 1;               
-				}else LED_count = 0;            
-			}
-		}else{
-			if( retry_count==0 )
-			{
-				LED_B = 1;
-				LED_G = 1;
-			}else       //new add V104
-			{
-				LED_count++;
-				if( LED_count < 3 )                
-				{
-					LED_G = 0;     
-					LED_B = 0;
-				}
-				else
-				{
-					LED_G = 1;
-					LED_B = 1;
-				}                
-				if( LED_count>=50 )
-					LED_count = 0;
-			}
-		}
-	}else{
-		if( ++exit_learn>=600 )     //100*100ms=10Sec
-			learning_mode = KEY_NONE;
-		if( learning_mode==KEY_IN_LEARN)
-		{
-			LED_B = 0;
-			LED_G = 0;
-		}else if( learning_mode==KEY_ADD_ID )
-		{
-			LED_count++;
-			if( LED_count < 5 )                
-				LED_B = 0;     
-			else LED_B = 1;
-			LED_G = 0;
-			if( LED_count>=20 )
-				LED_count = 0;
-		}
-		else if( learning_mode==KEY_DEL_ID )
-		{
-			LED_count++;
-			if( LED_count < 5 )                
-				LED_G = 0;     
-			else LED_G = 1;
-			LED_B = 0;
-			if( LED_count>=20 )
-				LED_count = 0;          
-		}
-	}	
 }
 
 void handle_smoker()

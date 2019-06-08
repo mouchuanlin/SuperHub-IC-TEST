@@ -53,21 +53,32 @@ extern "C" {
 // RC4 - LED1 - PCB marking, or LED3 - panel
 #define LED_B           LATCbits.LATC4
 #define LED_B_TRIS      TRISCbits.TRISC4
-    
-// RC5 - LED2 - PCB marking, or LED4 - panel
-#define LED_RX_OUT      LATCbits.LATC5
-#define LED_RX_OUT_TRIS TRISCbits.TRISC5
-    
+// RB3    
 #define LED_G           LATBbits.LATB3
 #define LED_G_TRIS      TRISBbits.TRISB3
     
-// RB4 - LED3 - schematics   
+// RB4 - LED3 - schematics ???
 #define TEST_PIN        PORTBbits.RB4
 #define TEST_PIN_TRIS   TRISBbits.TRISB4
     
 #define LED_RX_IN       LATBbits.LATB4
 #define LED_RX_IN_TRIS  TRISBbits.TRISB4
+    
+// RC5 - LED2 - PCB marking, or LED4 - panel
+#define LED_RX_OUT      LATCbits.LATC5
+#define LED_RX_OUT_TRIS TRISCbits.TRISC5    
 
+//=================================================    
+//PORTC
+#define B_LED               LATCbits.LC4        // Illuminates when RC4 goes low. Use WPU on this pin
+#define B_LED_TRIS          TRISCbits.TRISC4
+//PORTB
+#define G_LED               LATBbits.LB3        // Illuminates when RB3 goes low. Use WPU on this pin
+#define G_LED_TRIS          TRISBbits.TRISB3
+
+#define OFF                 1           // for LEDs, current sink
+#define ON                  0    
+//================================================
 //================================================
     
 // RC6
@@ -93,13 +104,6 @@ extern "C" {
 // RB2 - WHAT'S THIS FOR???
 #define ERROR_PIN           PORTBbits.RB2
 #define ERROR_PIN_TRIS      TRISBbits.TRISB2    
-
-#define LED_G                 LATBbits.LATB3
-#define LED_G_TRIS            TRISBbits.TRISB3
-// RB4 - LED3   
-#define TEST_PIN            PORTBbits.RB4
-#define TEST_PIN_TRIS       TRISBbits.TRISB4
-
     
 #define WIFI_INT             PORTBbits.RB5
 #define WIFI_INT_TRIS        TRISBbits.TRISB5
@@ -108,20 +112,6 @@ extern "C" {
 #define WIFI_TX             PORTBbits.RB7
 #define WIFI_TX_TRIS        TRISBbits.TRISB7
     
-    
-    
-//=================================================    
-//PORTC
-#define B_LED               LATCbits.LC4        // Illuminates when RC4 goes low. Use WPU on this pin
-#define B_LED_TRIS          TRISCbits.TRISC4
-//PORTB
-#define G_LED               LATBbits.LB3        // Illuminates when RB3 goes low. Use WPU on this pin
-#define G_LED_TRIS          TRISBbits.TRISB3
-
-
-#define OFF                 1           // for LEDs, current sink
-#define ON                  0    
-//=================================================
 
 //-----------------
 #define HIGH_FREQ_OSCCON 0x68   
@@ -314,7 +304,7 @@ uint8_t power_status=0;
 uint8_t chk_supervisory = 0;
 
 uint8_t Module_type = EMS31;
-uint8_t ver_select = 0;
+//uint8_t ver_select = 0;
 
 
 

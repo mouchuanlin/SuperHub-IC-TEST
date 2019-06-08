@@ -25,6 +25,9 @@ extern "C" {
 #define EE_PAGE0                            0x00
 #define EE_PAGE1                            0x01
     
+// TODO: Check Spec    
+#define FIRST_RUN_CHECK                     0xF0        // EEPROM address corresp. to this value    
+    
 // EEPROM Addresses for each parameter 
 #define APN_ADDR                            0x10
 #define IP1_ADDR                            0x30
@@ -106,7 +109,7 @@ extern "C" {
 
 void delay5ms(uint16_t);
 void delayseconds(uint16_t secs);
-void init_EEPROM(void);
+void init_eeprom(void);
 void load_default(void);
 void check_led_type(void);
 void load_ID_to_buffer(void);

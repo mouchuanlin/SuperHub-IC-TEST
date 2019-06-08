@@ -15,16 +15,14 @@
 #include "queue.h"
 #include "initial.h"
 
+extern state_t myState;
 
-void check_state(STATE *state)
+void check_state(state_t *state)
 {
 //    check_alarm_tamper();
 //    check_button();
 //    check_supervisory_NEW();
-    
-    *state = LED_CTRL;
-    ledPattern = BUTTON_MENU;
-    
+       
     switch (*state)
     {
         case INIT:
@@ -45,8 +43,8 @@ void check_state(STATE *state)
             break;
         case ADC:
             break;
-        case LED_CTRL:
-            control_leds();
+//        case LED_CTRL:
+//            control_leds();
             break;            
     }
 }
@@ -56,7 +54,7 @@ void check_button()
 {
 //    if (state == OPERATIONAL && inButtonMenu && !testButtonTimedOut)
 //        ledPattern = BUTTON_MENU;
-//    else if (state == OPERATIONAL && inButtonMenu && testButtonTimedOut /
+//    else if (state == OPERATIONAL && inButtonMenu && testButtonTimedOut
 //            && testButtonCnt == 1)
 //    {
 //        testButtonCnt = 0;
@@ -64,7 +62,7 @@ void check_button()
 //        add_to_queue(Test);             // after transmitting test, change state
 //                                        // to LISTEN_SMS
 //    }
-//    else if (state == OPERATIONAL && inButtonMenu && testButtonTimedOut /
+//    else if (state == OPERATIONAL && inButtonMenu && testButtonTimedOut
 //            && testButtonCnt == 2)
 //    {
 //        ledPattern = SENSOR_ADD;
@@ -72,7 +70,7 @@ void check_button()
 //        testButtonTimedOut = false;
 //        state = ADD_SENSOR;
 //    }
-//    else if (state == OPERATIONAL && inButtonMenu && testButtonTimedOut /
+//    else if (state == OPERATIONAL && inButtonMenu && testButtonTimedOut
 //            && testButtonCnt == 3)
 //    {
 //        ledPattern = SENSOR_DELETE;
@@ -80,7 +78,7 @@ void check_button()
 //        testButtonTimedOut = false;
 //        state = DELETE_SENSOR;
 //    }
-//    else if (state == OPERATIONAL && inButtonMenu && testButtonTimedOut /
+//    else if (state == OPERATIONAL && inButtonMenu && testButtonTimedOut
 //            && testButtonCnt == 4)
 //    {
 //        ledPattern = IDLE;
@@ -202,23 +200,30 @@ void delete_sensor()
 //    }
 }
 
+void update_led_state(led_states_t new_state)
+{
+    prev_led_state = curr_led_state;
+    curr_led_state = new_state;
+}
+
 void control_leds()
 {
-    g_tmr0_tick++;
-    b_tmr0_tick++;
-    switch (ledPattern)
+//    // increase in ISR
+//    gled_tmr0_tick++;
+//    bled_tmr0_tick++;
+    switch (curr_led_state)
     {
         case IDLE:
             G_LED = OFF;
             B_LED = OFF;
-            g_tmr0_tick = 0;
-            b_tmr0_tick = 0;
+            gled_tmr0_tick = 0;
+            bled_tmr0_tick = 0;
             break;
             
         case WAIT:
             B_LED = OFF;
-            b_tmr0_tick = 0;
-            switch (g_tmr0_tick)
+            bled_tmr0_tick = 0;
+            switch (gled_tmr0_tick)
             {
                 case 1:
                     G_LED = ON;
@@ -227,15 +232,15 @@ void control_leds()
                     G_LED = OFF;
                     break;
                 case 15:
-                    g_tmr0_tick = 0;
+                    gled_tmr0_tick = 0;
                     break;
             }
             break;
             
         case STANDBY:               // green LED turns ON_0.5s / OFF_1.5s
             G_LED = OFF;
-            g_tmr0_tick = 0;
-            switch (b_tmr0_tick)
+            gled_tmr0_tick = 0;
+            switch (bled_tmr0_tick)
             {
                 case 1:
                     B_LED = ON;
@@ -244,15 +249,15 @@ void control_leds()
                     B_LED = OFF;
                     break;
                 case 15:
-                    b_tmr0_tick = 0;
+                    bled_tmr0_tick = 0;
                     break;
             }
             break;
             
         case SENDING:               // blue LED turns ON_0.5s / OFF_1.5s
             G_LED = OFF;
-            g_tmr0_tick = 0;
-            switch (b_tmr0_tick)
+            gled_tmr0_tick = 0;
+            switch (bled_tmr0_tick)
             {
                 case 1:
                     B_LED = ON;
@@ -261,7 +266,7 @@ void control_leds()
                     B_LED = OFF;
                     break;
                 case 15:
-                    b_tmr0_tick = 0;
+                    bled_tmr0_tick = 0;
                     break;
             }
             break;
@@ -269,12 +274,12 @@ void control_leds()
         case BUTTON_MENU:
             G_LED = ON;
             B_LED = ON;
-            g_tmr0_tick = 0;
-            b_tmr0_tick = 0;
+            gled_tmr0_tick = 0;
+            bled_tmr0_tick = 0;
             break;
             
         case APN_IP_ACCT_NOT_SET:       // Both LEDs blink oppositely (0.5s)
-            switch(g_tmr0_tick)
+            switch(gled_tmr0_tick)
             {
                 case 1:
                     G_LED = ON;
@@ -285,14 +290,14 @@ void control_leds()
                     B_LED = ON;
                     break;
                 case 10:
-                    g_tmr0_tick = 0;
-                    b_tmr0_tick = 0;
+                    gled_tmr0_tick = 0;
+                    bled_tmr0_tick = 0;
                     break;
             }
             break;
             
         case SEND_ERR:                  // Blue-green-green cross-flash (0.1s)
-            switch(g_tmr0_tick)
+            switch(gled_tmr0_tick)
             {
                 case 1:
                     G_LED = OFF;
@@ -317,16 +322,16 @@ void control_leds()
                 case 6:
                     G_LED = OFF;
                     B_LED = OFF;
-                    g_tmr0_tick = 0;
-                    b_tmr0_tick = 0;
+                    gled_tmr0_tick = 0;
+                    bled_tmr0_tick = 0;
                     break;
             }
             break;
             
         case SENSOR_ADD:
             G_LED = ON;
-            g_tmr0_tick = 0;
-            switch (b_tmr0_tick)
+            gled_tmr0_tick = 0;
+            switch (bled_tmr0_tick)
             {
                 case 1:
                     B_LED = ON;
@@ -335,15 +340,15 @@ void control_leds()
                     B_LED = OFF;
                     break;
                 case 20:
-                    b_tmr0_tick = 0;
+                    bled_tmr0_tick = 0;
                     break;
             }
             break;
             
         case SENSOR_DELETE:
             B_LED = ON;
-            b_tmr0_tick = 0;
-            switch (g_tmr0_tick)
+            bled_tmr0_tick = 0;
+            switch (gled_tmr0_tick)
             {
                 case 1:
                     G_LED = ON;
@@ -352,13 +357,13 @@ void control_leds()
                     G_LED = OFF;
                     break;
                 case 20:
-                    g_tmr0_tick = 0;
+                    gled_tmr0_tick = 0;
                     break;
             }
             break;
             
         case LINE_FAULT:            // Both LEDs ON_0.3s / OFF_4.7s
-            switch (g_tmr0_tick)
+            switch (gled_tmr0_tick)
             {
                 case 1:
                     G_LED = ON;
@@ -369,8 +374,8 @@ void control_leds()
                     B_LED = OFF;
                     break;
                 case 47:
-                    g_tmr0_tick = 0;
-                    b_tmr0_tick = 0;
+                    gled_tmr0_tick = 0;
+                    bled_tmr0_tick = 0;
                     break;
             }
             break;
@@ -379,8 +384,8 @@ void control_leds()
                                     // state machine
             G_LED = ON;
             B_LED = ON;
-            g_tmr0_tick = 0;
-            b_tmr0_tick = 0;
+            gled_tmr0_tick = 0;
+            bled_tmr0_tick = 0;
             break;
     }  
 }

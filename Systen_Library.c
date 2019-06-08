@@ -13,6 +13,21 @@
 
 void load_ID_to_buffer(void);
 
+// From Jens' test code 001/module.c
+//void delay5ms(uint16_t cnt)         // Based on 4MHz Fosc, or 1MHz instruction cycle
+//{
+//    uint8_t i, j;
+//    while(cnt-- != 0)
+//    {
+//        j = 100;
+//        while(j-- != 0)
+//        {
+//            i = 32;//50;
+//            while(--i != 0);
+//        }
+//    }
+//}
+
 void delay5ms(uint16_t cnt)
 {
     uint8_t a,b;
@@ -45,10 +60,21 @@ void delayseconds(uint16_t secs)
     }
 }
 
-void init_EEPROM(void)
+// TODO: Check spec
+bool is_first_run()
+{
+    return (bool)(ee_read(0, FIRST_RUN_CHECK) != 0x57);
+}
+
+void save_first_run()
+{
+    ee_write(0, FIRST_RUN_CHECK, 0x57);
+}
+
+void init_eeprom(void)
 {   
     //---------Check Version-----------
-    // This make sure we only run once.
+    // This make sure we only run first time.
     if((read_ee(EE_PAGE0,  VER_ADDR0) == VERSION[0]) && 
 		(read_ee(EE_PAGE0, VER_ADDR1) == VERSION[1]) && 
 		(read_ee(EE_PAGE0, VER_ADDR2) == VERSION[2]))
@@ -83,9 +109,9 @@ void init_EEPROM(void)
     //---------TEST_FREQ-----------
     write_ee(EE_PAGE0, TESTING_FREQ_ADDR, TEST_FREQ);                  //07#
     //---------SERVER_ACK_TIME-----------
-    write_ee(EE_PAGE0, SERVER_ACK_TIME_ADDR, SERVER_ACK_TIME);            //08#
+    write_ee(EE_PAGE0, SERVER_ACK_TIME_ADDR, SERVER_ACK_TIME);         //08#
     //---------SMS_WAIT_TIME-----------
-    write_ee(EE_PAGE0, SMS_WAIT_TIME_ADDR, SMS_WAIT_TIME);              //09#
+    write_ee(EE_PAGE0, SMS_WAIT_TIME_ADDR, SMS_WAIT_TIME);             //09#
     //---------UNIT_ACCNT-----------
     write_EE_setting(EE_PAGE0, UNIT_ACCT_ADDR, UNIT_ACCNT);
     //---------LINE_CARD-----------                   
@@ -97,7 +123,7 @@ void init_EEPROM(void)
     write_ee(EE_PAGE0, CYCLE_ADDR, CYCLE);              //15#
     write_ee(EE_PAGE0, RETRY_TIMES_ADDR, RETRY);        //16# 
     //---------ENCRYPTION-----------
-    write_ee(EE_PAGE0, ENCRYPTION_ADDR, ENCRYPTION);         //95#
+    write_ee(EE_PAGE0, ENCRYPTION_ADDR, ENCRYPTION);    //95#
         
 	// TODO: What's this???
     write_ee(EE_PAGE0, 0x0f, 0x00);   //MM

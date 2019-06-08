@@ -8,22 +8,6 @@
 #ifndef CONFIG_H
 #define	CONFIG_H
 
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include <pic18f26k22.h>
-// #include <xc.h>
-// #include <stdint.h>
-// #include <stdbool.h>
-
-// #include "System_Library.h"
-// #include "initial.h"
-// #include "EE_library.h"
-// #include "SMS_library.h"
-// #include "Module_Library.h"
-// #include "Module_LB_Gemalto.h"
-// #include "Module_LB_Telit.h"
-// #include "emc_library.h"
-
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -109,7 +93,7 @@ void 	buzzer_on(uint8_t count);
 uint8_t get_hub_type();
 void 	init_system();
 void    timer0_init();
-void    interrupt_init();
+void    int_init();
 void 	powerup_modem();
 void 	init_global_variables();
 uint8_t modem_module_start();
@@ -131,7 +115,7 @@ void UART2_ISR();
 void TMR0_ISR();
 void smoker_ISR();
 void superhub_ISR();
-void handle_LED();
+//void handle_LED();
 void handle_smoker();
 void handle_learn_btn_pressed();
 void start_timer0();

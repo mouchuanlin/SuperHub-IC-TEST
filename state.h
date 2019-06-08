@@ -13,10 +13,6 @@
  ****************************************************/
 #include "config.h"
 
-
-
-
-
 /*****************************************************
  * VARIABLES
  ****************************************************/
@@ -35,9 +31,9 @@ typedef enum State {
     ADC,
     LED_CTRL,
     OPERATIONAL
-} STATE;
+} state_t;
 
-enum LED_PATTERNS {
+typedef enum LED_STATES {
     IDLE,           // LEDs off
     WAIT,           // "Power ON"; green LED blinking, waiting for modem
     STANDBY,        // Blue LED blinking; used in SMS listen mode
@@ -51,13 +47,13 @@ enum LED_PATTERNS {
     SENSOR_DELETE,  // Blue on solid, green blinking
     LINE_FAULT,     // Both LEDs blink 0.3s ON/4.7s OFF
     RF_INT          // Green on solid for 10s (or maybe less)
-};
-enum LED_PATTERNS ledPattern;
+} led_states_t;
+
 
 /*****************************************************
  * FUNCTION PROTOTYPES
  ****************************************************/
-void check_state(STATE *state);
+void check_state(state_t *state);
 void control_leds();
 
 void check_button();
@@ -65,14 +61,12 @@ void check_alarm_tamper();
 void add_sensor() ;
 void delete_sensor()  ;
 void check_supervisory_NEW();
+void update_led_state(led_states_t new_state);
 
 
-
-
-bool readyForSleep = false;
-
-bool G_LED_STATE = 1, B_LED_STATE = 1;
-uint8_t g_tmr0_tick = 0, b_tmr0_tick = 0;
+// Global variables - defined in main.c
+extern uint8_t gled_tmr0_tick, bled_tmr0_tick;
+extern led_states_t curr_led_state, prev_led_state;
 
 
 #endif	/* STATE_H */
