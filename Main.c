@@ -31,8 +31,9 @@ bool readyForSleep = false;
 // LED
 bool            G_LED_STATE = 1, B_LED_STATE = 1;
 uint8_t         gled_tmr0_tick = 0, bled_tmr0_tick = 0;
-led_states_t    curr_led_state = IDLE;
-led_states_t    prev_led_state = IDLE;
+//led_states_t    curr_led_state = IDLE;
+//led_states_t    prev_led_state = IDLE;
+led_states_t    led_state = IDLE;
 uint8_t         ver_select = 0;
 
 
@@ -206,7 +207,7 @@ void start_modem()
 //    //__delay_ms(25000);
 //    delayseconds(25);
         
-    update_led_state(WAIT);
+    update_led_state(POWERON);
        
     powerup_modem();
     
@@ -739,7 +740,7 @@ void UART2_ISR()
     // RC2IE: EUSART2 Receive Interrupt Enable bit
     if ((RC2IE == 1) && (RC2IF == 1))
     {
-        update_led_state(RF_INT);
+        //update_led_state(RF_INT);
     }        	
 }
 
@@ -750,8 +751,6 @@ void TMR0_ISR()
     {
         TMR0IF = 0;
         reload_timer0();
-        gled_tmr0_tick++;
-        bled_tmr0_tick++;
         control_leds();
     }	
 }

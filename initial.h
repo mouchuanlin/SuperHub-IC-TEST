@@ -57,10 +57,11 @@ extern "C" {
 #define LED_G           LATBbits.LATB3
 #define LED_G_TRIS      TRISBbits.TRISB3
     
-// RB4 - LED3 - schematics ???
+// RB4 - LED3 
 #define TEST_PIN        PORTBbits.RB4
 #define TEST_PIN_TRIS   TRISBbits.TRISB4
-    
+
+// RB5???    
 #define LED_RX_IN       LATBbits.LATB4
 #define LED_RX_IN_TRIS  TRISBbits.TRISB4
     

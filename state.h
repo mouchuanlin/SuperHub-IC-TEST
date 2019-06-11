@@ -35,7 +35,7 @@ typedef enum State {
 
 typedef enum LED_STATES {
     IDLE,           // LEDs off
-    WAIT,           // "Power ON"; green LED blinking, waiting for modem
+    POWERON,       // "Power ON"; green LED blinking, waiting for modem
     STANDBY,        // Blue LED blinking; used in SMS listen mode
     SENDING,        // Blue LED blinks 0.1s on/off
     BUTTON_MENU,    // Both LEDs on solid
@@ -66,7 +66,8 @@ void update_led_state(led_states_t new_state);
 
 // Global variables - defined in main.c
 extern uint8_t gled_tmr0_tick, bled_tmr0_tick;
-extern led_states_t curr_led_state, prev_led_state;
+//extern led_states_t curr_led_state, prev_led_state;
+extern led_states_t led_state;
 
 
 #endif	/* STATE_H */

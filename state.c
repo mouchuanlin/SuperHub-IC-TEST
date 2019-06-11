@@ -202,16 +202,19 @@ void delete_sensor()
 
 void update_led_state(led_states_t new_state)
 {
-    prev_led_state = curr_led_state;
-    curr_led_state = new_state;
+//    prev_led_state = curr_led_state;
+//    curr_led_state = new_state;
+    
+    led_state = new_state;
 }
 
 void control_leds()
 {
-//    // increase in ISR
-//    gled_tmr0_tick++;
-//    bled_tmr0_tick++;
-    switch (curr_led_state)
+// 	each tick 0.05 sec
+   gled_tmr0_tick++;
+   bled_tmr0_tick++;
+
+    switch (led_state)
     {
         case IDLE:
             G_LED = OFF;
@@ -220,7 +223,7 @@ void control_leds()
             bled_tmr0_tick = 0;
             break;
             
-        case WAIT:
+        case POWERON:			// Green ON 0.5 sec/OFF 1.5 sec
             B_LED = OFF;
             bled_tmr0_tick = 0;
             switch (gled_tmr0_tick)
@@ -228,16 +231,16 @@ void control_leds()
                 case 1:
                     G_LED = ON;
                     break;
-                case 6:
+                case 11:
                     G_LED = OFF;
                     break;
-                case 15:
+                case 40:
                     gled_tmr0_tick = 0;
                     break;
             }
             break;
             
-        case STANDBY:               // green LED turns ON_0.5s / OFF_1.5s
+        case STANDBY:			// Blue LED turns ON_0.5s / OFF_1.5s
             G_LED = OFF;
             gled_tmr0_tick = 0;
             switch (bled_tmr0_tick)
@@ -245,16 +248,16 @@ void control_leds()
                 case 1:
                     B_LED = ON;
                     break;
-                case 6:
+                case 11:		//10
                     B_LED = OFF;
                     break;
-                case 15:
+                case 40:		//40
                     bled_tmr0_tick = 0;
                     break;
             }
             break;
             
-        case SENDING:               // blue LED turns ON_0.5s / OFF_1.5s
+        case SENDING:               // B ON 0.1 sec/OFF 0.1 sec
             G_LED = OFF;
             gled_tmr0_tick = 0;
             switch (bled_tmr0_tick)
@@ -262,10 +265,10 @@ void control_leds()
                 case 1:
                     B_LED = ON;
                     break;
-                case 6:
+                case 3:		// 3
                     B_LED = OFF;
                     break;
-                case 15:
+                case 5:		//5
                     bled_tmr0_tick = 0;
                     break;
             }
@@ -285,41 +288,41 @@ void control_leds()
                     G_LED = ON;
                     B_LED = OFF;
                     break;
-                case 6:
+                case 11:		// 11
                     G_LED = OFF;
                     B_LED = ON;
                     break;
-                case 10:
+                case 20:	// 20
                     gled_tmr0_tick = 0;
                     bled_tmr0_tick = 0;
                     break;
             }
             break;
             
-        case SEND_ERR:                  // Blue-green-green cross-flash (0.1s)
+        case SEND_ERR:                  // Blue-blue-green-green cross-flash (0.1s)
             switch(gled_tmr0_tick)
-            {
+            {		// ???? B ON B OFF B ON B OFF, G 
                 case 1:
                     G_LED = OFF;
                     B_LED = ON;
                     break;
-                case 2:
+                case 2:		// 3
                     G_LED = OFF;
                     B_LED = OFF;
                     break;
-                case 3:
+                case 3:		// 5
                     G_LED = ON;
                     B_LED = OFF;
                     break;
-                case 4:
+                case 7:
                     G_LED = OFF;
                     B_LED = OFF;
                     break;
-                case 5:
+                case 9:
                     G_LED = ON;
                     B_LED = OFF;
                     break;
-                case 6:
+                case 11:
                     G_LED = OFF;
                     B_LED = OFF;
                     gled_tmr0_tick = 0;
@@ -328,7 +331,7 @@ void control_leds()
             }
             break;
             
-        case SENSOR_ADD:
+        case SENSOR_ADD:		// BTN 5-2
             G_LED = ON;
             gled_tmr0_tick = 0;
             switch (bled_tmr0_tick)
@@ -336,16 +339,16 @@ void control_leds()
                 case 1:
                     B_LED = ON;
                     break;
-                case 6:
+                case 11:		// 11
                     B_LED = OFF;
                     break;
-                case 20:
+                case 50:	// 50
                     bled_tmr0_tick = 0;
                     break;
             }
             break;
             
-        case SENSOR_DELETE:
+        case SENSOR_DELETE:		// SAME 5-2 differ 		lesd
             B_LED = ON;
             bled_tmr0_tick = 0;
             switch (gled_tmr0_tick)
@@ -353,10 +356,10 @@ void control_leds()
                 case 1:
                     G_LED = ON;
                     break;
-                case 6:
+                case 11:		// 11
                     G_LED = OFF;
                     break;
-                case 20:
+                case 50:		// 50
                     gled_tmr0_tick = 0;
                     break;
             }
@@ -369,11 +372,11 @@ void control_leds()
                     G_LED = ON;
                     B_LED = ON;
                     break;
-                case 4:
+                case 6:		// 6
                     G_LED = OFF;
                     B_LED = OFF;
                     break;
-                case 47:
+                case 100:	// 100
                     gled_tmr0_tick = 0;
                     bled_tmr0_tick = 0;
                     break;
@@ -383,7 +386,7 @@ void control_leds()
         case RF_INT:                // Hold here for as long as you want within
                                     // state machine
             G_LED = ON;
-            B_LED = ON;
+            B_LED = OFF;
             gled_tmr0_tick = 0;
             bled_tmr0_tick = 0;
             break;
