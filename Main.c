@@ -23,6 +23,7 @@
 #include "emc_library.h"
 
 #include "state.h"
+#include "led.h"
 
 // Global variables
 state_t myState = POWER_UP;
@@ -36,6 +37,11 @@ uint8_t         gled_tmr0_tick = 0, bled_tmr0_tick = 0;
 led_states_t    led_state = IDLE;
 uint8_t         ver_select = 0;
 
+// button press
+bool inButtonMenu = false;
+uint8_t buttonPressCount = 0;
+uint8_t tmr3_cnt = 0;
+bool g_op_state = false;
 
 //
 // MAIN
@@ -63,9 +69,9 @@ int main(int argc, char** argv)
         }
         else
         {
-            update_led_state(IDLE);
-            SLEEP();							
-            NOP();
+//            update_led_state(IDLE);
+//            SLEEP();							
+//            NOP();
         }
     }
 	  
@@ -92,7 +98,7 @@ void init_system()
     
     // Init interrupt
     int_init();
-    
+	
     // Smoke hub or super hub?
     ver_select = get_hub_type();
     
@@ -103,7 +109,7 @@ void timer0_init()
 {
     // T0CON: TIMER0 CONTROL REGISTER
     // 0x87 = b1000 0111 - Enable Timer0, 16 bit timer, 1:256 prescale value.
-    // TODO: how long per tick??? 50,000 us = 0.05 sec
+    // (1/8M)*4*256*781=99.9968ms
     T0CON = HIGH_FREQ_T0CON;             //1*4000 = 50,000us
     // Timer0 Register, High/Low Byte
     TMR0L = ((65535-HIGH_FREQ_TMR0)%256);
@@ -121,7 +127,9 @@ void start_timer0()
      * Timer0 used to control LEDs.
      */
     // 0x87 = b1000 0111 - timer 0 ON, 1:256 prescale
-    T0CON = TMR0_CFG;             //1*4000 = 50,000us
+    T0CON = TMR0_CFG;
+    // TODO: this should set timer0 to 100 ms, not 50 ms.
+	// (1/8M)*4*256*781=99.9968ms
     TMR0L = ((65535-_100milliseconds)%256);//for 8MHz
     TMR0H = ((65535-_100milliseconds)/256);
     TMR0IF = 0;
@@ -144,6 +152,18 @@ void enable_timer3()
     PIR2bits.TMR3IF = 0;
     INTCONbits.GIE = 1;
 }
+
+void disable_tmr3()
+{
+    buttonPressCount = 0;
+    tmr3_cnt = 0;
+    T3CONbits.TMR3ON = 0;
+	
+	TMR3IF = 0;
+    PIE2bits.TMR3IE = 0;
+    PIR2bits.TMR3IF = 0;
+}
+
 /* Control button press timeout*/
 void reload_timer3_2s()
 {
@@ -155,6 +175,12 @@ void reload_timer3_5s()
 {
     TMR3H = 0x78;
     TMR3L = 0;
+}
+
+void reload_timer3_100ms()
+{
+    TMR0L = ((65535-_100milliseconds)%256);//for 8MHz
+    TMR0H = ((65535-_100milliseconds)/256);	
 }
 
 void int_init()
@@ -694,8 +720,6 @@ uint8_t process_restart()
 	return TRUE;
 }
 
-//void __interrupt() INTERRUPT_InterruptManagerHigh (void)
-//void interrupt tc_int( void )
 void __interrupt isr()
 {
 	// UART1 ISR - modem
@@ -709,6 +733,50 @@ void __interrupt isr()
 	
 	// TMR0 ISR
 	TMR0_ISR();
+	
+     // button press
+    // TODO: Super hub use INT1 while smoke hub use IO. Will need to check for smoke hub.
+    if (INT1IF)
+    {                   
+        // Time out after 2s without edge detection; reset button 
+        INTCONbits.RBIF = 0;
+        INT1IF = 0;
+        PIE2bits.TMR3IE = 1;
+        T3CONbits.TMR3ON = 1;
+		if (buttonPressCount == 0)
+			reload_timer3_2s();
+        buttonPressCount++;                // press count if it times out.
+		
+        
+        if (!inButtonMenu && (buttonPressCount == 5))
+        {
+            inButtonMenu = true;
+            reload_timer3_5s();
+            buttonPressCount = 0;
+            
+            update_led_state(BUTTON_MENU);
+        }
+		
+		//test_count++;
+    }
+    
+    
+//        if( INT1IF==1 )     //Learning
+//        {
+//            INT1IF = 0;
+//            if( learn_delay==0 )
+//            {
+//                test_count++;
+//                test_time_detect = 0;                             
+//                learn_delay = 2;
+//            }
+//        }
+//    
+//    
+//    handle_learn_btn_pressed();
+        
+    // timer3 interrupt
+	TMR3_ISR(); 
 }
 
 // UART1 (to OTA/modem) ISR
@@ -755,173 +823,89 @@ void TMR0_ISR()
     }	
 }
 
-void smoker_ISR()
+void TMR3_ISR()
 {
-    uint8_t temp;
-	
-	if( ver_select == SMOKER )
+	if (TMR3IF)
     {
-        if( INT0IF==1 )     //STANDBY(PIN4)
-        {
-            INT0IF = 0;
-            Standby_f = 1;
-        }
-        if( INT1IF==1 )     //ALARM(PIN5)
-        {
-            //LED = 0;
-            INT1IF = 0;
-            if( TEST_PIN==1 )
-            {
-                //if( test_enable==1||first_test!=0||Test_click==1 )
-                //    add_event(TEST_PIN_T,2);
-            }else alarm_count = 1;                              
-        }
-        if( INT2IF==1 )     //ERROR(PIN6)
-        {
-            INT2IF = 0;
-            Error_f = 1;
-        }
-        if( RBIF==1 )       //TEST(PIN1)    RB.4
-        {
-            if( TEST_PIN==1 )            //只計算正緣觸發
-            {
-                test_count++;
-                test_time_detect = 0;
-            }
-            temp = PORTB;
-            NOP();
-            RBIF = 0;
-        }
-    }
-}
+        tmr3_cnt++;
+        TMR3IF = 0;
+        // 2s timer; 
+//		if (!inButtonMenu)
+//		{
+//			// 5 button pressed in 2 seconds
+//			if (buttonPressCount == 5)
+//			{
+//				tmr3_cnt = 0;
+//				inButtonMenu = true;
+//				reload_timer3_5s();
+//				buttonPressCount = 0;
+//				
+//				update_led_state(BUTTON_MENU);
+//			}
+//		}
+        
 
-void superhub_ISR()
-{
-	if( ver_select == SUPER_HUB )
-    {
-       if( INT0IF==1 )     //Tamper SW
+        if (tmr3_cnt >= 8 && (inButtonMenu && buttonPressCount > 0))
         {
-            INT0IF = 0;
-            if( tamper_status==0 )
+            tmr3_cnt = 0;
+            // learn_btn 5-1 - SMS setup
+            if (inButtonMenu && buttonPressCount == 1)
             {
-                add_event(TAMPER_OPEN_T,1);
-                tamper_status = 1;        
-                SPK = 0;
+                inButtonMenu = false;       // Leave button menu if we're in it
+                disable_tmr3();
+                //PREV_STATE = STATE;
+                myState = LISTEN_SMS;
+                update_led_state(STANDBY);
+				
+				// Add event
+				add_event(GO_SMS_T,0);
             }
-        }
-       // Learn button pressed
-        if( INT1IF==1 )     //Learning
-        {
-            INT1IF = 0;
-//            if( learn_delay==0 )
-//            {
-                test_count++;
-                test_time_detect = 0;                             
-                learn_delay = 2;
-//            }
-        }
-    }
-}
+            // learn_btn 5-2 - adding device ID
+            else if (inButtonMenu && buttonPressCount == 2)
+            {
+                inButtonMenu = false;       // Leave button menu if we're in it
+                disable_tmr3();
+                //PREV_STATE = STATE;
+                myState = ADD_SENSOR;
+                //start_sensor_tmr();
+				update_led_state(SENSOR_ADD);
+            }
+            // learn_btn 5-3 - deleting device ID
+            else if (inButtonMenu && buttonPressCount == 3)
+            {
+                inButtonMenu = false;       // Leave button menu if we're in it
+                disable_tmr3();
+                //PREV_STATE = STATE;
+                myState = DEL_SENSOR;
+                //start_sensor_tmr();
+				update_led_state(SENSOR_DELETE);
+            }
+			// learn_btn 5-4 - sending test alarm              
+            else if (inButtonMenu && buttonPressCount == 4)
+            {
+                 inButtonMenu = false;       // Leave button menu if we're in it
+                disable_tmr3();
+//                add_event(TEST_PIN, (uint8_t)(ee_read(0x00, HUB_ZONE_ADDR)));             // If test is in queue, goes into listen mode after
 
-void handle_smoker()
-{
-	if( ver_select == SMOKER )
-	{
-		if( alarm_count!=0 )
-		{
-			if( ALARM_PIN==1 )
-			{
-				if( ++alarm_count>=10 )
-				{
-					add_event(SMOKE_ALARM_T,1); 
-				   // send_trigger_to_RF(1);
-					alarm_count = 0;
-				}
-			}else alarm_count = 0;
-		}
-		if( ERROR_PIN==1 )
-		{
-			if( ++err_count>=10 )   //100ms*10 = 1 sec
-			{
-				if( err_count==10 )
-				{
-				 //   if( alarm_out(TAMPER_OPEN_T)==0 )
-				  //      Tamper_open_f = 1;
-						add_event(TAMPER_OPEN_T,1);
-				}
-				err_count = 10;
-			}
-		}else
-		{
-			if( err_count>=10 )
-			{
-			  //  if( alarm_out(TAMPER_CLOSE_T)==0 )
-				//    Tamper_close_f = 1;
-					add_event(TAMPER_CLOSE_T,1);
-			}
-			err_count = 0;
-		}   
-	
-		if( Standby_f==1 )
-		{
-			Standby_f = 0;
-			standby_count = 0;
-		}else{
-			standby_count++;            //100ms*4000=400Sec
-			if( standby_count>= 4000)
-			{
-				standby_count = 0;
-				Smoke_respond = 1;
-			}
-		}
-	
-		if( Error_f==1 )
-		{
-			Error_f = 0;
-			error_count++;
-			error_time_detect = 0;
-		}else
-		{            
-			if( error_count!=0 )
-			{
-				if( ++error_time_detect>=300 )  //100ms*300=30sec
-				{                    
-					if( error_count==1 )            
-					{
-						if( ++error_status_count>=5 )
-						{
-							if( BT_S_respond==0 )
-							{
-								add_event(LOW_BATTERY_T,1);
-								error_status_count = 0;
-								BT_S_respond = BT_EOL_RESEND;
-							}
-						}
-					}else if( error_count==3 )
-					{
-						if( ++error_status_count>=5 )
-						{
-							if( EOL_respond==0 )
-							{
-								add_event(EOL_T,1);
-								error_status_count = 0;
-								EOL_respond = BT_EOL_RESEND;
-							}
-						}
-					}else error_status_count = 0;
-					error_count = 0;
-					error_time_detect = 0;                                            
-				}
-			}else
-			{
-				if( ++error_time_detect>=300 )  //100ms*300=30sec
-				{ 
-					error_time_detect = 0;   
-					error_status_count = 0;                    
-				}
-			}
-		} 
-    }             
+				update_led_state(BUTTON_MENU);
+            }    
+            else if (buttonPressCount == 5)
+            {
+                inButtonMenu = (bool)(~inButtonMenu);       // toggle menu on/off
+                tmr3_cnt = 0;
+                myState = IDLE;
+            }   
+            
+            buttonPressCount = 0;       // clear button presses once we extract next state info
+        }
+        else if (tmr3_cnt >= 40 && inButtonMenu && buttonPressCount == 0) // 10s timeout
+        {
+            inButtonMenu = false;
+            tmr3_cnt = 0;
+            disable_tmr3();
+        }
+            
+    }    
 }
 
 void handle_learn_btn_pressed()
@@ -953,16 +937,20 @@ void handle_learn_btn_pressed()
 					Test_click = 1;
 					add_event(GO_SMS_T,0);
 					learning_mode = KEY_NONE;
+					
+					update_led_state(STANDBY);
 				}
                 // learn_btn 5-2 - adding device ID
                 else if( test_count==2 )
 				{
-					learning_mode = KEY_ADD_ID;                        
+					learning_mode = KEY_ADD_ID;     
+					update_led_state(SENSOR_ADD);
 				}
                 // learn_btn 5-3 - deleting device ID
                 else if( test_count==3 )
 				{
-					learning_mode = KEY_DEL_ID;                   
+					learning_mode = KEY_DEL_ID;   
+					update_led_state(SENSOR_DELETE);					
 				}
                 // learn_btn 5-4 - sending test alarm     
                 else if( test_count==4 )
@@ -970,6 +958,8 @@ void handle_learn_btn_pressed()
 					add_event(TEST_PIN_T,0);
 				 //   send_trigger_to_RF(0);
 					learning_mode = KEY_NONE;
+					
+					update_led_state(BUTTON_MENU);
 				}
                 else if( test_count==5 )
 				{
@@ -981,14 +971,3 @@ void handle_learn_btn_pressed()
 	    }       
 	}
 }
-
-
-
-
-uint8_t modem_module_start()
-{
-    return 1;
-}	
-
-
-

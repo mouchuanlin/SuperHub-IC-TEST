@@ -86,6 +86,13 @@
 
 #define _100milliseconds    780         // Timer0 interval for 8MHz clk
 #define TMR0_CFG            0x87
+
+
+#define TAMPER_INT          INTCON3bits.INT2IF
+#define ALARM_INT           INTCON3bits.INT1IF
+#define TEST_INT            INTCONbits.RBIF
+
+
     
     
 // Forward declaration.
@@ -113,6 +120,7 @@ void 	process_supervisory();
 void UART1_ISR();
 void UART2_ISR();
 void TMR0_ISR();
+void TMR3_ISR();
 void smoker_ISR();
 void superhub_ISR();
 //void handle_LED();
@@ -121,8 +129,11 @@ void handle_learn_btn_pressed();
 void start_timer0();
 void reload_timer0();
 void enable_timer3();
+void disable_tmr3();
 void reload_timer3_2s();
 void reload_timer3_5s();
+void reload_timer3_100ms();
+
 
 
 // Jen's simple_state_machine pronect
@@ -187,7 +198,6 @@ uint8_t 	rx2_cnt = 0;
 uint8_t 	rx2_buf[RX2_BUF_MAX];
 
 
-bool g_op_state = false;
 
 
 

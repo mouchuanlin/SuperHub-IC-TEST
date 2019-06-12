@@ -57,7 +57,7 @@ extern "C" {
 #define LED_G           LATBbits.LATB3
 #define LED_G_TRIS      TRISBbits.TRISB3
     
-// RB4 - LED3 
+// Learn button
 #define TEST_PIN        PORTBbits.RB4
 #define TEST_PIN_TRIS   TRISBbits.TRISB4
 
