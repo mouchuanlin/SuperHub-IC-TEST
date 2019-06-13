@@ -352,7 +352,7 @@ void __interrupt isr()
 //        }
 //    
 //    
-    //handle_learn_btn_pressed();
+    //process_button_push();
         
     // timer3 interrupt
 	//TMR3_ISR(); 
@@ -418,7 +418,7 @@ void superhub_ISR()
     }
 }
 
-void handle_learn_btn_pressed()
+void process_button_push()
 {
 	if( test_count!=0 )
 	{

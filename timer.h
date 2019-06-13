@@ -54,7 +54,7 @@ void process_sms_menu();
 
 
 extern void add_event(uint8_t event,uint8_t zone);
-extern void handle_learn_btn_pressed();
+extern void process_button_push();
 
 #endif	/* TIMER_H */
 

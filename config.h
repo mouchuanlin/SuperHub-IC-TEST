@@ -124,7 +124,7 @@ void smoker_ISR();
 void superhub_ISR();
 //void handle_LED();
 void handle_smoker();
-void handle_learn_btn_pressed();
+void process_button_push();
 
 // Jen's simple_state_machine pronect
 void start_modem();

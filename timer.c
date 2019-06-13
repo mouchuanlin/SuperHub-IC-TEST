@@ -156,7 +156,7 @@ void TMR0_ISR()
         control_leds();
 		
 		// Process learn button push events.
-		handle_learn_btn_pressed();
+		process_button_push();
     }	
 }
 
@@ -170,7 +170,7 @@ void TMR3_ISR()
 //		
 //        //process_sms_menu();    
 //
-//		handle_learn_btn_pressed();	
+//		process_button_push();	
     }    
 }
 
