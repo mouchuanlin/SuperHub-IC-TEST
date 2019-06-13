@@ -15,6 +15,7 @@
 #include "queue.h"
 #include "initial.h"
 #include "led.h"
+#include "uart.h"
 
 void powerup_modem()
 {
@@ -117,7 +118,7 @@ uint8_t wait_AT_cmd_response()
         soutdata("AT+IPR=115200\r\n$");
         //soutdata("AT+IPR=19200\r\n$");
         wait_ok_respond(40);
-        //Uart_initial();
+        //UART_init();
         cnt = check_module_run();
         if( cnt!='K' )
         {
@@ -321,10 +322,10 @@ uint8_t wait_SMS_setting()
                     ///// STEP 4. - Comment Uart_initial_115200() out. Call Uart_initial() to set to 19200.)
                     //Uart_initial_115200();
                     UART1_init();
-                    //Uart_initial(); 
+                    //UART_init(); 
                     //soutdata("AT+IPR=19200\r\n$");
                     //wait_ok_respond(40);
-                    //Uart_initial();
+                    //UART_init();
                     set_sms_init();    
                 }
               //  LED = 1;

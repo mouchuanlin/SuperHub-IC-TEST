@@ -309,14 +309,7 @@ uint8_t Module_type = EMS31;
 
 
 
-
-void UART1_init(void);
-void UART2_init(void);
-void Enable_Uart_IO(void);
-void Uart_disable(void);
-//void Uart_initial_115200(void);
 void ADC_init(void);
-void Uart_initial(void);
 void IO_init(void);
 
 

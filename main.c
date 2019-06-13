@@ -26,6 +26,7 @@
 #include "led.h"
 #include "timer.h"
 #include "modem.h"
+#include "uart.h"
 
 
 
@@ -94,7 +95,7 @@ void init_system()
     SWDTEN = 0;     
 
     IO_init();
-    Uart_initial();      
+    UART_init();      
     ADC_init();
     
     // Init Timer0.
