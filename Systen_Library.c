@@ -28,37 +28,6 @@ void load_ID_to_buffer(void);
 //    }
 //}
 
-void delay5ms(uint16_t cnt)
-{
-    uint8_t a,b;
-    if( HL_freq==1 )
-    {
-        do{
-            b = 18;
-            do{
-                a = 50;//100;
-                while(--a!=0);
-            }while(--b!=0);
-            CLRWDT();
-        }while(--cnt!=0);
-    }else
-    {
-        do{
-            a = 4;//100;
-            while(--a!=0); 
-            CLRWDT();
-        }while(--cnt!=0);
-    }
-}
-
-void delayseconds(uint16_t secs)
-{
-    for (uint16_t i = 0; i < secs; i++)
-    {
-        delay5ms(200);
-        CLRWDT();
-    }
-}
 
 // TODO: Check spec
 bool is_first_run()

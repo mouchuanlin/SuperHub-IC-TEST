@@ -17,6 +17,8 @@
       <itemPath>state.h</itemPath>
       <itemPath>queue.h</itemPath>
       <itemPath>led.h</itemPath>
+      <itemPath>timer.h</itemPath>
+      <itemPath>modem.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -39,6 +41,8 @@
       <itemPath>queue.c</itemPath>
       <itemPath>state.c</itemPath>
       <itemPath>led.c</itemPath>
+      <itemPath>timer.c</itemPath>
+      <itemPath>modem.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

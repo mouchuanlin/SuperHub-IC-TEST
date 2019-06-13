@@ -24,10 +24,15 @@
 
 #include "state.h"
 #include "led.h"
+#include "timer.h"
+#include "modem.h"
+
+
+
 
 // Global variables
-state_t myState = POWER_UP;
-bool readyForSleep = false;
+state_t     myState = POWER_UP;
+bool        readyForSleep = false;
 
 // LED
 bool            G_LED_STATE = 1, B_LED_STATE = 1;
@@ -38,10 +43,10 @@ led_states_t    led_state = IDLE;
 uint8_t         ver_select = 0;
 
 // button press
-bool inButtonMenu = false;
-uint8_t buttonPressCount = 0;
+bool    inButtonMenu = false;
+uint8_t  buttonPressCount = 0;
 uint8_t tmr3_cnt = 0;
-bool g_op_state = false;
+bool    g_op_state = false;
 
 //
 // MAIN
@@ -105,83 +110,7 @@ void init_system()
     update_led_state(IDLE);
 }
 
-void timer0_init()
-{
-    // T0CON: TIMER0 CONTROL REGISTER
-    // 0x87 = b1000 0111 - Enable Timer0, 16 bit timer, 1:256 prescale value.
-    // (1/8M)*4*256*781=99.9968ms
-    T0CON = HIGH_FREQ_T0CON;             //1*4000 = 50,000us
-    // Timer0 Register, High/Low Byte
-    TMR0L = ((65535-HIGH_FREQ_TMR0)%256);
-    TMR0H = ((65535-HIGH_FREQ_TMR0)/256);
-    TMR0IF = 0;
-    TMR0IE = 1;
-}
 
-// Timer0 used to control LEDs.
-void start_timer0()
-{
-    // T0CON: TIMER0 CONTROL REGISTER
-    /* t0con = 0x87: enable timer0, use as 16-bit counter, transition on
-     * internal instruction cycle, assign prescaler of: 1:256.
-     * Timer0 used to control LEDs.
-     */
-    // 0x87 = b1000 0111 - timer 0 ON, 1:256 prescale
-    T0CON = TMR0_CFG;
-    // TODO: this should set timer0 to 100 ms, not 50 ms.
-	// (1/8M)*4*256*781=99.9968ms
-    TMR0L = ((65535-_100milliseconds)%256);//for 8MHz
-    TMR0H = ((65535-_100milliseconds)/256);
-    TMR0IF = 0;
-    TMR0IE = 1;
-    INTCONbits.GIE = 1;
-}
-
-void reload_timer0()
-{
-    TMR0L = ((65535-_100milliseconds)%256);//for 8MHz
-    TMR0H = ((65535-_100milliseconds)/256);
-}
-
-void enable_timer3()
-{
-    T3CON = 0b00110001;//    0x71;
-    INTCONbits.GIE = 0;
-    INTCONbits.PEIE = 1;
-    PIE2bits.TMR3IE = 1;
-    PIR2bits.TMR3IF = 0;
-    INTCONbits.GIE = 1;
-}
-
-void disable_tmr3()
-{
-    buttonPressCount = 0;
-    tmr3_cnt = 0;
-    T3CONbits.TMR3ON = 0;
-	
-	TMR3IF = 0;
-    PIE2bits.TMR3IE = 0;
-    PIR2bits.TMR3IF = 0;
-}
-
-/* Control button press timeout*/
-void reload_timer3_2s()
-{
-    TMR3H = 0x30;
-    TMR3L = 0;
-}
-
-void reload_timer3_5s()
-{
-    TMR3H = 0x78;
-    TMR3L = 0;
-}
-
-void reload_timer3_100ms()
-{
-    TMR0L = ((65535-_100milliseconds)%256);//for 8MHz
-    TMR0H = ((65535-_100milliseconds)/256);	
-}
 
 void int_init()
 {
@@ -226,66 +155,6 @@ void init_stack_buffer()
     }
 }
 
-void start_modem()
-{
-//    CLRWDT();
-//    MD_POWER = POWER_ON;
-//    //__delay_ms(25000);
-//    delayseconds(25);
-        
-    update_led_state(POWERON);
-       
-    powerup_modem();
-    
-    while (!md_config_ok())
-        restart_modem();
-    //md_started = true;
-}
-
-bool md_config_ok()
-{
-    if (!wait_AT_cmd_response())        
-		return false;
-        
-    //-------- wait SIM ready---------
-    if (!check_SIM_state())		
-		return false;
- 
-    //-------- wait register network---------
-    if (!check_network_registration())
-		return false;
-    
-//    //--------- Alarm or Report ---------    
-//
-//	if (!alarm_or_report())
-//		return false;
-	
-    //--------- Wait SMS Setting ---------
-	if (!wait_SMS_setting())
-    	return false;
-    
-    return true;
-}
-
-void restart_modem()
-{
-    CLRWDT();
-    MD_POWER = POWER_OFF;
-//    __delay_ms(5000);
-    delayseconds(5);
-//    MD_POWER = POWER_ON;
-////    __delay_ms(25000);
-//    delayseconds(25);
-    
-    powerup_modem();
-}
-
-void stop_modem()
-{
-    MD_POWER = POWER_OFF;
-//    __delay_ms(5000);
-    //md_started = false;
-}
 
 
 
@@ -341,300 +210,6 @@ void buzzer_on(uint8_t count)
         delay5ms(20);
         CLRWDT();
     }
-}
-
-void powerup_modem()
-{
-    MD_POWER = POWER_ON;
-    delayseconds(2);
-    MD_RESET = 1;
-    delayseconds(1);
-    MD_RESET = 0;   
-    delayseconds(2);
-    
-    MD_START = 0;
-    delayseconds(3);
-    MD_START = 1;   
-    
-    // delay 25 seconds for modem to power up
-    delayseconds(25);
-    
-    MD_START = 0;    
-}
-
-uint8_t wait_AT_cmd_response()
-{
-	uint8_t cnt,rsp,temp;
-		
-	rsp = 15;
-    
-    // STEPS change UART1 baudrate to 19200 bps
-    //  1. Init UART 115200
-    //  2. +IRP=19200
-    //  3. Init UART 19200
-    //  4. 
-    do{         
-        ///// STEP 1. - change baudrate to 19200 bps in this function.
-        //Uart_initial_115200();
-        //UART1_init();
-        // mlin - setup modem baud rate
-        ///// STEP 2. - +IPR to set modem baudrate to 19200 bps
-        soutdata("AT+IPR=115200\r\n$");
-        //soutdata("AT+IPR=19200\r\n$");
-        wait_ok_respond(40);
-        //Uart_initial();
-        cnt = check_module_run();
-        if( cnt!='K' )
-        {
-            delayseconds(3);
-            ///// STEP 3. - We probably do need this since ???
-            //Uart_initial_115200();
-            UART1_init();
-            cnt = check_module_version(1);        
-            if( cnt=='K' )
-            {
-                if( Module_type == PLS8 )
-                    cnt = 'K';
-                else cnt = 'E';
-            }
-        }
-        CLRWDT();
-    }while( --rsp!=0&&cnt!='K' );     
-    if( rsp==0 )
-    {        
-        #ifdef MODULE_OFF_TYPE
-            MD_POWER = POWER_OFF;
-        #else
-            MD_RESET = 1;
-        #endif
-        cnt = 30;
-        do{
-            delayseconds(1);
-        }while(--cnt!=0);
-        #ifndef MODULE_OFF_TYPE
-            MD_RESET = 0;
-        #endif
-        power_status = MD_POWER_LOSS;
-        //goto module_start;
-		return FALSE;
-    }   
-       
-    //---------------------------------   
-    wait_ok_respond(40);
-    cnt = 10;
-    do{
-        rsp = check_module_version(cnt);
-        if( rsp=='E' )
-            power_status = MD_POWER_LOSS;
-        else power_status = 0;
-        CLRWDT();
-    }while(--cnt!=0&&rsp=='E');
-	
-    wait_ok_respond(40);
-    if( GEMALTO )
-        GM_module_first_run();
-    else TL_module_first_run();    
-    //--------------------------------
-    delay5ms(100);
-    soutdata("AT+VER=$");
-    
-    // TODO: This should no functional at all???
-    if( VER_SELECT==1 ) //Smoker
-    {
-        soutdata("Smoker,$");
-    }else soutdata("Super HUB,$");
-	
-    if( Module_type==EMS31 )    
-        soutdata("EMS31\r\n$");
-    else if( Module_type==PLS8 )    
-        soutdata("PLS8\r\n$");    
-    else if( Module_type==LE910 )    
-        soutdata("LE910\r\n$");    
-    else //if( Module_type==LE866 )    
-        soutdata("LE866\r\n$");    
-    delayseconds(1);
-	
-	
-	return 1;
-}
-
-uint8_t check_SIM_state()
-{
-	uint8_t cnt,rsp,temp;
-		
-	cnt = 50;
-    do{       
-        rsp = check_sim_card();
-        if( rsp=='N'&&cnt==30 )        
-         {
-            #ifdef MODULE_OFF_TYPE
-                MD_POWER = POWER_OFF;
-            #else
-                MD_RESET = 1;
-            #endif
-			
-			// TODO: Why 30 secs here???
-			delayseconds(30);
-			
-            #ifndef MODULE_OFF_TYPE
-                MD_RESET = 0;
-            #endif
-			
-            power_status = MD_POWER_LOSS;
-			
-            //goto module_start;
-			return FALSE;
-        } 
-        CLRWDT();
-    }while( rsp!='K'&& --cnt!=0 );
-    if( cnt==0 )    
-    {
-        #ifdef MODULE_OFF_TYPE
-            MD_POWER = POWER_OFF;
-        #else
-            MD_RESET = 1;
-        #endif
-		
-		// TODO: Why 30 secs here???
-		delayseconds(30);
-		
-        #ifndef MODULE_OFF_TYPE
-            MD_RESET = 0;
-        #endif
-        //goto module_start;
-		return FALSE;
-    }
-	
-	return TRUE;
-}
-
-uint8_t check_network_registration()
-{
-	uint8_t cnt,rsp,temp;
-		
-	//-------- wait register network---------
-    cnt = 50;
-    do{
-        if( cnt%2==0 )
-            rsp = check_register(0);
-        else 
-            rsp = check_register(1);
-        CLRWDT();
-    }while( rsp!='K' && --cnt!=0 );
-    if( cnt==0 )    
-    {
-        #ifdef MODULE_OFF_TYPE
-            MD_POWER = POWER_OFF;
-        #else
-            MD_RESET = 1;
-        #endif
-		// TODO: Why 30 secs here???
-		delayseconds(30);
-		
-        #ifndef MODULE_OFF_TYPE
-            MD_RESET = 0;
-        #endif
-        //goto module_start;
-		return FALSE;
-    }
-    power_status = 0;
-    delay5ms(100);
-    // mlin - AT+CSQ doesn't seems get response???
-    rsp = check_csq();
-    check_led_type();
-    // mlin - why "AT\\Q0\r\n$"
-    soutdata("AT\\Q0\r\n$");
-    
-//    soutdata(AT+CMGS=\"5665776987\"\r\n$");
-    
-    //OTA_flag = 1; //----------------------------------
-	
-	return TRUE;    
-}
-
-uint8_t wait_SMS_setting()
-{
-	uint8_t cnt,rsp,temp;
-    uint8_t sms_time;
-		
-	//    Test_click = 0;
-    if( Test_click==1 )    
-    {
-        sms_time = read_ee(0x00,0xB8);   //wait SMS time
-        set_sms_init();    
-        do{
-            cnt = 12;
-            do{
-                rsp = 16;
-                do{
-                    delayseconds(1);
-                    if( event_count_f!=event_count_l)     
-                        check_event(); 
-                    if( stack_buffer[0][0]!=0&&retry_count==0&&IP_type==1 )   
-                    {                   
-                       //goto alarm_start;
-					   return FALSE;
-                    }
-                }while(--rsp!=0);
-              //  LED = 0;
-                check_sms();
-                delay5ms(100);
-                if( check_csq()==0 )
-                {
-                    ///// STEP 4. - Comment Uart_initial_115200() out. Call Uart_initial() to set to 19200.)
-                    //Uart_initial_115200();
-                    UART1_init();
-                    //Uart_initial(); 
-                    //soutdata("AT+IPR=19200\r\n$");
-                    //wait_ok_respond(40);
-                    //Uart_initial();
-                    set_sms_init();    
-                }
-              //  LED = 1;
-            }while(--cnt!=0);      
-            CLRWDT();
-        }while(--sms_time!=0);
-        Test_click = 0;
-    }
-    if( event_count_f!=event_count_l)     
-        check_event();
-    if( stack_buffer[0][0]!=0&&retry_count==0&&IP_type==1 )//LED_flash_type==LED_STANDBY )                     
-        //goto alarm_start;
-		return FALSE;
-		
-		
-	return TRUE;
-}
-
-    
-void process_event_queue()
-{
-	// Event queue is not empty
-	if (event_count_f != event_count_l)    
-	{
-		check_event(); 
-		retry_count = 0;        // new add on V104
-	}
-}
-
-uint8_t process_SMS_setup_state()
-{
-	if ( Test_click==1 )
-	{                     
-		#ifdef MODULE_OFF_TYPE
-		   MD_POWER = POWER_OFF;
-		#else
-			MD_RESET = 1;
-		#endif
-		delayseconds(1);
-		#ifndef MODULE_OFF_TYPE
-			MD_RESET = 0;
-		#endif
-		//goto module_start;
-		return FALSE;
-	}	
-	
-	return TRUE;
 }
 
 void process_ADC()
@@ -739,21 +314,22 @@ void __interrupt isr()
     if (INT1IF)
     {                   
         // Time out after 2s without edge detection; reset button 
-        INTCONbits.RBIF = 0;
         INT1IF = 0;
+        INTCONbits.RBIF = 0;
         PIE2bits.TMR3IE = 1;
         T3CONbits.TMR3ON = 1;
-		if (buttonPressCount == 0)
+        if (inButtonMenu && (buttonPressCount == 0))
+            reload_timer3_5s();
+		else if (buttonPressCount == 0)
 			reload_timer3_2s();
+        
         buttonPressCount++;                // press count if it times out.
 		
-        
         if (!inButtonMenu && (buttonPressCount == 5))
         {
-            inButtonMenu = true;
             reload_timer3_5s();
             buttonPressCount = 0;
-            
+            inButtonMenu = true;
             update_led_state(BUTTON_MENU);
         }
 		
@@ -810,164 +386,4 @@ void UART2_ISR()
     {
         //update_led_state(RF_INT);
     }        	
-}
-
-void TMR0_ISR()
-{
-    // TMR0 Overflow Interrupt Flag bit          
-    if (TMR0IF)
-    {
-        TMR0IF = 0;
-        reload_timer0();
-        control_leds();
-    }	
-}
-
-void TMR3_ISR()
-{
-	if (TMR3IF)
-    {
-        tmr3_cnt++;
-        TMR3IF = 0;
-        // 2s timer; 
-//		if (!inButtonMenu)
-//		{
-//			// 5 button pressed in 2 seconds
-//			if (buttonPressCount == 5)
-//			{
-//				tmr3_cnt = 0;
-//				inButtonMenu = true;
-//				reload_timer3_5s();
-//				buttonPressCount = 0;
-//				
-//				update_led_state(BUTTON_MENU);
-//			}
-//		}
-        
-
-        if (tmr3_cnt >= 8 && (inButtonMenu && buttonPressCount > 0))
-        {
-            tmr3_cnt = 0;
-            // learn_btn 5-1 - SMS setup
-            if (inButtonMenu && buttonPressCount == 1)
-            {
-                inButtonMenu = false;       // Leave button menu if we're in it
-                disable_tmr3();
-                //PREV_STATE = STATE;
-                myState = LISTEN_SMS;
-                update_led_state(STANDBY);
-				
-				// Add event
-				add_event(GO_SMS_T,0);
-            }
-            // learn_btn 5-2 - adding device ID
-            else if (inButtonMenu && buttonPressCount == 2)
-            {
-                inButtonMenu = false;       // Leave button menu if we're in it
-                disable_tmr3();
-                //PREV_STATE = STATE;
-                myState = ADD_SENSOR;
-                //start_sensor_tmr();
-				update_led_state(SENSOR_ADD);
-            }
-            // learn_btn 5-3 - deleting device ID
-            else if (inButtonMenu && buttonPressCount == 3)
-            {
-                inButtonMenu = false;       // Leave button menu if we're in it
-                disable_tmr3();
-                //PREV_STATE = STATE;
-                myState = DEL_SENSOR;
-                //start_sensor_tmr();
-				update_led_state(SENSOR_DELETE);
-            }
-			// learn_btn 5-4 - sending test alarm              
-            else if (inButtonMenu && buttonPressCount == 4)
-            {
-                 inButtonMenu = false;       // Leave button menu if we're in it
-                disable_tmr3();
-//                add_event(TEST_PIN, (uint8_t)(ee_read(0x00, HUB_ZONE_ADDR)));             // If test is in queue, goes into listen mode after
-
-				update_led_state(BUTTON_MENU);
-            }    
-            else if (buttonPressCount == 5)
-            {
-                inButtonMenu = (bool)(~inButtonMenu);       // toggle menu on/off
-                tmr3_cnt = 0;
-                myState = IDLE;
-            }   
-            
-            buttonPressCount = 0;       // clear button presses once we extract next state info
-        }
-        else if (tmr3_cnt >= 40 && inButtonMenu && buttonPressCount == 0) // 10s timeout
-        {
-            inButtonMenu = false;
-            tmr3_cnt = 0;
-            disable_tmr3();
-        }
-            
-    }    
-}
-
-void handle_learn_btn_pressed()
-{
-	if( test_count!=0 )
-	{
-		test_time_detect++;
-		if( learning_mode == KEY_NONE )
-		{
-            // learn_btn 5 in 1 second
-			if( test_count==5&&test_time_detect>10 ) //1sec
-			{
-			   learning_mode = KEY_IN_LEARN;
-			   exit_learn = 0;
-			   test_count = 0;
-				test_time_detect = 0;
-			}else if( test_time_detect>=20 )  //100ms*20=2sec
-			{
-				test_count = 0;
-				test_time_detect = 0;
-			}
-		}else{                                                        
-			if( ++test_time_detect>=20 )  //100ms*20=2sec
-			{               
-                // learn_btn 5-1 - SMS setup
-				if( test_count==1 )
-				{
-                    // SMS setup state
-					Test_click = 1;
-					add_event(GO_SMS_T,0);
-					learning_mode = KEY_NONE;
-					
-					update_led_state(STANDBY);
-				}
-                // learn_btn 5-2 - adding device ID
-                else if( test_count==2 )
-				{
-					learning_mode = KEY_ADD_ID;     
-					update_led_state(SENSOR_ADD);
-				}
-                // learn_btn 5-3 - deleting device ID
-                else if( test_count==3 )
-				{
-					learning_mode = KEY_DEL_ID;   
-					update_led_state(SENSOR_DELETE);					
-				}
-                // learn_btn 5-4 - sending test alarm     
-                else if( test_count==4 )
-				{
-					add_event(TEST_PIN_T,0);
-				 //   send_trigger_to_RF(0);
-					learning_mode = KEY_NONE;
-					
-					update_led_state(BUTTON_MENU);
-				}
-                else if( test_count==5 )
-				{
-					learning_mode = KEY_NONE;
-				}                         
-				test_count = 0;
-				test_time_detect = 0;
-			}
-	    }       
-	}
 }
