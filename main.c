@@ -18,7 +18,7 @@
 #include "EE_library.h"
 #include "SMS_library.h"
 #include "Module_Library.h"
-#include "Module_LB_Gemalto.h"
+//#include "Module_LB_Gemalto.h"
 #include "Module_LB_Telit.h"
 #include "emc_library.h"
 

@@ -3,7 +3,7 @@
 #include "EE_library.h"
 #include "System_Library.h"
 #include "Module_Library.h"
-#include "Module_LB_Gemalto.h"
+//#include "Module_LB_Gemalto.h"
 #include "Module_LB_Telit.h"
 #include <pic18f26k22.h>
 #include <xc.h>

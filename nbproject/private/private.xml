@@ -12,14 +12,16 @@
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/bitbucket/SuperHub-IC-TEST/Systen_Library.c</file>
-            <file>file:/D:/bitbucket/SuperHub-IC-TEST/Main.c</file>
+            <file>file:/D:/bitbucket/SuperHub-IC-TEST/Module_LB_Telit.c</file>
+            <file>file:/D:/bitbucket/SuperHub-IC-TEST/main.c</file>
+            <file>file:/D:/bitbucket/SuperHub-IC-TEST/config.h</file>
+            <file>file:/D:/bitbucket/SuperHub-IC-TEST/emc_library.c</file>
             <file>file:/D:/bitbucket/SuperHub-IC-TEST/led.h</file>
-            <file>file:/D:/bitbucket/SuperHub-IC-TEST/state.c</file>
-            <file>file:/D:/bitbucket/SuperHub-IC-TEST/state.h</file>
-            <file>file:/D:/bitbucket/SuperHub-IC-TEST/led.c</file>
+            <file>file:/D:/bitbucket/SuperHub-IC-TEST/timer.h</file>
+            <file>file:/D:/bitbucket/SuperHub-IC-TEST/timer.c</file>
+            <file>file:/D:/bitbucket/SuperHub-IC-TEST/modem.c</file>
+            <file>file:/D:/bitbucket/SuperHub-IC-TEST/OTA.c</file>
             <file>file:/D:/bitbucket/SuperHub-IC-TEST/initial.h</file>
-            <file>file:/D:/bitbucket/SuperHub-IC-TEST/Module_Library.c</file>
         </group>
     </open-files>
 </project-private>

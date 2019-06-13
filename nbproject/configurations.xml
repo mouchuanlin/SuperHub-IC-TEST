@@ -11,7 +11,6 @@
       <itemPath>SMS_library.h</itemPath>
       <itemPath>emc_library.h</itemPath>
       <itemPath>Setup_mode.h</itemPath>
-      <itemPath>Module_LB_Gemalto.h</itemPath>
       <itemPath>Module_LB_Telit.h</itemPath>
       <itemPath>config.h</itemPath>
       <itemPath>state.h</itemPath>
@@ -35,7 +34,6 @@
       <itemPath>SMS_library.c</itemPath>
       <itemPath>Setup_mode.c</itemPath>
       <itemPath>Module_LB_Telit.c</itemPath>
-      <itemPath>Module_LB_Gemalto.c</itemPath>
       <itemPath>OTA.c</itemPath>
       <itemPath>Main.c</itemPath>
       <itemPath>queue.c</itemPath>
