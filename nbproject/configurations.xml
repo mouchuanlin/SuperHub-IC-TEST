@@ -4,7 +4,6 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
-      <itemPath>initial.h</itemPath>
       <itemPath>EE_library.h</itemPath>
       <itemPath>System_Library.h</itemPath>
       <itemPath>Module_Library.h</itemPath>
@@ -19,6 +18,7 @@
       <itemPath>timer.h</itemPath>
       <itemPath>modem.h</itemPath>
       <itemPath>uart.h</itemPath>
+      <itemPath>io.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -27,11 +27,9 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <itemPath>Initial.c</itemPath>
       <itemPath>emc_library.c</itemPath>
       <itemPath>EE_library.c</itemPath>
       <itemPath>Systen_Library.c</itemPath>
-      <itemPath>Module_Library.c</itemPath>
       <itemPath>SMS_library.c</itemPath>
       <itemPath>Setup_mode.c</itemPath>
       <itemPath>Module_LB_Telit.c</itemPath>
@@ -43,6 +41,7 @@
       <itemPath>timer.c</itemPath>
       <itemPath>modem.c</itemPath>
       <itemPath>uart.c</itemPath>
+      <itemPath>io.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

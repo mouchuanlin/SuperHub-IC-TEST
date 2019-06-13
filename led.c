@@ -8,12 +8,14 @@
  * Date Created: 30 Apr. 2018, 10:19 AM
  * Last Modified: 30 Apr. 2018, 10:19 AM
  */
+
 #include <pic18f26k22.h>
 #include <xc.h>
+
 #include "config.h"
 #include "led.h"
 #include "queue.h"
-#include "initial.h"
+#include "io.h"
 
 void update_led_state(led_states_t new_state)
 {

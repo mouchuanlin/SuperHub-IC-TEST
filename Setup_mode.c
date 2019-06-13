@@ -1,8 +1,16 @@
-#include "System_Library.h"
-#include "EE_library.h"
-#include "initial.h"
+//
+// Setup_mode.c
+//
+
+
+
 #include <ctype.h>
 #include <xc.h>
+
+#include "System_Library.h"
+#include "EE_library.h"
+#include "io.h"
+
 //------------------------------------//
 uint8_t function_code(void);
 

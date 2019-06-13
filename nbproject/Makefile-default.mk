@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=Initial.c emc_library.c EE_library.c Systen_Library.c Module_Library.c SMS_library.c Setup_mode.c Module_LB_Telit.c OTA.c Main.c queue.c state.c led.c timer.c modem.c uart.c
+SOURCEFILES_QUOTED_IF_SPACED=emc_library.c EE_library.c Systen_Library.c SMS_library.c Setup_mode.c Module_LB_Telit.c OTA.c Main.c queue.c state.c led.c timer.c modem.c uart.c io.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Initial.p1 ${OBJECTDIR}/emc_library.p1 ${OBJECTDIR}/EE_library.p1 ${OBJECTDIR}/Systen_Library.p1 ${OBJECTDIR}/Module_Library.p1 ${OBJECTDIR}/SMS_library.p1 ${OBJECTDIR}/Setup_mode.p1 ${OBJECTDIR}/Module_LB_Telit.p1 ${OBJECTDIR}/OTA.p1 ${OBJECTDIR}/Main.p1 ${OBJECTDIR}/queue.p1 ${OBJECTDIR}/state.p1 ${OBJECTDIR}/led.p1 ${OBJECTDIR}/timer.p1 ${OBJECTDIR}/modem.p1 ${OBJECTDIR}/uart.p1
-POSSIBLE_DEPFILES=${OBJECTDIR}/Initial.p1.d ${OBJECTDIR}/emc_library.p1.d ${OBJECTDIR}/EE_library.p1.d ${OBJECTDIR}/Systen_Library.p1.d ${OBJECTDIR}/Module_Library.p1.d ${OBJECTDIR}/SMS_library.p1.d ${OBJECTDIR}/Setup_mode.p1.d ${OBJECTDIR}/Module_LB_Telit.p1.d ${OBJECTDIR}/OTA.p1.d ${OBJECTDIR}/Main.p1.d ${OBJECTDIR}/queue.p1.d ${OBJECTDIR}/state.p1.d ${OBJECTDIR}/led.p1.d ${OBJECTDIR}/timer.p1.d ${OBJECTDIR}/modem.p1.d ${OBJECTDIR}/uart.p1.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/emc_library.p1 ${OBJECTDIR}/EE_library.p1 ${OBJECTDIR}/Systen_Library.p1 ${OBJECTDIR}/SMS_library.p1 ${OBJECTDIR}/Setup_mode.p1 ${OBJECTDIR}/Module_LB_Telit.p1 ${OBJECTDIR}/OTA.p1 ${OBJECTDIR}/Main.p1 ${OBJECTDIR}/queue.p1 ${OBJECTDIR}/state.p1 ${OBJECTDIR}/led.p1 ${OBJECTDIR}/timer.p1 ${OBJECTDIR}/modem.p1 ${OBJECTDIR}/uart.p1 ${OBJECTDIR}/io.p1
+POSSIBLE_DEPFILES=${OBJECTDIR}/emc_library.p1.d ${OBJECTDIR}/EE_library.p1.d ${OBJECTDIR}/Systen_Library.p1.d ${OBJECTDIR}/SMS_library.p1.d ${OBJECTDIR}/Setup_mode.p1.d ${OBJECTDIR}/Module_LB_Telit.p1.d ${OBJECTDIR}/OTA.p1.d ${OBJECTDIR}/Main.p1.d ${OBJECTDIR}/queue.p1.d ${OBJECTDIR}/state.p1.d ${OBJECTDIR}/led.p1.d ${OBJECTDIR}/timer.p1.d ${OBJECTDIR}/modem.p1.d ${OBJECTDIR}/uart.p1.d ${OBJECTDIR}/io.p1.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/Initial.p1 ${OBJECTDIR}/emc_library.p1 ${OBJECTDIR}/EE_library.p1 ${OBJECTDIR}/Systen_Library.p1 ${OBJECTDIR}/Module_Library.p1 ${OBJECTDIR}/SMS_library.p1 ${OBJECTDIR}/Setup_mode.p1 ${OBJECTDIR}/Module_LB_Telit.p1 ${OBJECTDIR}/OTA.p1 ${OBJECTDIR}/Main.p1 ${OBJECTDIR}/queue.p1 ${OBJECTDIR}/state.p1 ${OBJECTDIR}/led.p1 ${OBJECTDIR}/timer.p1 ${OBJECTDIR}/modem.p1 ${OBJECTDIR}/uart.p1
+OBJECTFILES=${OBJECTDIR}/emc_library.p1 ${OBJECTDIR}/EE_library.p1 ${OBJECTDIR}/Systen_Library.p1 ${OBJECTDIR}/SMS_library.p1 ${OBJECTDIR}/Setup_mode.p1 ${OBJECTDIR}/Module_LB_Telit.p1 ${OBJECTDIR}/OTA.p1 ${OBJECTDIR}/Main.p1 ${OBJECTDIR}/queue.p1 ${OBJECTDIR}/state.p1 ${OBJECTDIR}/led.p1 ${OBJECTDIR}/timer.p1 ${OBJECTDIR}/modem.p1 ${OBJECTDIR}/uart.p1 ${OBJECTDIR}/io.p1
 
 # Source Files
-SOURCEFILES=Initial.c emc_library.c EE_library.c Systen_Library.c Module_Library.c SMS_library.c Setup_mode.c Module_LB_Telit.c OTA.c Main.c queue.c state.c led.c timer.c modem.c uart.c
+SOURCEFILES=emc_library.c EE_library.c Systen_Library.c SMS_library.c Setup_mode.c Module_LB_Telit.c OTA.c Main.c queue.c state.c led.c timer.c modem.c uart.c io.c
 
 
 CFLAGS=
@@ -93,14 +93,6 @@ MP_PROCESSOR_OPTION=18F26K22
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: compile
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
-${OBJECTDIR}/Initial.p1: Initial.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/Initial.p1.d 
-	@${RM} ${OBJECTDIR}/Initial.p1 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c  -D__DEBUG=1  -fshort-double -fshort-float -memi=wordwrite -O1 -fasmfile -maddrqual=ignore -xassembler-with-cpp -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx032 -Wl,--data-init -mno-keep-startup -mno-download -mdefault-config-bits $(COMPARISON_BUILD)  -std=c90 -gdwarf-3 -mstack=compiled:auto:auto:auto     -o ${OBJECTDIR}/Initial.p1 Initial.c 
-	@-${MV} ${OBJECTDIR}/Initial.d ${OBJECTDIR}/Initial.p1.d 
-	@${FIXDEPS} ${OBJECTDIR}/Initial.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
-	
 ${OBJECTDIR}/emc_library.p1: emc_library.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
 	@${RM} ${OBJECTDIR}/emc_library.p1.d 
@@ -124,14 +116,6 @@ ${OBJECTDIR}/Systen_Library.p1: Systen_Library.c  nbproject/Makefile-${CND_CONF}
 	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c  -D__DEBUG=1  -fshort-double -fshort-float -memi=wordwrite -O1 -fasmfile -maddrqual=ignore -xassembler-with-cpp -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx032 -Wl,--data-init -mno-keep-startup -mno-download -mdefault-config-bits $(COMPARISON_BUILD)  -std=c90 -gdwarf-3 -mstack=compiled:auto:auto:auto     -o ${OBJECTDIR}/Systen_Library.p1 Systen_Library.c 
 	@-${MV} ${OBJECTDIR}/Systen_Library.d ${OBJECTDIR}/Systen_Library.p1.d 
 	@${FIXDEPS} ${OBJECTDIR}/Systen_Library.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
-	
-${OBJECTDIR}/Module_Library.p1: Module_Library.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/Module_Library.p1.d 
-	@${RM} ${OBJECTDIR}/Module_Library.p1 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c  -D__DEBUG=1  -fshort-double -fshort-float -memi=wordwrite -O1 -fasmfile -maddrqual=ignore -xassembler-with-cpp -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx032 -Wl,--data-init -mno-keep-startup -mno-download -mdefault-config-bits $(COMPARISON_BUILD)  -std=c90 -gdwarf-3 -mstack=compiled:auto:auto:auto     -o ${OBJECTDIR}/Module_Library.p1 Module_Library.c 
-	@-${MV} ${OBJECTDIR}/Module_Library.d ${OBJECTDIR}/Module_Library.p1.d 
-	@${FIXDEPS} ${OBJECTDIR}/Module_Library.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
 	
 ${OBJECTDIR}/SMS_library.p1: SMS_library.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
@@ -221,15 +205,15 @@ ${OBJECTDIR}/uart.p1: uart.c  nbproject/Makefile-${CND_CONF}.mk
 	@-${MV} ${OBJECTDIR}/uart.d ${OBJECTDIR}/uart.p1.d 
 	@${FIXDEPS} ${OBJECTDIR}/uart.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
 	
-else
-${OBJECTDIR}/Initial.p1: Initial.c  nbproject/Makefile-${CND_CONF}.mk
+${OBJECTDIR}/io.p1: io.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/Initial.p1.d 
-	@${RM} ${OBJECTDIR}/Initial.p1 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c  -fshort-double -fshort-float -memi=wordwrite -O1 -fasmfile -maddrqual=ignore -xassembler-with-cpp -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx032 -Wl,--data-init -mno-keep-startup -mno-download -mdefault-config-bits $(COMPARISON_BUILD)  -std=c90 -gdwarf-3 -mstack=compiled:auto:auto:auto     -o ${OBJECTDIR}/Initial.p1 Initial.c 
-	@-${MV} ${OBJECTDIR}/Initial.d ${OBJECTDIR}/Initial.p1.d 
-	@${FIXDEPS} ${OBJECTDIR}/Initial.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
+	@${RM} ${OBJECTDIR}/io.p1.d 
+	@${RM} ${OBJECTDIR}/io.p1 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c  -D__DEBUG=1  -fshort-double -fshort-float -memi=wordwrite -O1 -fasmfile -maddrqual=ignore -xassembler-with-cpp -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx032 -Wl,--data-init -mno-keep-startup -mno-download -mdefault-config-bits $(COMPARISON_BUILD)  -std=c90 -gdwarf-3 -mstack=compiled:auto:auto:auto     -o ${OBJECTDIR}/io.p1 io.c 
+	@-${MV} ${OBJECTDIR}/io.d ${OBJECTDIR}/io.p1.d 
+	@${FIXDEPS} ${OBJECTDIR}/io.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
 	
+else
 ${OBJECTDIR}/emc_library.p1: emc_library.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
 	@${RM} ${OBJECTDIR}/emc_library.p1.d 
@@ -253,14 +237,6 @@ ${OBJECTDIR}/Systen_Library.p1: Systen_Library.c  nbproject/Makefile-${CND_CONF}
 	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c  -fshort-double -fshort-float -memi=wordwrite -O1 -fasmfile -maddrqual=ignore -xassembler-with-cpp -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx032 -Wl,--data-init -mno-keep-startup -mno-download -mdefault-config-bits $(COMPARISON_BUILD)  -std=c90 -gdwarf-3 -mstack=compiled:auto:auto:auto     -o ${OBJECTDIR}/Systen_Library.p1 Systen_Library.c 
 	@-${MV} ${OBJECTDIR}/Systen_Library.d ${OBJECTDIR}/Systen_Library.p1.d 
 	@${FIXDEPS} ${OBJECTDIR}/Systen_Library.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
-	
-${OBJECTDIR}/Module_Library.p1: Module_Library.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/Module_Library.p1.d 
-	@${RM} ${OBJECTDIR}/Module_Library.p1 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c  -fshort-double -fshort-float -memi=wordwrite -O1 -fasmfile -maddrqual=ignore -xassembler-with-cpp -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx032 -Wl,--data-init -mno-keep-startup -mno-download -mdefault-config-bits $(COMPARISON_BUILD)  -std=c90 -gdwarf-3 -mstack=compiled:auto:auto:auto     -o ${OBJECTDIR}/Module_Library.p1 Module_Library.c 
-	@-${MV} ${OBJECTDIR}/Module_Library.d ${OBJECTDIR}/Module_Library.p1.d 
-	@${FIXDEPS} ${OBJECTDIR}/Module_Library.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
 	
 ${OBJECTDIR}/SMS_library.p1: SMS_library.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
@@ -349,6 +325,14 @@ ${OBJECTDIR}/uart.p1: uart.c  nbproject/Makefile-${CND_CONF}.mk
 	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c  -fshort-double -fshort-float -memi=wordwrite -O1 -fasmfile -maddrqual=ignore -xassembler-with-cpp -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx032 -Wl,--data-init -mno-keep-startup -mno-download -mdefault-config-bits $(COMPARISON_BUILD)  -std=c90 -gdwarf-3 -mstack=compiled:auto:auto:auto     -o ${OBJECTDIR}/uart.p1 uart.c 
 	@-${MV} ${OBJECTDIR}/uart.d ${OBJECTDIR}/uart.p1.d 
 	@${FIXDEPS} ${OBJECTDIR}/uart.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
+	
+${OBJECTDIR}/io.p1: io.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/io.p1.d 
+	@${RM} ${OBJECTDIR}/io.p1 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c  -fshort-double -fshort-float -memi=wordwrite -O1 -fasmfile -maddrqual=ignore -xassembler-with-cpp -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx032 -Wl,--data-init -mno-keep-startup -mno-download -mdefault-config-bits $(COMPARISON_BUILD)  -std=c90 -gdwarf-3 -mstack=compiled:auto:auto:auto     -o ${OBJECTDIR}/io.p1 io.c 
+	@-${MV} ${OBJECTDIR}/io.d ${OBJECTDIR}/io.p1.d 
+	@${FIXDEPS} ${OBJECTDIR}/io.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
 	
 endif
 

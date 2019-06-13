@@ -1,6 +1,8 @@
-#include "initial.h"
+
 #include <pic18f26k22.h>
 #include <xc.h>
+
+#include "io.h"
 
 uint8_t read_ee(uint8_t page,uint8_t addr)
 {

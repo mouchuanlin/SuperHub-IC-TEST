@@ -5,13 +5,12 @@
 
 #include <pic18f26k22.h>
 #include <xc.h>
-#include "initial.h"
+
+#include "io.h"
 #include "EE_library.h"
 #include "Module_Library.h"
 #include "emc_library.h"
 #include "System_Library.h"
-
-void load_ID_to_buffer(void);
 
 // From Jens' test code 001/module.c
 //void delay5ms(uint16_t cnt)         // Based on 4MHz Fosc, or 1MHz instruction cycle

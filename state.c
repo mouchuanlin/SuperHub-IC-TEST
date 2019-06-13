@@ -10,10 +10,11 @@
  */
 #include <pic18f26k22.h>
 #include <xc.h>
+
 #include "config.h"
 #include "state.h"
 #include "queue.h"
-#include "initial.h"
+#include "io.h"
 
 extern state_t myState;
 
