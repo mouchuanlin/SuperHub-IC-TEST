@@ -144,6 +144,8 @@ void reload_timer3_100ms()
     TMR0H = ((65535-_100milliseconds)/256);	
 }
 
+
+// TMR0 used for LED control and learn button process. 100 ms per tick.
 void TMR0_ISR()
 {
     // TMR0 Overflow Interrupt Flag bit          
@@ -152,6 +154,9 @@ void TMR0_ISR()
         TMR0IF = 0;
         reload_timer0();
         control_leds();
+		
+		// Process learn button push events.
+		handle_learn_btn_pressed();
     }	
 }
 
@@ -160,7 +165,12 @@ void TMR3_ISR()
 	if (TMR3IF)
     //if (buttonPressCount != 0)
     {
-        process_sms_menu();       
+
+//        reload_timer3_100ms();
+//		
+//        //process_sms_menu();    
+//
+//		handle_learn_btn_pressed();	
     }    
 }
 
@@ -223,10 +233,12 @@ void process_sms_menu()
 
         buttonPressCount = 0;       // clear button presses once we extract next state info
     }
-    else if (tmr3_cnt >= 40 && inButtonMenu && buttonPressCount == 0) // 10s timeout
-    {
-        inButtonMenu = false;
-        tmr3_cnt = 0;
-        disable_tmr3();
-    }    
+//    else if (tmr3_cnt >= 2 && inButtonMenu && buttonPressCount == 0) // 10s timeout
+//    {
+//        inButtonMenu = false;
+//        tmr3_cnt = 0;
+//        disable_tmr3();
+//        
+//        //update_led_state(POWERON);
+//    }    
 }

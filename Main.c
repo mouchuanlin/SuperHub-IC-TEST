@@ -304,13 +304,14 @@ void __interrupt isr()
     UART2_ISR();
 	
 	// smoker_ISR();
-	//superhub_ISR();
+	superhub_ISR();
 	
 	// TMR0 ISR
 	TMR0_ISR();
 	
      // button press
     // TODO: Super hub use INT1 while smoke hub use IO. Will need to check for smoke hub.
+	/*
     if (INT1IF)
     {                   
         // Time out after 2s without edge detection; reset button 
@@ -318,6 +319,7 @@ void __interrupt isr()
         INTCONbits.RBIF = 0;
         PIE2bits.TMR3IE = 1;
         T3CONbits.TMR3ON = 1;
+		
         if (inButtonMenu && (buttonPressCount == 0))
             reload_timer3_5s();
 		else if (buttonPressCount == 0)
@@ -333,8 +335,9 @@ void __interrupt isr()
             update_led_state(BUTTON_MENU);
         }
 		
+		
 		//test_count++;
-    }
+    } */
     
     
 //        if( INT1IF==1 )     //Learning
@@ -349,17 +352,16 @@ void __interrupt isr()
 //        }
 //    
 //    
-//    handle_learn_btn_pressed();
+    //handle_learn_btn_pressed();
         
     // timer3 interrupt
-	TMR3_ISR(); 
+	//TMR3_ISR(); 
 }
 
 // UART1 (to OTA/modem) ISR
 void UART1_ISR()
 {
     uint8_t temp;
-    uint8_t junk;
         
     // RC1IE: EUSART1 Receive Interrupt Enable bit
     // RC1IF: EUSART1 Receive Interrupt Flag bit
@@ -387,3 +389,96 @@ void UART2_ISR()
         //update_led_state(RF_INT);
     }        	
 }
+
+void superhub_ISR()
+{
+	if (ver_select == SUPER_HUB)
+    {
+       if (INT0IF==1)     //Tamper SW
+        {
+            INT0IF = 0;
+            if( tamper_status==0 )
+            {
+                add_event(TAMPER_OPEN_T,1);
+                tamper_status = 1;        
+                SPK = 0;
+            }
+        }
+       // Learn button pressed
+        if (INT1IF==1)     //Learning
+        {
+            INT1IF = 0;
+//            if( learn_delay==0 )
+//            {
+                test_count++;
+                test_time_detect = 0;                             
+                learn_delay = 2;
+//            }
+        }
+    }
+}
+
+void handle_learn_btn_pressed()
+{
+	if( test_count!=0 )
+	{
+		test_time_detect++;
+		if (learning_mode == KEY_NONE)
+		{
+            // learn_btn 5 in 1 second
+			if( test_count==5 && test_time_detect > 10 ) //1sec
+			{
+                learning_mode = KEY_IN_LEARN; 
+                exit_learn = 0;
+                test_count = 0;
+                test_time_detect = 0;
+
+                update_led_state(BUTTON_MENU);
+			} else if( test_time_detect >= 20 )  //100ms*20=2sec
+			{
+				test_count = 0;
+				test_time_detect = 0;
+			}
+		}else{                                                        
+			if (++test_time_detect >= 20)  //100ms*20=2sec
+			{               
+                // learn_btn 5-1 - SMS setup
+				if (test_count==1)
+				{
+                    // SMS setup state
+					Test_click = 1;
+					add_event(GO_SMS_T,0);
+					learning_mode = KEY_NONE;
+					update_led_state(APN_IP_ACCT_NOT_SET);
+				}
+                // learn_btn 5-2 - adding device ID
+                else if (test_count==2)
+				{
+					learning_mode = KEY_ADD_ID;        
+					update_led_state(SENSOR_ADD);					
+				}
+                // learn_btn 5-3 - deleting device ID
+                else if (test_count==3)
+				{
+					learning_mode = KEY_DEL_ID;     
+					update_led_state(SENSOR_DELETE);					
+				}
+                // learn_btn 5-4 - sending test alarm     
+                else if (test_count==4)
+				{
+					add_event(TEST_PIN_T,0);
+				 //   send_trigger_to_RF(0);
+					learning_mode = KEY_NONE;
+				    update_led_state(SENDING);
+				}
+                else if (test_count==5)
+				{
+					learning_mode = KEY_NONE;
+				}                         
+				test_count = 0;
+				test_time_detect = 0;
+			}
+	    }       
+	}
+}
+

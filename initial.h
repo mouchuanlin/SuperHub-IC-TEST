@@ -254,21 +254,21 @@ uint8_t alarm_string[NUM_OF_STR][MAX_STR_SIZE] = {
 #define TELIT       (Module_type==LE910||Module_type==LE866)
     
 // learn_btn state
-#define KEY_NONE 0
-#define KEY_IN_LEARN 1      // btn 5-1
-#define KEY_ADD_ID 2        // btn 5-2
-#define KEY_DEL_ID 3        // btn 5-3
+#define KEY_NONE        0
+#define KEY_IN_LEARN    1       // btn 5-1
+#define KEY_ADD_ID      2       // btn 5-2
+#define KEY_DEL_ID      3       // btn 5-3
     
 // Hub type - smoke hub or super hub
-#define SMOKER 0
-#define SUPER_HUB 1
+#define SMOKER          0
+#define SUPER_HUB       1
 //--------------------
-uint8_t const VERSION[]="2041";
+uint8_t const VERSION[]="1011";
 //--------------------       
 bit HL_freq = 0;
 //-------------------- 
 uint8_t const encryption_code[16]={ 0x6c,0x31,0x6e,0x79,0x52,0x7f,0x26,0x6f,
-										 0x34,0x19,0x41,0x1b,0x54,0x3a,0x64,0x1f };
+                                    0x34,0x19,0x41,0x1b,0x54,0x3a,0x64,0x1f };
     
 //--------------------
 uint8_t encryption = 0;
