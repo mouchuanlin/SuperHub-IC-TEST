@@ -420,7 +420,7 @@ void superhub_ISR()
 
 void process_button_push()
 {
-	if( test_count!=0 )
+	if (test_count != 0)
 	{
 		test_time_detect++;
 		if (learning_mode == KEY_NONE)
@@ -432,53 +432,65 @@ void process_button_push()
                 exit_learn = 0;
                 test_count = 0;
                 test_time_detect = 0;
-
+				
                 update_led_state(BUTTON_MENU);
-			} else if( test_time_detect >= 20 )  //100ms*20=2sec
+			} 
+			else if( test_time_detect >= 20 )  //100ms*20=2sec
 			{
 				test_count = 0;
 				test_time_detect = 0;
 			}
-		}else{                                                        
+		}
+		else{                                                        
 			if (++test_time_detect >= 20)  //100ms*20=2sec
 			{               
-                // learn_btn 5-1 - SMS setup
-				if (test_count==1)
-				{
-                    // SMS setup state
-					Test_click = 1;
-					add_event(GO_SMS_T,0);
-					learning_mode = KEY_NONE;
-					update_led_state(APN_IP_ACCT_NOT_SET);
-				}
-                // learn_btn 5-2 - adding device ID
-                else if (test_count==2)
-				{
-					learning_mode = KEY_ADD_ID;        
-					update_led_state(SENSOR_ADD);					
-				}
-                // learn_btn 5-3 - deleting device ID
-                else if (test_count==3)
-				{
-					learning_mode = KEY_DEL_ID;     
-					update_led_state(SENSOR_DELETE);					
-				}
-                // learn_btn 5-4 - sending test alarm     
-                else if (test_count==4)
-				{
-					add_event(TEST_PIN_T,0);
-				 //   send_trigger_to_RF(0);
-					learning_mode = KEY_NONE;
-				    update_led_state(SENDING);
-				}
-                else if (test_count==5)
-				{
-					learning_mode = KEY_NONE;
-				}                         
+                sms_menu();
 				test_count = 0;
 				test_time_detect = 0;
 			}
 	    }       
 	}
 }
+
+void sms_menu()
+{
+    // learn_btn 5-1 - SMS setup
+    switch (test_count)
+    {
+        // learn_btn 5-1 - SMS setup state
+        case 1:
+            Test_click = 1;
+            add_event(GO_SMS_T,0);
+            learning_mode = KEY_NONE;
+            update_led_state(APN_IP_ACCT_NOT_SET);
+            break;
+
+        // learn_btn 5-2 - adding device ID
+        case 2:
+            learning_mode = KEY_ADD_ID;        
+            update_led_state(SENSOR_ADD);					
+            break;
+            
+        // learn_btn 5-3 - deleting device ID
+        case 3:
+            learning_mode = KEY_DEL_ID;     
+            update_led_state(SENSOR_DELETE);					
+            break;
+            
+        // learn_btn 5-4 - sending test alarm     
+        case 4:
+            add_event(TEST_PIN_T,0);
+         //   send_trigger_to_RF(0);
+            learning_mode = KEY_NONE;
+            update_led_state(SENDING);
+            break;
+            
+        case 5:
+            learning_mode = KEY_NONE;
+            break;   
+    }
+}
+
+
+
 

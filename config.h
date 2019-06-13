@@ -115,6 +115,7 @@ void 	process_RF_interrupt();
 uint8_t process_SMS_setup_state();
 uint8_t process_restart();
 void 	process_supervisory();
+void    sms_menu();
 
 
 void UART1_ISR();
