@@ -18,7 +18,7 @@
  ****************************************************/
 typedef enum State {
     POWER_UP,
-    INIT,
+    SLEEP,
 	LISTEN_SMS,
 	ADD_SENSOR,
 	DEL_SENSOR,
@@ -35,12 +35,15 @@ typedef enum State {
 /*****************************************************
  * FUNCTION PROTOTYPES
  ****************************************************/
-void check_state(state_t *state);
+void check_state();
 void check_button();
 void check_alarm_tamper();
 void add_sensor() ;
 void delete_sensor()  ;
 void check_supervisory_NEW();
+
+extern void control_leds();
+//extern void check_event(void)
 
 // Global variables - defined in main.c
 //extern led_states_t curr_led_state, prev_led_state;

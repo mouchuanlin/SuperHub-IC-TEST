@@ -1,12 +1,20 @@
-#include "io.h"
+//
+// emc_library.c
+//
+
+
+
 #include <stdlib.h>
+#include <pic18f26k22.h>
+#include <xc.h>
+
+#include "io.h"
 #include "EE_library.h"
 #include "System_Library.h"
 #include "Module_Library.h"
 //#include "Module_LB_Gemalto.h"
 #include "Module_LB_Telit.h"
-#include <pic18f26k22.h>
-#include <xc.h>
+
 
 void update_mmcnt(void)
 {
@@ -424,13 +432,9 @@ send_start:
         //------------------------------------
         //TMR0IE = 0;
         delay5ms(200);
-        if( GEMALTO )
-        {
-            if( Module_type==EHS5 )
-                GM_internet_init();
-            else GM_internet_init_EMS31();
-        }
-        else TL_internet_init();        
+
+        TL_internet_init();       
+        
         cnt = 1;
         do{
             if(  stack_buffer[0][0]=='T' )
@@ -439,26 +443,16 @@ send_start:
                 loop = read_ee(0x00,0xBC);
             do{
                 CREN1 = 0;
-                if( GEMALTO )
-                    rsp = GM_connection_open(cnt);              
-                else rsp = TL_connection_open(cnt);
+                rsp = TL_connection_open(cnt);
                 if( rsp=='K' )      //send data to server
                 {
-                    if( GEMALTO )
-                        rsp = GM_send_data_to_server();      
-                    else rsp = TL_send_data_to_server();     
+                    rsp = TL_send_data_to_server();     
                     if( rsp=='K' )     
                     {
                         count = read_ee(0x00,0xC9);
                         do{                            
-                            delay5ms(200);
-                            delay5ms(200);
-                            delay5ms(200);
-                            delay5ms(200);
-                            delay5ms(200);
-                            if( GEMALTO )
-                                rsp = GM_receive_data_from_server();                   
-                            else rsp = TL_receive_data_from_server();         
+                            delayseconds(5);
+                            rsp = TL_receive_data_from_server();         
                             delay5ms(200);
                             delay5ms(200);
                             //------------------------
@@ -489,17 +483,13 @@ send_start:
                     }
                 }else LED_flash_type = LED_NET_ERR;
                 delay5ms(100);
-                if( GEMALTO )
-                    GM_connection_close();
-                else TL_connection_close();
+                TL_connection_close();
                 delay5ms(200);
                 if( stack_buffer[0][0]=='T'&&cnt==2 )
                     break;
             }while(--loop!=0&&rsp!='K'); 
         }while(++cnt<5&&rsp!='K');  
-        if( GEMALTO )
-            GM_internet_close();
-        else TL_internet_close();
+        TL_internet_close();
         if( rsp=='K' )		
         {
             //move_stack_buffer();

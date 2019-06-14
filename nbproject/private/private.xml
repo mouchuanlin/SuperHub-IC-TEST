@@ -12,14 +12,12 @@
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/bitbucket/SuperHub-IC-TEST/Systen_Library.c</file>
             <file>file:/D:/bitbucket/SuperHub-IC-TEST/main.c</file>
-            <file>file:/D:/bitbucket/SuperHub-IC-TEST/uart.c</file>
-            <file>file:/D:/bitbucket/SuperHub-IC-TEST/uart.h</file>
+            <file>file:/D:/bitbucket/SuperHub-IC-TEST/emc_library.c</file>
             <file>file:/D:/bitbucket/SuperHub-IC-TEST/modem.c</file>
-            <file>file:/D:/bitbucket/SuperHub-IC-TEST/System_Library.h</file>
-            <file>file:/D:/bitbucket/SuperHub-IC-TEST/Initial.c</file>
-            <file>file:/D:/bitbucket/SuperHub-IC-TEST/initial.h</file>
+            <file>file:/D:/bitbucket/SuperHub-IC-TEST/state.c</file>
+            <file>file:/D:/bitbucket/SuperHub-IC-TEST/Setup_mode.c</file>
+            <file>file:/D:/bitbucket/SuperHub-IC-TEST/SMS_library.c</file>
         </group>
     </open-files>
 </project-private>

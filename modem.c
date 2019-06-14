@@ -299,7 +299,7 @@ uint8_t wait_SMS_setting()
 	uint8_t cnt,rsp,temp;
     uint8_t sms_time;
 		
-	//    Test_click = 0;
+    // This bit indicating if we are in button 5-1 or not.
     if( Test_click==1 )    
     {
         sms_time = read_ee(0x00,0xB8);   //wait SMS time

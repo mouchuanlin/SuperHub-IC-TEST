@@ -159,7 +159,7 @@ void TMR0_ISR()
         control_leds();
 		
 		// Process learn button push events.
-		process_button_push();
+		check_button();
     }	
 }
 

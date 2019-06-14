@@ -28,5 +28,8 @@ void Enable_Uart_IO(void);
 void Uart_disable(void);
 void UART_init(void);
 
+void UART1_ISR();
+void UART2_ISR();
+
 #endif	/* UART_H */
 

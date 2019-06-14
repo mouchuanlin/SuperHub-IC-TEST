@@ -95,3 +95,35 @@ void Enable_Uart_IO(void)
     MD_TX = 1;
     MD_TX_TRIS = INPUT;
 }
+
+// UART1 (to OTA/modem) ISR
+void UART1_ISR()
+{
+    uint8_t temp;
+        
+    // RC1IE: EUSART1 Receive Interrupt Enable bit
+    // RC1IF: EUSART1 Receive Interrupt Flag bit
+    if ((RC1IE == 1) && (RC1IF == 1))
+    {
+        do{
+        //    LED = ~LED;		
+            temp = RC1REG;
+        }while(RC1IF==1);
+       // RC1IF = 0;
+    }
+}
+
+// UART2 (to RF receiver) ISR
+void UART2_ISR()
+{
+	uint8_t temp;
+	uint8_t id[6];
+    uint8_t zone,cnt;
+    uint8_t temp;
+		
+    // RC2IE: EUSART2 Receive Interrupt Enable bit
+    if ((RC2IE == 1) && (RC2IF == 1))
+    {
+        //update_led_state(RF_INT);
+    }        	
+}

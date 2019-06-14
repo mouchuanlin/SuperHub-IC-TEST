@@ -66,19 +66,29 @@ int main(int argc, char** argv)
     // Powerup modem, send AT command to init modem.
     start_modem();
 
-	while (TRUE)
+	while (1)
 	{   
-        //g_op_state = true;
-        if (g_op_state)
-        {
-            check_state(&myState);
-        }
-        else
-        {
-//            update_led_state(IDLE);
-//            SLEEP();							
+        SWDTEN = 1;
+        SLEEP();   
+        NOP();
+     
+        check_state();
+        
+//        if (event_queue_is_empty() && STATE == IDLE && test_count == 0 && MD_STATE == MD_OFF)
+//        {
+//            disable_md_rxint();
+//            terminate_md_uart();
+//            terminate_rf_uart();
+//            SLEEP();
 //            NOP();
-        }
+//        }
+//        else if (!event_queue_is_empty())
+//        {
+////            send_data(get_next_event());
+//        }
+//        
+//        SLEEP();
+//        NOP();
     }
 	  
     return (EXIT_SUCCESS);   
@@ -155,10 +165,6 @@ void init_stack_buffer()
         }while(++cnt<LOG_MAX_T);
     }
 }
-
-
-
-
 
 void init_global_variables()
 {
@@ -359,38 +365,6 @@ void __interrupt isr()
 	//TMR3_ISR(); 
 }
 
-// UART1 (to OTA/modem) ISR
-void UART1_ISR()
-{
-    uint8_t temp;
-        
-    // RC1IE: EUSART1 Receive Interrupt Enable bit
-    // RC1IF: EUSART1 Receive Interrupt Flag bit
-    if ((RC1IE == 1) && (RC1IF == 1))
-    {
-        do{
-        //    LED = ~LED;		
-            temp = RC1REG;
-        }while(RC1IF==1);
-       // RC1IF = 0;
-    }
-}
-
-// UART2 (to RF receiver) ISR
-void UART2_ISR()
-{
-	uint8_t temp;
-	uint8_t id[6];
-    uint8_t zone,cnt;
-    uint8_t temp;
-		
-    // RC2IE: EUSART2 Receive Interrupt Enable bit
-    if ((RC2IE == 1) && (RC2IF == 1))
-    {
-        //update_led_state(RF_INT);
-    }        	
-}
-
 void superhub_ISR()
 {
 	if (ver_select == SUPER_HUB)
@@ -419,7 +393,7 @@ void superhub_ISR()
     }
 }
 
-void process_button_push()
+void check_button()
 {
 	if (test_count != 0)
 	{
@@ -460,6 +434,7 @@ void sms_menu()
     {
         // learn_btn 5-1 - SMS setup state
         case 1:
+			// This bit indicating we are in button 5-1 state
             Test_click = 1;
             add_event(GO_SMS_T,0);
             learning_mode = KEY_NONE;
@@ -491,7 +466,4 @@ void sms_menu()
             break;   
     }
 }
-
-
-
 
