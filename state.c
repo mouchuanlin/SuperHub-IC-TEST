@@ -8,6 +8,7 @@
  * Date Created: 30 Apr. 2018, 10:19 AM
  * Last Modified: 30 Apr. 2018, 10:19 AM
  */
+
 #include <pic18f26k22.h>
 #include <xc.h>
 
@@ -23,7 +24,10 @@ void check_state()
 //    check_alarm_tamper();
     check_button();
     control_leds();
-//    check_supervisory_NEW();
+    
+//    process_event_queue();
+//    process_ADC();
+//    check_supervisory();
        
     switch (myState)
     {
@@ -32,10 +36,14 @@ void check_state()
         case SLEEP:
             break;            
         case LISTEN_SMS:
+			//restart_modem();
+			start_modem();
             break;
         case ADD_SENSOR:
+            add_sensor();
             break;   
         case DEL_SENSOR:
+            delete_sensor();
             break; 
         case SEND_TEST:
             break;      
@@ -51,12 +59,6 @@ void check_state()
 }
 
 void check_alarm_tamper()
-{
-
-}
-
-
-void check_supervisory_NEW()
 {
 
 }

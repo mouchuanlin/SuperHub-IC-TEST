@@ -46,6 +46,9 @@ extern void write_ee(uint8_t page,uint8_t addr,uint8_t data_p);
 extern void set_sms_init(void);
 extern void check_event(void);
 extern uint8_t check_sms(void);
+uint8_t start_send_alarm();
+
+extern uint8_t check_emc_stack(void);
 
     
 // The Carriage Return (CR) character (0x0D, \r) moves the cursor to the beginning of the line without advancing to the next line. 

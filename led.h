@@ -32,6 +32,18 @@ typedef enum LED_STATES {
 } led_states_t;
 
 
+//--------------------   
+// LED state
+//#define LED_OFF 0
+//#define LED_STANDBY 1
+//#define LED_INTERNET 2
+//#define LED_NO_SET 3
+//#define LED_NET_ERR 4
+//#define LED_REGISTER 5
+//#define LED_RF_ADD 6 
+//#define LED_RF_DEL 7 
+//#define MD_POWER_LOSS 8 
+
 #define G_ON()              G_LED=0
 #define G_OFF()             G_LED=1
 #define B_ON()              B_LED=0

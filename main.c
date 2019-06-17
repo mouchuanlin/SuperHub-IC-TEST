@@ -1,5 +1,5 @@
 /* 
- * File:   Main.c
+ * File:   main.c
  * Author: YEN
  *
  * Created on 2017?4?11?, ?? 3:13
@@ -18,7 +18,6 @@
 #include "EE_library.h"
 #include "SMS_library.h"
 #include "Module_Library.h"
-//#include "Module_LB_Gemalto.h"
 #include "Module_LB_Telit.h"
 #include "emc_library.h"
 
@@ -30,13 +29,12 @@
 
 
 
-
 // Global variables
 state_t     myState = POWER_UP;
 bool        readyForSleep = false;
 
 // LED
-bool            G_LED_STATE = 1, B_LED_STATE = 1;
+//bool            G_LED_STATE = 1, B_LED_STATE = 1;
 uint8_t         gled_tmr0_tick = 0, bled_tmr0_tick = 0;
 //led_states_t    curr_led_state = IDLE;
 //led_states_t    prev_led_state = IDLE;
@@ -65,14 +63,23 @@ int main(int argc, char** argv)
     
     // Powerup modem, send AT command to init modem.
     start_modem();
+    stop_modem();
+    update_led_state(IDLE);
 
 	while (1)
 	{   
+        //update_led_state(IDLE);
+        
         SWDTEN = 1;
         SLEEP();   
         NOP();
-     
+        NOP();
+        NOP();
+        
+        
+        SWDTEN = 0;
         check_state();
+        
         
 //        if (event_queue_is_empty() && STATE == IDLE && test_count == 0 && MD_STATE == MD_OFF)
 //        {
@@ -120,8 +127,6 @@ void init_system()
     
     update_led_state(IDLE);
 }
-
-
 
 void int_init()
 {
@@ -173,8 +178,7 @@ void init_global_variables()
     learning_mode = KEY_NONE;
     ADC_time = 1;
     
-    // Test_click = 1;
-    load_ID_to_buffer();
+    load_RF_devID_table();
     
     // Smoke hub or super hub?
     ver_select = get_hub_type();
@@ -203,12 +207,6 @@ uint8_t get_hub_type()
 
 void buzzer_on(uint8_t count)
 {
-    // This make sure we only run first time.
-    if((read_ee(EE_PAGE0,  VER_ADDR0) == VERSION[0]) && 
-		(read_ee(EE_PAGE0, VER_ADDR1) == VERSION[1]) && 
-		(read_ee(EE_PAGE0, VER_ADDR2) == VERSION[2]))
-        return;
-    
     for (uint8_t i = 0; i < count; i++)
     {
         SPK = 1;
@@ -416,7 +414,16 @@ void check_button()
 				test_time_detect = 0;
 			}
 		}
-		else{                                                        
+		else
+		{              
+            // Allow 30 seconds for 2nd button push
+            // TODO: Is the right place for this check???
+//			if( ++exit_learn>=300 )     // 300*100 ms = 30 seconds
+//			{
+//				learning_mode = KEY_NONE;
+//				update_led_state(BUTTON_MENU);
+//			}
+						
 			if (++test_time_detect >= 20)  //100ms*20=2sec
 			{               
                 sms_menu();
@@ -435,22 +442,26 @@ void sms_menu()
         // learn_btn 5-1 - SMS setup state
         case 1:
 			// This bit indicating we are in button 5-1 state
-            Test_click = 1;
+            listen_sms_state = 1;
             add_event(GO_SMS_T,0);
+            // SMS listening state
             learning_mode = KEY_NONE;
-            update_led_state(APN_IP_ACCT_NOT_SET);
+            //update_led_state(APN_IP_ACCT_NOT_SET);
+			myState = LISTEN_SMS;
             break;
 
         // learn_btn 5-2 - adding device ID
         case 2:
             learning_mode = KEY_ADD_ID;        
-            update_led_state(SENSOR_ADD);					
+            update_led_state(SENSOR_ADD);	
+			myState = ADD_SENSOR;			
             break;
             
         // learn_btn 5-3 - deleting device ID
         case 3:
             learning_mode = KEY_DEL_ID;     
-            update_led_state(SENSOR_DELETE);					
+            update_led_state(SENSOR_DELETE);	
+			myState = DEL_SENSOR;				
             break;
             
         // learn_btn 5-4 - sending test alarm     
@@ -459,6 +470,7 @@ void sms_menu()
          //   send_trigger_to_RF(0);
             learning_mode = KEY_NONE;
             update_led_state(SENDING);
+			myState = SEND_TEST;
             break;
             
         case 5:

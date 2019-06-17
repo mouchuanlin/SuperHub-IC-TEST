@@ -23,11 +23,11 @@ typedef enum State {
 	ADD_SENSOR,
 	DEL_SENSOR,
     SEND_TEST,
+	
 	RF_INTERRUPT,
     TEMPER_INT,
     SUPERVISORY,
     ADC,
-    LED_CTRL,
     OPERATIONAL
 } state_t;
 
@@ -40,7 +40,7 @@ void check_button();
 void check_alarm_tamper();
 void add_sensor() ;
 void delete_sensor()  ;
-void check_supervisory_NEW();
+extern uint8_t check_supervisory();
 
 extern void control_leds();
 //extern void check_event(void)

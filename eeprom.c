@@ -1,5 +1,12 @@
-#include "initial.h"
+//
+// eeprom.c
+//
+
 #include <pic18f26k22.h>
+#include <xc.h>
+
+#include "io.h"
+
 
 uint8_t read_int_ee(uint8_t col)
 {

@@ -14,12 +14,13 @@
 #include <xc.h>
 
 
-#include "config.h"
+//#include "config.h"
 #include "modem.h"
 #include "queue.h"
 #include "io.h"
 #include "led.h"
 #include "uart.h"
+#include "System_Library.h"
 
 void powerup_modem()
 {
@@ -69,14 +70,16 @@ bool md_config_ok()
     if (!check_network_registration())
 		return false;
     
-//    //--------- Alarm or Report ---------    
-//
-//	if (!alarm_or_report())
-//		return false;
+    //--------- Alarm or Report ---------    
+alarm_start:    
+	if (!start_send_alarm())
+		return false;
 	
     //--------- Wait SMS Setting ---------
 	if (!wait_SMS_setting())
-    	return false;
+    {
+        goto alarm_start;
+    }
     
     return true;
 }
@@ -294,14 +297,60 @@ uint8_t check_network_registration()
 	return TRUE;    
 }
 
+bool check_apn_status()
+{
+    if ((read_ee(EE_PAGE0, APN_ADDR) == '#') && (read_ee(EE_PAGE0, IP1_ADDR) == '#'))
+        return true;
+    else
+        return false; 
+}
+
+uint8_t start_send_alarm()
+{
+	uint8_t cnt,rsp,temp;
+	
+    if( LED_flash_type==LED_STANDBY )
+    {
+        LED_flash_type = LED_INTERNET;
+        rsp = check_emc_stack();
+        if( rsp=='U' )
+        {
+            #ifdef MODULE_OFF_TYPE
+                MD_POWER = POWER_OFF;
+             #else
+                MD_RESET = 1;
+            #endif
+			// TODO: what's this for???
+			delayseconds(30);
+            #ifndef MODULE_OFF_TYPE
+                MD_RESET = 0;
+            #endif
+            //goto module_start;
+			return FALSE;
+        }
+        
+        if( OTA_flag==1 )
+        {
+            rsp = Check_OTA();
+            if( rsp=='E' )
+                OTA_flag = 2;
+            else OTA_flag = 0;
+        }
+    }
+    check_led_type();	
+	
+	return TRUE;
+}
+
 uint8_t wait_SMS_setting()
 {
 	uint8_t cnt,rsp,temp;
     uint8_t sms_time;
 		
     // This bit indicating if we are in button 5-1 or not.
-    if( Test_click==1 )    
+    if( listen_sms_state==1 )    
     {
+        
         sms_time = read_ee(0x00,0xB8);   //wait SMS time
         set_sms_init();    
         do{
@@ -312,14 +361,24 @@ uint8_t wait_SMS_setting()
                     delayseconds(1);
                     if( event_count_f!=event_count_l)     
                         check_event(); 
+                    
+                    // Need bail out call start_send_alarm() to send data
                     if( stack_buffer[0][0]!=0&&retry_count==0&&IP_type==1 )   
                     {                   
                        //goto alarm_start;
 					   return FALSE;
                     }
                 }while(--rsp!=0);
+                
               //  LED = 0;
                 check_sms();
+                
+                // Check EEPROM to see if APN & IP1 have been set.
+                if (check_apn_status())
+                    update_led_state(APN_IP_ACCT_NOT_SET);                
+                else                
+                    update_led_state(STANDBY);
+                
                 delay5ms(100);
                 if( check_csq()==0 )
                 {
@@ -336,15 +395,16 @@ uint8_t wait_SMS_setting()
             }while(--cnt!=0);      
             CLRWDT();
         }while(--sms_time!=0);
-        Test_click = 0;
+        listen_sms_state = 0;
     }
     if( event_count_f!=event_count_l)     
         check_event();
+    
+    // Need bail out call start_send_alarm() to send data
     if( stack_buffer[0][0]!=0&&retry_count==0&&IP_type==1 )//LED_flash_type==LED_STANDBY )                     
         //goto alarm_start;
 		return FALSE;
-		
-		
+		    
 	return TRUE;
 }
 
@@ -361,7 +421,7 @@ void process_event_queue()
 
 uint8_t process_SMS_setup_state()
 {
-	if ( Test_click==1 )
+	if ( listen_sms_state==1 )
 	{                     
 		#ifdef MODULE_OFF_TYPE
 		   MD_POWER = POWER_OFF;

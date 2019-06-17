@@ -253,7 +253,8 @@ uint8_t alarm_string[NUM_OF_STR][MAX_STR_SIZE] = {
 #define GEMALTO     (Module_type==EMS31||Module_type==PLS8||Module_type==EHS5)
 #define TELIT       (Module_type==LE910||Module_type==LE866)
     
-// learn_btn state
+// SMS listening state
+// TODO: Why not 5-4???
 #define KEY_NONE        0
 #define KEY_IN_LEARN    1       // btn 5-1
 #define KEY_ADD_ID      2       // btn 5-2
@@ -298,8 +299,8 @@ uint16_t ADC_data = 0;
 
 uint8_t RF_wait_count = 0;
 
-
-uint8_t ID_LIST[28][9];
+// RF slave device ID table
+uint8_t RF_devID_table[28][9];
 uint8_t learning_mode = 0;
 uint8_t power_status=0;
 uint8_t chk_supervisory = 0;

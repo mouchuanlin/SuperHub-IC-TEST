@@ -145,7 +145,7 @@ uint8_t Error_f = 0;
 //  uint8_t Test_f = 0;
 //  bit Low_battery = 0;
 // bit Smoke_EOL = 0;
-bit Test_click = 0;        
+      
 uint8_t Smoke_respond = 0;    
 bit ADC_time = 0;
 //bit Respond_ack = 0;
@@ -193,6 +193,8 @@ uint8_t 	rx2_buf[RX2_BUF_MAX];
 
 
 
+// ****************************
+bit listen_sms_state = 0;       
 
 
 

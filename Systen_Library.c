@@ -100,7 +100,7 @@ void init_eeprom(void)
     for(uint8_t i = 0; i <(16*8); i++ )      		//28
         write_ee(EE_PAGE1, i, 0);    
     
-    load_ID_to_buffer();
+    load_RF_devID_table();
     
     //---------IP OTA---------      		//36
     write_EE_setting(EE_PAGE1, IP_OTA_ADDR, IP_OTA); 
@@ -134,6 +134,7 @@ void write_EE_setting(uint8_t page, uint8_t addr, uint8_t const setting[])
     } while (temp != '#');    
 }
 
+// Check if the APN & IP1 has been set. In this case, will try to send data.
 void check_led_type(void)
 {
     if((read_ee(EE_PAGE0, APN_ADDR)=='#') || (read_ee(EE_PAGE0, IP1_ADDR)=='#'))    
@@ -149,15 +150,16 @@ void check_led_type(void)
 }
 
 //---------------new add 2017/11/23
-void load_ID_to_buffer(void)
+void load_RF_devID_table(void)
 {
     uint8_t cnt1,cnt2,addr;
     for( cnt1=0;cnt1<28;cnt1++ )
     {
         addr =cnt1*8;
         for( cnt2=0;cnt2<8;cnt2++ )
-            ID_LIST[cnt1][cnt2] = read_ee(1,addr+cnt2 );
-        ID_LIST[cnt1][cnt2] = 0;
+            RF_devID_table[cnt1][cnt2] = read_ee(1,addr+cnt2 );
+        
+        RF_devID_table[cnt1][cnt2] = 0;
     }
     CLRWDT();
 }
@@ -169,7 +171,7 @@ uint8_t check_ID(uint8_t *ptr)
     {
         for( cnt2=0;cnt2<6;cnt2++ )
         {
-            temp = ID_LIST[cnt1][cnt2];
+            temp = RF_devID_table[cnt1][cnt2];
             if( temp != ptr[cnt2] )
             {
          //       out_sbuf2(ptr[cnt2]);
@@ -195,21 +197,21 @@ uint8_t add_ID(uint8_t *ptr)
     GIE = 0;
     for( cnt1=0;cnt1<16;cnt1++ )    //28
     {
-        temp = ID_LIST[cnt1][0];
+        temp = RF_devID_table[cnt1][0];
         if( temp==0x00 )
         {            
             addr =cnt1*8;
             for( cnt2=0;cnt2<6;cnt2++)
             {
                 temp = ptr[cnt2];
-                ID_LIST[cnt1][cnt2]=temp;
+                RF_devID_table[cnt1][cnt2]=temp;
                 write_ee(1,(addr+cnt2),temp);
             }
-            ID_LIST[cnt1][6]=0;
+            RF_devID_table[cnt1][6]=0;
             write_ee(1,addr+6,0);
-            ID_LIST[cnt1][7]=0;
+            RF_devID_table[cnt1][7]=0;
             write_ee(1,addr+7,0);
-            ID_LIST[cnt1][8]=0;
+            RF_devID_table[cnt1][8]=0;
             GIE = 1;
             return('K');
         }             
@@ -226,7 +228,7 @@ uint8_t del_ID(uint8_t id)
     addr =id*8;
     for( cnt1=0;cnt1<8;cnt1++ )
     {
-        ID_LIST[id][cnt1] = 0x00;
+        RF_devID_table[id][cnt1] = 0x00;
         write_ee(1,addr+cnt1,0x00);
         return('K');
     }
@@ -239,14 +241,14 @@ uint8_t check_supervisory(void)
     uint8_t cnt1,cnt2,temp;
     for( cnt1=0;cnt1<16;cnt1++ )    //28
     {
-        if( ID_LIST[cnt1][0]!=0 )
+        if( RF_devID_table[cnt1][0]!=0 )
         {
-            if( ID_LIST[cnt1][7] < 84 )         // 12 = 1Day  84 = 7Day
+            if( RF_devID_table[cnt1][7] < 84 )         // 12 = 1Day  84 = 7Day
             {
-                if( ++ID_LIST[cnt1][7] >= 84 )
+                if( ++RF_devID_table[cnt1][7] >= 84 )
                 {            
                     add_event(SUPERVISORY_T,cnt1+3);
-                    ID_LIST[cnt1][7] = 'S';
+                    RF_devID_table[cnt1][7] = 'S';
                 }
             }
         }
@@ -260,11 +262,11 @@ void rsp_SUP_LBT(void)
     uint8_t cnt1,cnt2,temp;
     for( cnt1=0;cnt1<16;cnt1++ )    //28
     {
-        if( ID_LIST[cnt1][0]!=0 )
+        if( RF_devID_table[cnt1][0]!=0 )
         {
-            if( ID_LIST[cnt1][6]=='B' )                  
+            if( RF_devID_table[cnt1][6]=='B' )                  
                 add_event(LOW_BATTERY_T,cnt1+3);       
-            if( ID_LIST[cnt1][7]=='S' )                  
+            if( RF_devID_table[cnt1][7]=='S' )                  
                 add_event(SUPERVISORY_T,cnt1+3);            
         }
     }

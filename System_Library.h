@@ -112,7 +112,7 @@ void delayseconds(uint16_t secs);
 void init_eeprom(void);
 void load_default(void);
 void check_led_type(void);
-void load_ID_to_buffer(void);
+void    load_RF_devID_table(void);
 uint8_t check_ID(uint8_t *ptr);
 uint8_t add_ID(uint8_t *ptr);
 uint8_t del_ID(uint8_t id);
