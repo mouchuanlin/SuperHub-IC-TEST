@@ -7,11 +7,10 @@
 #include <xc.h>
 
 #include "io.h"
-#include "EE_library.h"
+#include "eeprom.h"
 #include "System_Library.h"
-//#include "Module_Library.h"
 #include "emc_library.h"
-#include "Module_LB_Telit.h"
+#include "telit.h"
 
 
 uint8_t wait_connect_respond(uint16_t count)

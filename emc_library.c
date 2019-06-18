@@ -9,10 +9,9 @@
 #include <xc.h>
 
 #include "io.h"
-#include "EE_library.h"
+#include "eeprom.h"
 #include "System_Library.h"
-//#include "Module_Library.h"
-#include "Module_LB_Telit.h"
+#include "telit.h"
 
 
 void update_mmcnt(void)

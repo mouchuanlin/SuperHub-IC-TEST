@@ -6,7 +6,7 @@
 #include <xc.h>
 
 #include "System_Library.h"
-#include "EE_library.h"
+#include "eeprom.h"
 #include "io.h"
 
 //------------------------------------//

@@ -1,9 +1,9 @@
 //
-// Module_LB_Telit.h
+// telit.h
 //
 
-#ifndef MODULE_LB_TELIT_H
-#define	MODULE_LB_TELIT_H
+#ifndef TELIT_H
+#define	TELIT_H
 
 #ifdef	__cplusplus
 extern "C" {
@@ -27,5 +27,5 @@ extern uint8_t wait_ok_respond(uint16_t);
 }
 #endif
 
-#endif	/* MODULE_LB_TELIT_H */
+#endif	/* TELIT_H */
 

@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=emc_library.c EE_library.c Systen_Library.c Setup_mode.c Module_LB_Telit.c OTA.c Main.c queue.c state.c led.c timer.c modem.c uart.c io.c sms.c
+SOURCEFILES_QUOTED_IF_SPACED=emc_library.c Systen_Library.c Setup_mode.c OTA.c Main.c queue.c state.c led.c timer.c modem.c uart.c io.c sms.c eeprom.c telit.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/emc_library.p1 ${OBJECTDIR}/EE_library.p1 ${OBJECTDIR}/Systen_Library.p1 ${OBJECTDIR}/Setup_mode.p1 ${OBJECTDIR}/Module_LB_Telit.p1 ${OBJECTDIR}/OTA.p1 ${OBJECTDIR}/Main.p1 ${OBJECTDIR}/queue.p1 ${OBJECTDIR}/state.p1 ${OBJECTDIR}/led.p1 ${OBJECTDIR}/timer.p1 ${OBJECTDIR}/modem.p1 ${OBJECTDIR}/uart.p1 ${OBJECTDIR}/io.p1 ${OBJECTDIR}/sms.p1
-POSSIBLE_DEPFILES=${OBJECTDIR}/emc_library.p1.d ${OBJECTDIR}/EE_library.p1.d ${OBJECTDIR}/Systen_Library.p1.d ${OBJECTDIR}/Setup_mode.p1.d ${OBJECTDIR}/Module_LB_Telit.p1.d ${OBJECTDIR}/OTA.p1.d ${OBJECTDIR}/Main.p1.d ${OBJECTDIR}/queue.p1.d ${OBJECTDIR}/state.p1.d ${OBJECTDIR}/led.p1.d ${OBJECTDIR}/timer.p1.d ${OBJECTDIR}/modem.p1.d ${OBJECTDIR}/uart.p1.d ${OBJECTDIR}/io.p1.d ${OBJECTDIR}/sms.p1.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/emc_library.p1 ${OBJECTDIR}/Systen_Library.p1 ${OBJECTDIR}/Setup_mode.p1 ${OBJECTDIR}/OTA.p1 ${OBJECTDIR}/Main.p1 ${OBJECTDIR}/queue.p1 ${OBJECTDIR}/state.p1 ${OBJECTDIR}/led.p1 ${OBJECTDIR}/timer.p1 ${OBJECTDIR}/modem.p1 ${OBJECTDIR}/uart.p1 ${OBJECTDIR}/io.p1 ${OBJECTDIR}/sms.p1 ${OBJECTDIR}/eeprom.p1 ${OBJECTDIR}/telit.p1
+POSSIBLE_DEPFILES=${OBJECTDIR}/emc_library.p1.d ${OBJECTDIR}/Systen_Library.p1.d ${OBJECTDIR}/Setup_mode.p1.d ${OBJECTDIR}/OTA.p1.d ${OBJECTDIR}/Main.p1.d ${OBJECTDIR}/queue.p1.d ${OBJECTDIR}/state.p1.d ${OBJECTDIR}/led.p1.d ${OBJECTDIR}/timer.p1.d ${OBJECTDIR}/modem.p1.d ${OBJECTDIR}/uart.p1.d ${OBJECTDIR}/io.p1.d ${OBJECTDIR}/sms.p1.d ${OBJECTDIR}/eeprom.p1.d ${OBJECTDIR}/telit.p1.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/emc_library.p1 ${OBJECTDIR}/EE_library.p1 ${OBJECTDIR}/Systen_Library.p1 ${OBJECTDIR}/Setup_mode.p1 ${OBJECTDIR}/Module_LB_Telit.p1 ${OBJECTDIR}/OTA.p1 ${OBJECTDIR}/Main.p1 ${OBJECTDIR}/queue.p1 ${OBJECTDIR}/state.p1 ${OBJECTDIR}/led.p1 ${OBJECTDIR}/timer.p1 ${OBJECTDIR}/modem.p1 ${OBJECTDIR}/uart.p1 ${OBJECTDIR}/io.p1 ${OBJECTDIR}/sms.p1
+OBJECTFILES=${OBJECTDIR}/emc_library.p1 ${OBJECTDIR}/Systen_Library.p1 ${OBJECTDIR}/Setup_mode.p1 ${OBJECTDIR}/OTA.p1 ${OBJECTDIR}/Main.p1 ${OBJECTDIR}/queue.p1 ${OBJECTDIR}/state.p1 ${OBJECTDIR}/led.p1 ${OBJECTDIR}/timer.p1 ${OBJECTDIR}/modem.p1 ${OBJECTDIR}/uart.p1 ${OBJECTDIR}/io.p1 ${OBJECTDIR}/sms.p1 ${OBJECTDIR}/eeprom.p1 ${OBJECTDIR}/telit.p1
 
 # Source Files
-SOURCEFILES=emc_library.c EE_library.c Systen_Library.c Setup_mode.c Module_LB_Telit.c OTA.c Main.c queue.c state.c led.c timer.c modem.c uart.c io.c sms.c
+SOURCEFILES=emc_library.c Systen_Library.c Setup_mode.c OTA.c Main.c queue.c state.c led.c timer.c modem.c uart.c io.c sms.c eeprom.c telit.c
 
 
 CFLAGS=
@@ -101,14 +101,6 @@ ${OBJECTDIR}/emc_library.p1: emc_library.c  nbproject/Makefile-${CND_CONF}.mk
 	@-${MV} ${OBJECTDIR}/emc_library.d ${OBJECTDIR}/emc_library.p1.d 
 	@${FIXDEPS} ${OBJECTDIR}/emc_library.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
 	
-${OBJECTDIR}/EE_library.p1: EE_library.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/EE_library.p1.d 
-	@${RM} ${OBJECTDIR}/EE_library.p1 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c  -D__DEBUG=1  -fshort-double -fshort-float -memi=wordwrite -O1 -fasmfile -maddrqual=ignore -xassembler-with-cpp -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx032 -Wl,--data-init -mno-keep-startup -mno-download -mdefault-config-bits $(COMPARISON_BUILD)  -std=c90 -gdwarf-3 -mstack=compiled:auto:auto:auto     -o ${OBJECTDIR}/EE_library.p1 EE_library.c 
-	@-${MV} ${OBJECTDIR}/EE_library.d ${OBJECTDIR}/EE_library.p1.d 
-	@${FIXDEPS} ${OBJECTDIR}/EE_library.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
-	
 ${OBJECTDIR}/Systen_Library.p1: Systen_Library.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
 	@${RM} ${OBJECTDIR}/Systen_Library.p1.d 
@@ -124,14 +116,6 @@ ${OBJECTDIR}/Setup_mode.p1: Setup_mode.c  nbproject/Makefile-${CND_CONF}.mk
 	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c  -D__DEBUG=1  -fshort-double -fshort-float -memi=wordwrite -O1 -fasmfile -maddrqual=ignore -xassembler-with-cpp -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx032 -Wl,--data-init -mno-keep-startup -mno-download -mdefault-config-bits $(COMPARISON_BUILD)  -std=c90 -gdwarf-3 -mstack=compiled:auto:auto:auto     -o ${OBJECTDIR}/Setup_mode.p1 Setup_mode.c 
 	@-${MV} ${OBJECTDIR}/Setup_mode.d ${OBJECTDIR}/Setup_mode.p1.d 
 	@${FIXDEPS} ${OBJECTDIR}/Setup_mode.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
-	
-${OBJECTDIR}/Module_LB_Telit.p1: Module_LB_Telit.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/Module_LB_Telit.p1.d 
-	@${RM} ${OBJECTDIR}/Module_LB_Telit.p1 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c  -D__DEBUG=1  -fshort-double -fshort-float -memi=wordwrite -O1 -fasmfile -maddrqual=ignore -xassembler-with-cpp -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx032 -Wl,--data-init -mno-keep-startup -mno-download -mdefault-config-bits $(COMPARISON_BUILD)  -std=c90 -gdwarf-3 -mstack=compiled:auto:auto:auto     -o ${OBJECTDIR}/Module_LB_Telit.p1 Module_LB_Telit.c 
-	@-${MV} ${OBJECTDIR}/Module_LB_Telit.d ${OBJECTDIR}/Module_LB_Telit.p1.d 
-	@${FIXDEPS} ${OBJECTDIR}/Module_LB_Telit.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
 	
 ${OBJECTDIR}/OTA.p1: OTA.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
@@ -213,6 +197,22 @@ ${OBJECTDIR}/sms.p1: sms.c  nbproject/Makefile-${CND_CONF}.mk
 	@-${MV} ${OBJECTDIR}/sms.d ${OBJECTDIR}/sms.p1.d 
 	@${FIXDEPS} ${OBJECTDIR}/sms.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
 	
+${OBJECTDIR}/eeprom.p1: eeprom.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/eeprom.p1.d 
+	@${RM} ${OBJECTDIR}/eeprom.p1 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c  -D__DEBUG=1  -fshort-double -fshort-float -memi=wordwrite -O1 -fasmfile -maddrqual=ignore -xassembler-with-cpp -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx032 -Wl,--data-init -mno-keep-startup -mno-download -mdefault-config-bits $(COMPARISON_BUILD)  -std=c90 -gdwarf-3 -mstack=compiled:auto:auto:auto     -o ${OBJECTDIR}/eeprom.p1 eeprom.c 
+	@-${MV} ${OBJECTDIR}/eeprom.d ${OBJECTDIR}/eeprom.p1.d 
+	@${FIXDEPS} ${OBJECTDIR}/eeprom.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
+	
+${OBJECTDIR}/telit.p1: telit.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/telit.p1.d 
+	@${RM} ${OBJECTDIR}/telit.p1 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c  -D__DEBUG=1  -fshort-double -fshort-float -memi=wordwrite -O1 -fasmfile -maddrqual=ignore -xassembler-with-cpp -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx032 -Wl,--data-init -mno-keep-startup -mno-download -mdefault-config-bits $(COMPARISON_BUILD)  -std=c90 -gdwarf-3 -mstack=compiled:auto:auto:auto     -o ${OBJECTDIR}/telit.p1 telit.c 
+	@-${MV} ${OBJECTDIR}/telit.d ${OBJECTDIR}/telit.p1.d 
+	@${FIXDEPS} ${OBJECTDIR}/telit.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
+	
 else
 ${OBJECTDIR}/emc_library.p1: emc_library.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
@@ -221,14 +221,6 @@ ${OBJECTDIR}/emc_library.p1: emc_library.c  nbproject/Makefile-${CND_CONF}.mk
 	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c  -fshort-double -fshort-float -memi=wordwrite -O1 -fasmfile -maddrqual=ignore -xassembler-with-cpp -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx032 -Wl,--data-init -mno-keep-startup -mno-download -mdefault-config-bits $(COMPARISON_BUILD)  -std=c90 -gdwarf-3 -mstack=compiled:auto:auto:auto     -o ${OBJECTDIR}/emc_library.p1 emc_library.c 
 	@-${MV} ${OBJECTDIR}/emc_library.d ${OBJECTDIR}/emc_library.p1.d 
 	@${FIXDEPS} ${OBJECTDIR}/emc_library.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
-	
-${OBJECTDIR}/EE_library.p1: EE_library.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/EE_library.p1.d 
-	@${RM} ${OBJECTDIR}/EE_library.p1 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c  -fshort-double -fshort-float -memi=wordwrite -O1 -fasmfile -maddrqual=ignore -xassembler-with-cpp -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx032 -Wl,--data-init -mno-keep-startup -mno-download -mdefault-config-bits $(COMPARISON_BUILD)  -std=c90 -gdwarf-3 -mstack=compiled:auto:auto:auto     -o ${OBJECTDIR}/EE_library.p1 EE_library.c 
-	@-${MV} ${OBJECTDIR}/EE_library.d ${OBJECTDIR}/EE_library.p1.d 
-	@${FIXDEPS} ${OBJECTDIR}/EE_library.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
 	
 ${OBJECTDIR}/Systen_Library.p1: Systen_Library.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
@@ -245,14 +237,6 @@ ${OBJECTDIR}/Setup_mode.p1: Setup_mode.c  nbproject/Makefile-${CND_CONF}.mk
 	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c  -fshort-double -fshort-float -memi=wordwrite -O1 -fasmfile -maddrqual=ignore -xassembler-with-cpp -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx032 -Wl,--data-init -mno-keep-startup -mno-download -mdefault-config-bits $(COMPARISON_BUILD)  -std=c90 -gdwarf-3 -mstack=compiled:auto:auto:auto     -o ${OBJECTDIR}/Setup_mode.p1 Setup_mode.c 
 	@-${MV} ${OBJECTDIR}/Setup_mode.d ${OBJECTDIR}/Setup_mode.p1.d 
 	@${FIXDEPS} ${OBJECTDIR}/Setup_mode.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
-	
-${OBJECTDIR}/Module_LB_Telit.p1: Module_LB_Telit.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/Module_LB_Telit.p1.d 
-	@${RM} ${OBJECTDIR}/Module_LB_Telit.p1 
-	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c  -fshort-double -fshort-float -memi=wordwrite -O1 -fasmfile -maddrqual=ignore -xassembler-with-cpp -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx032 -Wl,--data-init -mno-keep-startup -mno-download -mdefault-config-bits $(COMPARISON_BUILD)  -std=c90 -gdwarf-3 -mstack=compiled:auto:auto:auto     -o ${OBJECTDIR}/Module_LB_Telit.p1 Module_LB_Telit.c 
-	@-${MV} ${OBJECTDIR}/Module_LB_Telit.d ${OBJECTDIR}/Module_LB_Telit.p1.d 
-	@${FIXDEPS} ${OBJECTDIR}/Module_LB_Telit.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
 	
 ${OBJECTDIR}/OTA.p1: OTA.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
@@ -333,6 +317,22 @@ ${OBJECTDIR}/sms.p1: sms.c  nbproject/Makefile-${CND_CONF}.mk
 	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c  -fshort-double -fshort-float -memi=wordwrite -O1 -fasmfile -maddrqual=ignore -xassembler-with-cpp -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx032 -Wl,--data-init -mno-keep-startup -mno-download -mdefault-config-bits $(COMPARISON_BUILD)  -std=c90 -gdwarf-3 -mstack=compiled:auto:auto:auto     -o ${OBJECTDIR}/sms.p1 sms.c 
 	@-${MV} ${OBJECTDIR}/sms.d ${OBJECTDIR}/sms.p1.d 
 	@${FIXDEPS} ${OBJECTDIR}/sms.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
+	
+${OBJECTDIR}/eeprom.p1: eeprom.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/eeprom.p1.d 
+	@${RM} ${OBJECTDIR}/eeprom.p1 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c  -fshort-double -fshort-float -memi=wordwrite -O1 -fasmfile -maddrqual=ignore -xassembler-with-cpp -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx032 -Wl,--data-init -mno-keep-startup -mno-download -mdefault-config-bits $(COMPARISON_BUILD)  -std=c90 -gdwarf-3 -mstack=compiled:auto:auto:auto     -o ${OBJECTDIR}/eeprom.p1 eeprom.c 
+	@-${MV} ${OBJECTDIR}/eeprom.d ${OBJECTDIR}/eeprom.p1.d 
+	@${FIXDEPS} ${OBJECTDIR}/eeprom.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
+	
+${OBJECTDIR}/telit.p1: telit.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/telit.p1.d 
+	@${RM} ${OBJECTDIR}/telit.p1 
+	${MP_CC} $(MP_EXTRA_CC_PRE) -mcpu=$(MP_PROCESSOR_OPTION) -c  -fshort-double -fshort-float -memi=wordwrite -O1 -fasmfile -maddrqual=ignore -xassembler-with-cpp -Wa,-a -DXPRJ_default=$(CND_CONF)  -msummary=-psect,-class,+mem,-hex,-file  -ginhx032 -Wl,--data-init -mno-keep-startup -mno-download -mdefault-config-bits $(COMPARISON_BUILD)  -std=c90 -gdwarf-3 -mstack=compiled:auto:auto:auto     -o ${OBJECTDIR}/telit.p1 telit.c 
+	@-${MV} ${OBJECTDIR}/telit.d ${OBJECTDIR}/telit.p1.d 
+	@${FIXDEPS} ${OBJECTDIR}/telit.p1.d $(SILENT) -rsi ${MP_CC_DIR}../  
 	
 endif
 
