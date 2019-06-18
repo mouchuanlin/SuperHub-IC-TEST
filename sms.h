@@ -1,12 +1,9 @@
-/* 
- * File:   SMS_library.h
- * Author: YEN
- *
- * Created on 2017年4月28日, 下午 3:35
- */
+//
+// sms.h
+//
 
-#ifndef SMS_LIBRARY_H
-#define	SMS_LIBRARY_H
+#ifndef SMS_H
+#define	SMS__H
 
 #ifdef	__cplusplus
 extern "C" {
@@ -30,5 +27,5 @@ uint8_t respond_setting(uint8_t,uint8_t);
 }
 #endif
 
-#endif	/* SMS_LIBRARY_H */
+#endif	/* SMS_H */
 

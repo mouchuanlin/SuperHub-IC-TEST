@@ -1,5 +1,5 @@
 //
-// SMS_library.c
+// sms.c
 //
 
 
@@ -13,7 +13,7 @@
 #include "System_Library.h"
 #include "Module_Library.h"
 #include "EE_library.h"
-#include "SMS_library.h"
+#include "sms.h"
 #include "Setup_mode.h"
 
 uint8_t sms_p,sms_buffer[160]; 
