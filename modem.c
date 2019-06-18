@@ -25,6 +25,7 @@
 void powerup_modem()
 {
     MD_POWER = POWER_ON;
+    
     delayseconds(2);
     MD_RESET = 1;
     delayseconds(1);
@@ -54,6 +55,12 @@ void start_modem()
     
     while (!md_config_ok())
         restart_modem();
+    
+    poweroff_modem();
+    //MD_POWER = POWER_OFF;
+    
+    myState = SLEEP;
+    update_led_state(IDLE);
     //md_started = true;
 }
 
@@ -87,21 +94,17 @@ alarm_start:
 void restart_modem()
 {
     CLRWDT();
-    MD_POWER = POWER_OFF;
-//    __delay_ms(5000);
+    //MD_POWER = POWER_OFF;
+    poweroff_modem();
+
     delayseconds(5);
-//    MD_POWER = POWER_ON;
-////    __delay_ms(25000);
-//    delayseconds(25);
-    
+   
     powerup_modem();
 }
 
-void stop_modem()
+void poweroff_modem()
 {
     MD_POWER = POWER_OFF;
-//    __delay_ms(5000);
-    //md_started = false;
 }
 
 

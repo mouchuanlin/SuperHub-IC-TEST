@@ -12,9 +12,9 @@
 #include <pic18f26k22.h>
 #include <xc.h>
 
-#include "config.h"
+//#include "config.h"
 #include "state.h"
-#include "queue.h"
+//#include "queue.h"
 #include "io.h"
 
 extern state_t myState;
@@ -25,10 +25,16 @@ void check_state()
     check_button();
     control_leds();
     
-//    process_event_queue();
+    process_event_queue();
 //    process_ADC();
-//    check_supervisory();
-       
+//    check_supervisory();()
+    
+    
+    if (process_restart())
+    {
+        myState = SEND_TEST;
+    }
+    
     switch (myState)
     {
         case POWER_UP:
@@ -46,6 +52,7 @@ void check_state()
             delete_sensor();
             break; 
         case SEND_TEST:
+            start_modem();
             break;      
         case RF_INTERRUPT:
             break;
@@ -56,6 +63,26 @@ void check_state()
         case ADC:
             break;            
     }
+}
+
+bool process_restart()
+{	
+	if( (retry_count == 0 ) && (stack_buffer[0][0] != 0) && (IP_type == 1) )        
+	{                   
+		#ifdef MODULE_OFF_TYPE
+		   MD_POWER = POWER_OFF;
+		#else
+			MD_RESET = 1;
+		#endif
+		delayseconds(1);
+		#ifndef MODULE_OFF_TYPE
+			MD_RESET = 0;
+		#endif
+		//goto module_start;
+		return true;
+	}     	
+	
+	return false;
 }
 
 void check_alarm_tamper()

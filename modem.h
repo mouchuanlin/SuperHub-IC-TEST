@@ -13,7 +13,7 @@
  ****************************************************/
  #include "stdint.h"
 #include "stdbool.h"
-#include "config.h"
+//#include "config.h"
 #include "state.h"
 
 /*****************************************************
@@ -30,6 +30,10 @@ extern state_t myState;
  * FUNCTION PROTOTYPES
  ****************************************************/
 void 	powerup_modem();
+void start_modem();
+void restart_modem();
+void poweroff_modem();
+
 uint8_t modem_module_start();
 uint8_t check_network_registration();
 uint8_t check_SIM_state();
@@ -37,7 +41,8 @@ uint8_t wait_AT_cmd_response();
 uint8_t wait_SMS_setting();
 uint8_t process_SMS_setup_state();
 
-extern void delayseconds(uint16_t secs);
+
+//extern void delayseconds(uint16_t secs);
 extern void delay5ms(uint16_t cnt);
 extern void TL_module_first_run(void);
 extern void check_led_type(void);
@@ -47,8 +52,10 @@ extern void set_sms_init(void);
 extern void check_event(void);
 extern uint8_t check_sms(void);
 uint8_t start_send_alarm();
+void process_event_queue();
 
 extern uint8_t check_emc_stack(void);
+extern void check_state();
 
     
 // The Carriage Return (CR) character (0x0D, \r) moves the cursor to the beginning of the line without advancing to the next line. 

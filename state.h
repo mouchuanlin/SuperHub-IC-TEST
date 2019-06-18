@@ -11,7 +11,8 @@
 /*****************************************************
  * INCLUDES
  ****************************************************/
-#include "config.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 /*****************************************************
  * VARIABLES
@@ -39,10 +40,19 @@ void check_state();
 void check_button();
 void check_alarm_tamper();
 void add_sensor() ;
-void delete_sensor()  ;
-extern uint8_t check_supervisory();
+void delete_sensor();
+//extern uint8_t check_supervisory(void);
 
 extern void control_leds();
+extern void process_event_queue();
+extern void delayseconds(uint16_t secs);
+
+extern void start_modem();
+extern void restart_modem();
+extern void poweroff_modem();
+
+bool process_restart();
+
 //extern void check_event(void)
 
 // Global variables - defined in main.c

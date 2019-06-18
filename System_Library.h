@@ -107,8 +107,8 @@ extern "C" {
 #endif
     uint8_t const ENCRYPTION = 1;               //95#    
 
-void delay5ms(uint16_t);
-void delayseconds(uint16_t secs);
+extern void delay5ms(uint16_t);
+extern void delayseconds(uint16_t secs);
 void init_eeprom(void);
 void load_default(void);
 void check_led_type(void);

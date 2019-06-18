@@ -19,7 +19,6 @@
       <itemPath>modem.h</itemPath>
       <itemPath>uart.h</itemPath>
       <itemPath>io.h</itemPath>
-      <itemPath>eeprom.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"

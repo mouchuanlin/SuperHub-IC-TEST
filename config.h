@@ -103,36 +103,38 @@ void 	init_system();
 void    int_init();
 void 	powerup_modem();
 void 	init_global_variables();
-uint8_t modem_module_start();
-uint8_t check_network_registration();
-uint8_t check_SIM_state();
+//uint8_t modem_module_start();
+//uint8_t check_network_registration();
+//uint8_t check_SIM_state();
 void 	init_stack_buffer();
-uint8_t wait_AT_cmd_response();
-uint8_t wait_SMS_setting();
-void 	process_event_queue();
+//uint8_t wait_AT_cmd_response();
+//uint8_t wait_SMS_setting();
+
 void 	process_ADC();
 void 	process_RF_interrupt();
 uint8_t process_SMS_setup_state();
-uint8_t process_restart();
+//uint8_t process_restart();
 void 	process_supervisory();
 void    sms_menu();
 
 
-void UART1_ISR();
-void UART2_ISR();
+//void UART1_ISR();
+//void UART2_ISR();
 
 void smoker_ISR();
 void superhub_ISR();
 //void handle_LED();
 void handle_smoker();
-void check_button();
+//void check_button();
 
 // Jen's simple_state_machine pronect
-void start_modem();
-void restart_modem();
-void stop_modem();
+extern void start_modem();
+extern void restart_modem();
+extern void poweroff_modem();
 
 bool md_config_ok();
+
+extern void check_state();
 
 
 /*****************************************************

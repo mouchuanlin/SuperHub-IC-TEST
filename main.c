@@ -63,13 +63,11 @@ int main(int argc, char** argv)
     
     // Powerup modem, send AT command to init modem.
     start_modem();
-    stop_modem();
+    poweroff_modem();
     update_led_state(IDLE);
 
 	while (1)
-	{   
-        //update_led_state(IDLE);
-        
+	{          
         SWDTEN = 1;
         SLEEP();   
         NOP();
@@ -280,26 +278,6 @@ void process_supervisory()
 	}
 }
 
-uint8_t process_restart()
-{	
-	if( (retry_count == 0 ) && (stack_buffer[0][0] != 0) && (IP_type == 1) )        
-	{                   
-		#ifdef MODULE_OFF_TYPE
-		   MD_POWER = POWER_OFF;
-		#else
-			MD_RESET = 1;
-		#endif
-		delayseconds(1);
-		#ifndef MODULE_OFF_TYPE
-			MD_RESET = 0;
-		#endif
-		//goto module_start;
-		return FALSE;
-	}     	
-	
-	return TRUE;
-}
-
 void __interrupt isr()
 {
 	// UART1 ISR - modem
@@ -475,6 +453,7 @@ void sms_menu()
             
         case 5:
             learning_mode = KEY_NONE;
+            myState = LISTEN_SMS;	
             break;   
     }
 }
