@@ -1,12 +1,6 @@
-/*
- * File: queue.c
- * Author: THE MASTER
- * 
- * This file defines all functions related to queue handling.
- * 
- * Date Created: 30 Apr. 2018, 13:02 PM
- * Last Modified: 30 Apr. 2018, 13:02 PM
- */
+//
+// queue.c
+//
 
 #include "queue.h"
 

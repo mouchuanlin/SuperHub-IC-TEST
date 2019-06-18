@@ -1,9 +1,6 @@
-/* 
- * File:   queue.h
- * Author: Scott
- *
- * Created on April 30, 2018, 1:27 PM
- */
+//
+// queue.h
+//
 
 #ifndef QUEUE_H
 #define	QUEUE_H

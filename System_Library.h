@@ -1,9 +1,7 @@
-/* 
- * File:   System_Library.h
- * Author: YEN
- *
- * Created on 2017年4月12日, 下午 2:38
- */
+//
+// System_Library.h
+//
+
 
 #ifndef SYSTEM_LIBRARY_H
 #define	SYSTEM_LIBRARY_H
@@ -107,8 +105,7 @@ extern "C" {
 #endif
     uint8_t const ENCRYPTION = 1;               //95#    
 
-extern void delay5ms(uint16_t);
-extern void delayseconds(uint16_t secs);
+
 void init_eeprom(void);
 void load_default(void);
 void check_led_type(void);
@@ -119,6 +116,12 @@ uint8_t del_ID(uint8_t id);
 uint8_t check_supervisory(void);
 uint8_t send_trigger_to_RF(uint8_t type);
 void rsp_SUP_LBT(void);
+void write_EE_setting(uint8_t page, uint8_t addr, uint8_t const setting[]);
+
+extern uint8_t read_ee(uint8_t, uint8_t );
+extern void write_ee(uint8_t, uint8_t, uint8_t );
+extern void delay5ms(uint16_t);
+extern void delayseconds(uint16_t secs);
 
 
 #ifdef	__cplusplus

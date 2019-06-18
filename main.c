@@ -1,13 +1,7 @@
-/* 
- * File:   main.c
- * Author: YEN
- *
- * Created on 2017?4?11?, ?? 3:13
- */
+//
+// main.c
+//
 
-
-#include <stdio.h>
-#include <stdlib.h>
 #include <pic18f26k22.h>
 #include <xc.h>
 
@@ -15,32 +9,16 @@
 #include "config.h"
 #include "main.h"
 
-
 #include "io.h"
-#include "sms.h"
-#include "EE_library.h"
-#include "System_Library.h"
-#include "Module_Library.h"
-#include "Module_LB_Telit.h"
-#include "emc_library.h"
-
 #include "state.h"
 #include "led.h"
-#include "timer.h"
-#include "modem.h"
-#include "uart.h"
-
-
 
 // Global variables
 state_t     myState = POWER_UP;
 bool        readyForSleep = false;
 
 // LED
-//bool            G_LED_STATE = 1, B_LED_STATE = 1;
 uint8_t         gled_tmr0_tick = 0, bled_tmr0_tick = 0;
-//led_states_t    curr_led_state = IDLE;
-//led_states_t    prev_led_state = IDLE;
 led_states_t    led_state = IDLE;
 uint8_t         ver_select = 0;
 
@@ -54,7 +32,7 @@ bit     listen_sms_state = 0;
 bit     ADC_time = 0;
 
 //
-// MAIN
+// main
 //
 int main(int argc, char** argv) 
 {   

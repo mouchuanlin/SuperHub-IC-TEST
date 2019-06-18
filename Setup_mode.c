@@ -2,8 +2,6 @@
 // Setup_mode.c
 //
 
-
-
 #include <ctype.h>
 #include <xc.h>
 

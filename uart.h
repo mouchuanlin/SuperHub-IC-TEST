@@ -1,9 +1,6 @@
-/* 
- * File:   uart.h
- * Author: THE MASTER
- *
- * Created on April 30, 2018, 10:20 AM
- */
+//
+// uart.h
+//
 
 #ifndef UART_H
 #define	UART_H

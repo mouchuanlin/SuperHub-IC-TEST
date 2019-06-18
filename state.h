@@ -1,9 +1,7 @@
-/* 
- * File:   state.h
- * Author: THE MASTER
- *
- * Created on April 30, 2018, 10:20 AM
- */
+//
+// state.h
+//
+
 
 #ifndef STATE_H
 #define	STATE_H

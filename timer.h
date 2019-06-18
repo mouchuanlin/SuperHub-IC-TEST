@@ -1,9 +1,6 @@
-/* 
- * File:   timer.h
- * Author: THE MASTER
- *
- * Created on April 30, 2018, 10:20 AM
- */
+//
+// timer.h
+//
 
 #ifndef TIMER_H
 #define	TIMER_H

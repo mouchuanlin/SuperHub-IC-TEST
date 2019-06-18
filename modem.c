@@ -1,13 +1,6 @@
-/*
- * File: modem.c
- * Author: THE MASTER
- * 
- * This file defines all functions used in control of the state machine;
- * delegates tasks associated with the 4 different states in the hub.
- * 
- * Date Created: 30 Apr. 2018, 10:19 AM
- * Last Modified: 30 Apr. 2018, 10:19 AM
- */
+//
+// modem.c
+//
 
 
 #include <pic18f26k22.h>

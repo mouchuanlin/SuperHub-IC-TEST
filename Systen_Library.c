@@ -7,26 +7,10 @@
 #include <xc.h>
 
 #include "io.h"
-#include "EE_library.h"
-#include "Module_Library.h"
+//#include "EE_library.h"
+//#include "Module_Library.h"
 #include "emc_library.h"
 #include "System_Library.h"
-
-// From Jens' test code 001/module.c
-//void delay5ms(uint16_t cnt)         // Based on 4MHz Fosc, or 1MHz instruction cycle
-//{
-//    uint8_t i, j;
-//    while(cnt-- != 0)
-//    {
-//        j = 100;
-//        while(j-- != 0)
-//        {
-//            i = 32;//50;
-//            while(--i != 0);
-//        }
-//    }
-//}
-
 
 // TODO: Check spec
 bool is_first_run()
@@ -39,7 +23,7 @@ void save_first_run()
     ee_write(0, FIRST_RUN_CHECK, 0x57);
 }
 
-void init_eeprom(void)
+void init_eeprom()
 {   
     //---------Check Version-----------
     // This make sure we only run first time.
@@ -150,7 +134,7 @@ void check_led_type(void)
 }
 
 //---------------new add 2017/11/23
-void load_RF_devID_table(void)
+void load_RF_devID_table()
 {
     uint8_t cnt1,cnt2,addr;
     for( cnt1=0;cnt1<28;cnt1++ )

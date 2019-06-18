@@ -1,9 +1,6 @@
-/* 
- * File:   led.h
- * Author: THE MASTER
- *
- * Created on April 30, 2018, 10:20 AM
- */
+//
+// led.h
+//
 
 #ifndef LED_H
 #define	LED_H
@@ -12,7 +9,6 @@
  * INCLUDES
  ****************************************************/
 #include <stdint.h>
-#include <stdbool.h>
 
 /*****************************************************
  * VARIABLES
@@ -31,7 +27,6 @@ typedef enum LED_STATES {
     LINE_FAULT,     		// Both LEDs blink 0.3s ON/4.7s OFF
     RF_INT          		// Green on solid for 10s (or maybe less)
 } led_states_t;
-
 
 //--------------------   
 // LED state
@@ -60,7 +55,6 @@ void control_leds();
 // Global variables - defined in main.c
 extern uint8_t 		gled_tmr0_tick, bled_tmr0_tick;
 extern led_states_t led_state;
-
 
 #endif	/* LED_H */
 

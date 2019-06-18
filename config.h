@@ -1,9 +1,7 @@
-/* 
- * File:   config.h
- * Author: Dick
- *
- * Created on May 7, 2019, 9:52 AM
- */
+//
+// config.h
+//
+
 
 #ifndef CONFIG_H
 #define	CONFIG_H
@@ -11,9 +9,6 @@
 /*****************************************************
  * INCLUDES
  ****************************************************/
-#include <stdint.h>
-#include <stdbool.h>
-
 
 // PIC18F26K22 Configuration Bit Settings
 // 'C' source line config statements

@@ -1,9 +1,6 @@
-/* 
- * File:   main.h
- * Author: Dick
- *
- * Created on May 7, 2019, 9:52 AM
- */
+//
+// main.h
+//
 
 #ifndef MAIN_H
 #define	MAIN_H
@@ -13,6 +10,7 @@
  ****************************************************/
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 /*****************************************************
  * FUNCTION PROTOTYPES
@@ -23,9 +21,6 @@ void 	init_stack_buffer();
 void 	init_global_variables();
 uint8_t get_hub_type();
 void 	buzzer_on(uint8_t count);
-//void 	process_ADC();
-//void 	process_RF_interrupt();
-//void 	process_supervisory();
 void    superhub_ISR();
 void    sms_menu();
 void    handle_smoker();
@@ -35,20 +30,23 @@ extern void start_modem();
 extern void restart_modem();
 extern void poweroff_modem();
 extern void check_state();
+extern void init_eeprom();
+extern void load_RF_devID_table();
+extern void UART_init();
+extern void UART1_ISR();
+extern void UART2_ISR();
 
-
-//#define MODULE_OFF_TYPE  
+extern void start_timer0();
+extern void TMR0_ISR();
 
 /*****************************************************
  * VARIABLES
  ****************************************************/
 
-//uint8_t Alarm_f = 0;
+
 uint8_t Standby_f = 0;
 uint8_t Error_f = 0;
-//  uint8_t Test_f = 0;
-//  bit Low_battery = 0;
-// bit Smoke_EOL = 0;
+
       
 uint8_t Smoke_respond = 0;    
 //bit Respond_ack = 0;
@@ -80,6 +78,5 @@ uint8_t 	led_count = 0;
 uint8_t 	learn_delay = 0;    
 uint16_t 	test_9sec_count=0;
 uint8_t 	OTA_flag = 0;
-
 
 #endif	/* MAIN_H */

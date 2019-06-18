@@ -1,12 +1,9 @@
-/* 
- * File:   initial.h
- * Author: YEN
- *
- * Created on 2017?4?11?, ?? 3:51
- */
+//
+// io.h
+//
 
-#ifndef INITIAL_H
-#define	INITIAL_H
+#ifndef IO_H
+#define	IO_H
 
 #ifdef	__cplusplus
 extern "C" {
@@ -318,5 +315,5 @@ void IO_init(void);
 }
 #endif
 
-#endif	/* INITIAL_H */
+#endif	/* IO_H */
 

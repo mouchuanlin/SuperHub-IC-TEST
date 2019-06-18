@@ -6,7 +6,6 @@
                    projectFiles="true">
       <itemPath>EE_library.h</itemPath>
       <itemPath>System_Library.h</itemPath>
-      <itemPath>Module_Library.h</itemPath>
       <itemPath>emc_library.h</itemPath>
       <itemPath>Setup_mode.h</itemPath>
       <itemPath>Module_LB_Telit.h</itemPath>

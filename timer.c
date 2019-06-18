@@ -32,6 +32,22 @@ void delay5ms(uint16_t cnt)
     }
 }
 
+
+// From Jens' test code 001/module.c
+//void delay5ms(uint16_t cnt)         // Based on 4MHz Fosc, or 1MHz instruction cycle
+//{
+//    uint8_t i, j;
+//    while(cnt-- != 0)
+//    {
+//        j = 100;
+//        while(j-- != 0)
+//        {
+//            i = 32;     //50;
+//            while(--i != 0);
+//        }
+//    }
+//}
+
 void delayseconds(uint16_t secs)
 {
     for (uint16_t i = 0; i < secs; i++)
