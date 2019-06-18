@@ -22,11 +22,11 @@
 /*****************************************************
  * FUNCTION PROTOTYPES
  ****************************************************/
-void UART1_init(void);
-void UART2_init(void);
-void Enable_Uart_IO(void);
-void Uart_disable(void);
-void UART_init(void);
+void UART1_init();
+void UART2_init();
+void Enable_Uart_IO();
+void Uart_disable();
+void UART_init();
 
 void UART1_ISR();
 void UART2_ISR();

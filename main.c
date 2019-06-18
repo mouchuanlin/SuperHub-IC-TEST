@@ -5,13 +5,15 @@
  * Created on 2017?4?11?, ?? 3:13
  */
 
-// Configuration, global variable and forward declaration.
-#include "config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <pic18f26k22.h>
 #include <xc.h>
+
+// Configuration, global variable and forward declaration.
+#include "config.h"
+#include "main.h"
 
 #include "System_Library.h"
 #include "io.h"
@@ -43,9 +45,12 @@ uint8_t         ver_select = 0;
 
 // button press
 bool    inButtonMenu = false;
-uint8_t  buttonPressCount = 0;
+uint8_t buttonPressCount = 0;
 uint8_t tmr3_cnt = 0;
 bool    g_op_state = false;
+bit     listen_sms_state = 0;  
+
+bit     ADC_time = 0;
 
 //
 // MAIN
@@ -75,7 +80,8 @@ int main(int argc, char** argv)
         NOP();
         
         
-        SWDTEN = 0;
+        //SWDTEN = 0;
+        CLRWDT();
         check_state();
         
         
@@ -107,7 +113,8 @@ void init_system()
     HL_freq = 1;
     // Enable watchdog timer
     // WDTEN<1:0>: Watchdog Timer Enable bits
-    SWDTEN = 0;     
+    //SWDTEN = 0;  
+    CLRWDT();
 
     IO_init();
     UART_init();      
@@ -213,69 +220,6 @@ void buzzer_on(uint8_t count)
         delay5ms(20);
         CLRWDT();
     }
-}
-
-void process_ADC()
-{
-	unsigned cnt;
-	
-	if( ADC_time==1 )
-	{
-		FVREN = 1;
-		cnt = 200;
-		do{
-			delay5ms(1);
-			CLRWDT();
-		}while(--cnt!=0&&FVRST==0);
-		
-		ADON = 1;            
-		GO_nDONE = 1; 
-		cnt = 200;
-		do{
-			delay5ms(1);
-		}while( ((ADCON0&0x02)!=0)&&(--cnt!=0) );
-		
-		ADC_data = (ADRESH<<8)+ADRESL;
-		ADC_data &= 0x03ff;
-		ADON = 0;                               //748->2.80
-		ADC_time = 0;                           //776->2.70
-		if( ADC_data >776 )                     //806->2.60
-		{                                       //838->2.50
-			if( BT_L_respond==0 )
-			{                    
-				add_event(LOW_BATTERY_S,0);                    
-				BT_L_respond = BT_EOL_RESEND;
-			}
-		}else BT_L_respond = 0;
-		FVREN = 0;
-	}
-}
-
-void process_RF_interrupt()
-{
-	if( WIFI_INT ==1 && RF_wait_count == 0 )
-	{
-		LED_G = 0;
-		OSCCON = HIGH_FREQ_OSCCON;	// 4MHz
-		T0CON = HIGH_FREQ_T0CON;             //1*4000 = 50,000us
-		HL_freq = 1;
-		UART2_init();
-		CREN1 = 0;
-		RF_wait_count = 100;      
-		TMR0IE = 1;//
-		TMR0ON = 1;
-		CREN1 = 1;
-		RC2IE = 1;
-	}
-}
-
-void process_supervisory()
-{
-	if( chk_supervisory>=2 )       //2 hour
-	{
-		check_supervisory();
-		chk_supervisory = 0;
-	}
 }
 
 void __interrupt isr()

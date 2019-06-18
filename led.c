@@ -12,9 +12,7 @@
 #include <pic18f26k22.h>
 #include <xc.h>
 
-#include "config.h"
 #include "led.h"
-#include "queue.h"
 #include "io.h"
 
 void update_led_state(led_states_t new_state)

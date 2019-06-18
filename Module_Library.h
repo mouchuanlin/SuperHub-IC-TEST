@@ -33,7 +33,7 @@ void write_EE_setting(uint8_t page, uint8_t addr, uint8_t const setting[]);
 //void init_modem();
 extern void powerup_modem();
 uint8_t GM_internet_init(void);
-uint8_t Check_OTA(void);
+uint8_t check_OTA(void);
 
     
 #ifdef	__cplusplus

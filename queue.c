@@ -8,7 +8,6 @@
  * Last Modified: 30 Apr. 2018, 13:02 PM
  */
 
-#include "config.h"
 #include "queue.h"
 
 void init_queue()

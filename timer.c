@@ -1,25 +1,13 @@
-/*
- * File: timer.c
- * Author: THE MASTER
- * 
- * This file defines all functions used in control of the state machine;
- * delegates tasks associated with the 4 different states in the hub.
- * 
- * Date Created: 30 Apr. 2018, 10:19 AM
- * Last Modified: 30 Apr. 2018, 10:19 AM
- */
+//
+// timer.c
+//
 
 #include <pic18f26k22.h>
 #include <xc.h>
 
-
-#include "config.h"
 #include "timer.h"
-#include "queue.h"
 #include "io.h"
 #include "led.h"
-
-
 
 void delay5ms(uint16_t cnt)
 {

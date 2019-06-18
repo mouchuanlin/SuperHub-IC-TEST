@@ -14,9 +14,8 @@
 #include <xc.h>
 
 
-//#include "config.h"
+
 #include "modem.h"
-#include "queue.h"
 #include "io.h"
 #include "led.h"
 #include "uart.h"
@@ -148,21 +147,18 @@ uint8_t wait_AT_cmd_response()
     }while( --rsp!=0&&cnt!='K' );     
     if( rsp==0 )
     {        
-        #ifdef MODULE_OFF_TYPE
-            MD_POWER = POWER_OFF;
-        #else
-            MD_RESET = 1;
-        #endif
+        MD_POWER = POWER_OFF;
+
         cnt = 30;
         do{
             delayseconds(1);
         }while(--cnt!=0);
-        #ifndef MODULE_OFF_TYPE
-            MD_RESET = 0;
-        #endif
+
+
+
         power_status = MD_POWER_LOSS;
         //goto module_start;
-		return FALSE;
+		return false;
     }   
        
     //---------------------------------   
@@ -215,45 +211,30 @@ uint8_t check_SIM_state()
         rsp = check_sim_card();
         if( rsp=='N'&&cnt==30 )        
          {
-            #ifdef MODULE_OFF_TYPE
-                MD_POWER = POWER_OFF;
-            #else
-                MD_RESET = 1;
-            #endif
-			
+            MD_POWER = POWER_OFF;
+
 			// TODO: Why 30 secs here???
 			delayseconds(30);
-			
-            #ifndef MODULE_OFF_TYPE
-                MD_RESET = 0;
-            #endif
 			
             power_status = MD_POWER_LOSS;
 			
             //goto module_start;
-			return FALSE;
+			return false;
         } 
         CLRWDT();
     }while( rsp!='K'&& --cnt!=0 );
     if( cnt==0 )    
     {
-        #ifdef MODULE_OFF_TYPE
-            MD_POWER = POWER_OFF;
-        #else
-            MD_RESET = 1;
-        #endif
+        MD_POWER = POWER_OFF;
 		
 		// TODO: Why 30 secs here???
 		delayseconds(30);
 		
-        #ifndef MODULE_OFF_TYPE
-            MD_RESET = 0;
-        #endif
         //goto module_start;
-		return FALSE;
+		return false;
     }
 	
-	return TRUE;
+	return true;
 }
 
 uint8_t check_network_registration()
@@ -271,19 +252,13 @@ uint8_t check_network_registration()
     }while( rsp!='K' && --cnt!=0 );
     if( cnt==0 )    
     {
-        #ifdef MODULE_OFF_TYPE
-            MD_POWER = POWER_OFF;
-        #else
-            MD_RESET = 1;
-        #endif
+        MD_POWER = POWER_OFF;
+            
 		// TODO: Why 30 secs here???
 		delayseconds(30);
-		
-        #ifndef MODULE_OFF_TYPE
-            MD_RESET = 0;
-        #endif
+
         //goto module_start;
-		return FALSE;
+		return false;
     }
     power_status = 0;
     delay5ms(100);
@@ -297,7 +272,7 @@ uint8_t check_network_registration()
     
     //OTA_flag = 1; //----------------------------------
 	
-	return TRUE;    
+	return true;    
 }
 
 bool check_apn_status()
@@ -318,23 +293,18 @@ uint8_t start_send_alarm()
         rsp = check_emc_stack();
         if( rsp=='U' )
         {
-            #ifdef MODULE_OFF_TYPE
-                MD_POWER = POWER_OFF;
-             #else
-                MD_RESET = 1;
-            #endif
+            MD_POWER = POWER_OFF;
+
 			// TODO: what's this for???
 			delayseconds(30);
-            #ifndef MODULE_OFF_TYPE
-                MD_RESET = 0;
-            #endif
+
             //goto module_start;
-			return FALSE;
+			return false;
         }
         
         if( OTA_flag==1 )
         {
-            rsp = Check_OTA();
+            rsp = check_OTA();
             if( rsp=='E' )
                 OTA_flag = 2;
             else OTA_flag = 0;
@@ -342,7 +312,7 @@ uint8_t start_send_alarm()
     }
     check_led_type();	
 	
-	return TRUE;
+	return true;
 }
 
 uint8_t wait_SMS_setting()
@@ -369,7 +339,7 @@ uint8_t wait_SMS_setting()
                     if( stack_buffer[0][0]!=0&&retry_count==0&&IP_type==1 )   
                     {                   
                        //goto alarm_start;
-					   return FALSE;
+					   return false;
                     }
                 }while(--rsp!=0);
                 
@@ -406,9 +376,9 @@ uint8_t wait_SMS_setting()
     // Need bail out call start_send_alarm() to send data
     if( stack_buffer[0][0]!=0&&retry_count==0&&IP_type==1 )//LED_flash_type==LED_STANDBY )                     
         //goto alarm_start;
-		return FALSE;
+		return false;
 		    
-	return TRUE;
+	return true;
 }
 
     
@@ -426,20 +396,13 @@ uint8_t process_SMS_setup_state()
 {
 	if ( listen_sms_state==1 )
 	{                     
-		#ifdef MODULE_OFF_TYPE
-		   MD_POWER = POWER_OFF;
-		#else
-			MD_RESET = 1;
-		#endif
-		delayseconds(1);
-		#ifndef MODULE_OFF_TYPE
-			MD_RESET = 0;
-		#endif
+		MD_POWER = POWER_OFF;
+
 		//goto module_start;
-		return FALSE;
+		return false;
 	}	
 	
-	return TRUE;
+	return true;
 }
 
 void out_sbuf(uint8_t tmp)

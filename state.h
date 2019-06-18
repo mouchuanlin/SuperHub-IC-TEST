@@ -32,6 +32,11 @@ typedef enum State {
     OPERATIONAL
 } state_t;
 
+extern bit ADC_time;
+extern uint8_t BT_S_respond;
+extern uint8_t BT_L_respond;
+extern uint8_t EOL_respond;
+
 
 /*****************************************************
  * FUNCTION PROTOTYPES
@@ -41,7 +46,10 @@ void check_button();
 void check_alarm_tamper();
 void add_sensor() ;
 void delete_sensor();
-//extern uint8_t check_supervisory(void);
+bool    process_restart();
+void 	process_ADC();
+void 	process_RF_interrupt();
+void 	process_supervisory();
 
 extern void control_leds();
 extern void process_event_queue();
@@ -50,13 +58,14 @@ extern void delayseconds(uint16_t secs);
 extern void start_modem();
 extern void restart_modem();
 extern void poweroff_modem();
+extern void delay5ms(uint16_t cnt);
+extern void add_event(uint8_t event,uint8_t zone);
+extern uint8_t check_supervisory(void);
+extern void UART2_init();
 
-bool process_restart();
 
-//extern void check_event(void)
 
-// Global variables - defined in main.c
-//extern led_states_t curr_led_state, prev_led_state;
+
 
 
 #endif	/* STATE_H */

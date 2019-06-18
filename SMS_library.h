@@ -15,16 +15,15 @@ extern "C" {
 #include "stdint.h"
 #include "stdbool.h"
 
-void set_sms_init(void);
+void    set_sms_init(void);
 uint8_t check_sms(void);
 uint8_t read_sms(uint8_t, uint8_t, uint8_t);
-void delete_sms(uint8_t, uint8_t, uint8_t);
+void    delete_sms(uint8_t, uint8_t, uint8_t);
 uint8_t check_remote(void);
 uint8_t remote_setting(void);
-void send_respond(uint8_t);
-void select_sms_type(bit);
+void    send_respond(uint8_t);
+void    select_sms_type(bit);
 uint8_t respond_setting(uint8_t,uint8_t);
-
 
 
 #ifdef	__cplusplus

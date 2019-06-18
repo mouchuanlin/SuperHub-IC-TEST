@@ -11,7 +11,8 @@
 /*****************************************************
  * INCLUDES
  ****************************************************/
-#include "config.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "state.h"
 
 /*****************************************************
@@ -49,9 +50,7 @@ void TMR3_ISR();
 
 void delayseconds(uint16_t secs);
 void delay5ms(uint16_t cnt);
-
 void process_sms_menu();
-
 
 extern void add_event(uint8_t event,uint8_t zone);
 extern void process_button_push();

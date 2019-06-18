@@ -397,7 +397,7 @@ uint8_t OTA_connection_open(uint8_t type)   //0: command mode 1:online mode
     return(temp);
 }
 
-uint8_t Check_OTA(void)
+uint8_t check_OTA(void)
 {
     uint8_t rsp,cnt,cnt1;
     cnt = 3;

@@ -13,14 +13,12 @@
 #include <pic18f26k22.h>
 #include <xc.h>
 
-
-#include "config.h"
 #include "uart.h"
 #include "io.h"
 
 
 
-void UART_init(void)
+void UART_init()
 {
     Enable_Uart_IO();
             
@@ -28,7 +26,7 @@ void UART_init(void)
     UART2_init();
 }
 
-void UART1_init(void)
+void UART1_init()
 {
     // TxSTAx: TRANSMIT STATUS AND CONTROL REGISTER
     TX1STA = 0x26;       // 0010 0110 - 8-bit, 
@@ -43,7 +41,7 @@ void UART1_init(void)
 }
 
 //---------------------------------------------------
-void UART2_init(void)
+void UART2_init()
 {   
     TX2STA = 0x26;       //00100110
     RC2STA = 0x90;       //10010000

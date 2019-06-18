@@ -14,8 +14,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define TRUE 1
-#define FALSE 0
 
 // PIC18F26K22 Configuration Bit Settings
 // 'C' source line config statements
@@ -84,124 +82,10 @@
 #define _XTAL_FREQ 8000000
 // #pragma config statements should precede project file includes.
 // Use project enums instead of #define for ON and OFF.
-
-#define MODULE_OFF_TYPE   
-
-
+ 
 #define TAMPER_INT          INTCON3bits.INT2IF
 #define ALARM_INT           INTCON3bits.INT1IF
 #define TEST_INT            INTCONbits.RBIF
 
 
-/*****************************************************
- * FUNCTION PROTOTYPES
- ****************************************************/
-void 	buzzer_on(uint8_t count);
-uint8_t get_hub_type();
-void 	init_system();
-
-void    int_init();
-void 	powerup_modem();
-void 	init_global_variables();
-//uint8_t modem_module_start();
-//uint8_t check_network_registration();
-//uint8_t check_SIM_state();
-void 	init_stack_buffer();
-//uint8_t wait_AT_cmd_response();
-//uint8_t wait_SMS_setting();
-
-void 	process_ADC();
-void 	process_RF_interrupt();
-uint8_t process_SMS_setup_state();
-//uint8_t process_restart();
-void 	process_supervisory();
-void    sms_menu();
-
-
-//void UART1_ISR();
-//void UART2_ISR();
-
-void smoker_ISR();
-void superhub_ISR();
-//void handle_LED();
-void handle_smoker();
-//void check_button();
-
-// Jen's simple_state_machine pronect
-extern void start_modem();
-extern void restart_modem();
-extern void poweroff_modem();
-
-bool md_config_ok();
-
-extern void check_state();
-
-
-/*****************************************************
- * VARIABLES
- ****************************************************/
-
-//uint8_t Alarm_f = 0;
-uint8_t Standby_f = 0;
-uint8_t Error_f = 0;
-//  uint8_t Test_f = 0;
-//  bit Low_battery = 0;
-// bit Smoke_EOL = 0;
-      
-uint8_t Smoke_respond = 0;    
-bit ADC_time = 0;
-//bit Respond_ack = 0;
-uint8_t BT_S_respond = 0;
-uint8_t BT_L_respond = 0;
-uint8_t EOL_respond = 0;
-//bit Tamper_open_f = 0;
-//bit Tamper_close_f = 0;    
-uint16_t test_count = 0;
-uint16_t first_test = 18000; //30*60*10 (30mins)
-
-uint8_t 	error_count = 0;
-uint16_t 	standby_count = 0;
-uint16_t 	error_time_detect = 0;
-uint16_t 	test_time_detect = 0;
-uint16_t 	adc_count = 0;
-uint8_t 	Respond_T_Hour = 0;
-uint8_t 	Respond_T_Day = 0;
-uint8_t 	err_count=0;
-uint8_t 	LED_count = 0;
-uint8_t 	error_status_count = 0;
-uint8_t 	alarm_count = 0;
-//uint8_t 	rx2_cnt = 0;
-//uint8_t 	rx2_buf[20];
-uint16_t 	exit_learn;
-uint8_t 	tamper_status = 1;
-uint8_t 	first_tamper = 1;
-uint8_t 	led_count = 0;
-uint8_t 	learn_delay = 0;    
-uint16_t 	test_9sec_count=0;
-uint8_t 	OTA_flag = 0;
-
-
-
-// UART1 RC buffer
-// TODO: How big of the buffer should be???
-#define     RX1_BUF_MAX     80
-uint8_t 	rx1_cnt = 0;
-uint8_t 	rx1_buf[RX1_BUF_MAX];
-
-// UART2 RX buffer
-#define     RX2_BUF_MAX     20
-uint8_t 	rx2_cnt = 0;
-uint8_t 	rx2_buf[RX2_BUF_MAX];
-
-
-
-// ****************************
-bit listen_sms_state = 0;       
-
-
-
-
-
-
-	
 #endif	/* CONFIG_H */
