@@ -5,7 +5,6 @@
 #include <ctype.h>
 #include <xc.h>
 
-#include "System_Library.h"
 #include "eeprom.h"
 #include "io.h"
 

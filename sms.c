@@ -10,7 +10,6 @@
 
 
 #include "io.h"
-#include "System_Library.h"
 #include "eeprom.h"
 #include "sms.h"
 #include "Setup_mode.h"

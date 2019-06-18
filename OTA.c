@@ -8,7 +8,6 @@
 
 #include "io.h"
 #include "eeprom.h"
-#include "System_Library.h"
 #include "emc_library.h"
 #include "telit.h"
 

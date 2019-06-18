@@ -1,6 +1,6 @@
 //
 // emc_library.h
- //
+//
 
 #ifndef EMC_LIBRARY_H
 #define	EMC_LIBRARY_H

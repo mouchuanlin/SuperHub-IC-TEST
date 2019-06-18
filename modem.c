@@ -12,7 +12,7 @@
 #include "io.h"
 #include "led.h"
 #include "uart.h"
-#include "System_Library.h"
+#include "eeprom.h"
 
 void powerup_modem()
 {

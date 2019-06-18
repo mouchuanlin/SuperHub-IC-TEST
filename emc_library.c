@@ -10,7 +10,6 @@
 
 #include "io.h"
 #include "eeprom.h"
-#include "System_Library.h"
 #include "telit.h"
 
 

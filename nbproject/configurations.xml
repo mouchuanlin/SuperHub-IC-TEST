@@ -4,7 +4,6 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
-      <itemPath>System_Library.h</itemPath>
       <itemPath>emc_library.h</itemPath>
       <itemPath>Setup_mode.h</itemPath>
       <itemPath>config.h</itemPath>
@@ -28,7 +27,6 @@
                    displayName="Source Files"
                    projectFiles="true">
       <itemPath>emc_library.c</itemPath>
-      <itemPath>Systen_Library.c</itemPath>
       <itemPath>Setup_mode.c</itemPath>
       <itemPath>OTA.c</itemPath>
       <itemPath>Main.c</itemPath>
