@@ -54,19 +54,26 @@ int main(int argc, char** argv)
     poweroff_modem();
     update_led_state(IDLE);
 
+
 	while (1)
 	{          
-        SWDTEN = 1;
-        SLEEP();   
-        NOP();
-        NOP();
-        NOP();
-        
-        
-        //SWDTEN = 0;
-        CLRWDT();
+        // This portion need WDT.
+        if( RF_wait_count==0)
+        {
+           SWDTEN = 1;
+           SLEEP();   
+           NOP();
+           NOP();
+           NOP();
+
+           SWDTEN = 0;
+
+           check_button();
+           control_leds();
+        }
+
         check_state();
-        
+        check_RF_device();
         
 //        if (event_queue_is_empty() && STATE == IDLE && test_count == 0 && MD_STATE == MD_OFF)
 //        {

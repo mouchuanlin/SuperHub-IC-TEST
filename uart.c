@@ -2,14 +2,11 @@
 // uart.c
 //
 
-
 #include <pic18f26k22.h>
 #include <xc.h>
 
 #include "uart.h"
 #include "io.h"
-
-
 
 void UART_init()
 {
@@ -115,6 +112,183 @@ void UART2_ISR()
     // RC2IE: EUSART2 Receive Interrupt Enable bit
     if ((RC2IE == 1) && (RC2IF == 1))
     {
-        //update_led_state(RF_INT);
-    }        	
+        do{       	
+            temp = RC2REG;
+            //LED_G = 1;
+            LED_B = 0;
+            rx2_buf[rx2_cnt] = temp;
+            if( ++rx2_cnt>=20 )
+                rx2_cnt = 19;
+            //out_sbuf2(rx2_cnt+0x30);
+            if( temp=='\n' )
+            {         
+                if( rx2_cnt>=7 )
+                {
+                    cnt = 0;
+                    if( rx2_buf[rx2_cnt-7]=='$'&&rx2_buf[rx2_cnt-2]=='\r')                    
+                    {
+                        for(zone=rx2_cnt-7;zone<rx2_cnt;zone++ )
+                        {
+                            rx2_buf[cnt++] = rx2_buf[zone];
+                        }
+                        rx2_cnt = 7;
+                    }
+                }
+            /*    out_sbuf2('a');/////
+                    out_sbuf2('t');//////
+                   out_sbuf2('-');//////
+                   for( zone=0;zone<rx2_cnt;zone++ )
+                   {
+                       temp = rx2_buf[zone];
+                       out_sbuf2((temp>>4)+0x30);
+                        out_sbuf2((temp&0x0f)+0x30);
+                   }
+                    out_sbuf2(0x0d);//
+                    out_sbuf2(0x0a);//*/
+                if( rx2_buf[0]=='$'&&rx2_buf[5]=='\r'&&rx2_buf[6]=='\n' )     //rf data in  $+3byte serial+1byte status+<CR>+<LF>                    
+                {                
+               //    out_sbuf2('a');/////
+               //     out_sbuf2('t');//////
+               //    out_sbuf2('-');//////
+                    led_count = 10;
+                    LED_RX_IN = 0;  // green ON - active LOW
+                    rx2_cnt = 1;
+                    do{
+                        temp = (rx2_buf[rx2_cnt]>>4)&0x0f;
+                        if( temp>=10 )
+                        {
+                            temp += 0x41;
+                            temp -= 10;
+                        }else temp += 0x30;
+                        id[(rx2_cnt-1)*2] = temp;
+                    //    out_sbuf2(temp);////
+                        temp = rx2_buf[rx2_cnt]&0x0f;
+                        if( temp>=10 )
+                        {
+                            temp += 0x41;
+                            temp -= 10;
+                        }else temp += 0x30;
+                        id[(rx2_cnt-1)*2+1] = temp;
+                    //    out_sbuf2(temp);//////
+                    }while(++rx2_cnt<4); 
+                    temp = rx2_buf[4];
+                    //out_sbuf2((temp>>4)+0x30);
+                    //out_sbuf2((temp&0x0f)+0x30);
+                    //out_sbuf2(0x0d);//
+                    //out_sbuf2(0x0a);//
+                    //out_sbuf2('-');
+                    zone = check_ID(&id);       //respond zone number(3~30),error=0
+                   
+                    if( zone!=0 )
+                    {
+                        RF_devID_table[zone-3][7] = 0;     //clear supervisory count
+                        LED_RX_OUT = 0; // Yellow ON - active LOW
+                    }
+                    if( learning_mode==KEY_NONE )
+                    {
+                        if( zone==0 )
+                        {
+                        /*    out_sbuf2('$');
+                            out_sbuf2('A');
+                            out_sbuf2('N');
+                            out_sbuf2(0x0d);
+                            out_sbuf2(0x0a);*/
+                        }else{                      //Supervisory,nc,nc,low BT,nc,test,tamper,trigger/alarm                                                                                           
+                            if( (rx2_buf[4]&0x01)!=0 )   //alarm
+                            {             
+                                // ID starts with 8 - Smoke detector 
+                                // ID starts with 6 - flood sensor
+                                // 
+                                if( id[0]=='8')
+                                    add_event(SMOKE_ALARM_T,zone);
+                                else if( id[0]=='6' ) 
+                                    add_event(FLOOD_T,zone); 
+                                else if( id[0]=='2' )
+                                    add_event(CARBON_T,zone);
+                                else if( id[0]=='C' )
+                                    add_event(GLASS_T,zone);
+                                else if( id[0]=='9' )
+                                    add_event(MOTION_T,zone);
+                                else if( id[0]=='3' )
+                                    add_event(DOOR_T,zone);
+                                else if( id[0]=='1' )
+                                    add_event(PANIC_T,zone);
+                                else if( id[0]=='B' )
+                                    add_event(HVAC_T,zone);
+                                else if( id[0]=='5' )
+                                    add_event(APPLIANCE_T,zone);
+                                else if( id[0]=='4' )
+                                    add_event(RESERVE1_T,zone);
+                                else if( id[0]=='7' )
+                                    add_event(RESERVE2_T,zone);
+                                else if( id[0]=='A' )
+                                    add_event(RESERVE3_T,zone);
+                                else if( id[0]=='D' )
+                                    add_event(RESERVE4_T,zone);
+                                else if( id[0]=='E' )
+                                    add_event(RESERVE5_T,zone);
+                                else if( id[0]=='0' )
+                                    add_event(RESERVE6_T,zone);
+                                else if( id[0]=='F' )
+                                    add_event(RESERVE7_T,zone);
+                            }
+                            if( (rx2_buf[4]&0x04)!=0 )   //test
+                            {
+                                add_event(TEST_PIN_T,zone);                            
+                            }    
+                            if( ((rx2_buf[4]&0x02)!=0) )   //Tamper open
+                            {
+                                if( RF_devID_table[zone-3][8]==0 )
+                                {
+                                    add_event(TAMPER_OPEN_T,zone);     
+                                    RF_devID_table[zone-3][8]=1; 
+                                }
+                            }else                           //Tamper close
+                            {
+                                if( RF_devID_table[zone-3][8]==1 )
+                                {
+                                    add_event(TAMPER_CLOSE_T,zone);     
+                                    RF_devID_table[zone-3][8]=0; 
+                                }
+                            }
+                            if( (rx2_buf[4]&0x10)!=0 )   //Low Battery
+                            {
+                                add_event(LOW_BATTERY_T,zone);                            
+                            }     
+                            if( (rx2_buf[4]&0x80)!=0 )   //Supervisory
+                            {
+                                add_event(SUPERVISORY_T,zone);                            
+                            }     
+                            /*out_sbuf2('$');
+                            out_sbuf2('A');
+                            out_sbuf2('S');
+                            out_sbuf2(0x0d);
+                            out_sbuf2(0x0a);*/
+                        }
+                    }else{
+                        
+                        if( learning_mode==KEY_ADD_ID&&zone==0 )
+                            zone = add_ID(&id); 
+                        else if( learning_mode==KEY_DEL_ID&&zone!=0 )
+                            zone = del_ID(zone); 
+                        
+                        /*out_sbuf2('$');
+                        out_sbuf2('A');
+                        out_sbuf2('L');
+                        out_sbuf2(0x0d);
+                        out_sbuf2(0x0a);*/
+                    }    
+                    //send respond
+                    for( rx2_cnt=0;rx2_cnt<7;rx2_cnt++)
+                        out_sbuf2(rx2_buf[rx2_cnt]);
+                    //------------
+                }
+                rx2_cnt = 0;
+                CREN2 = 0;
+                NOP();
+                CREN2 = 1;
+            }
+        }while(RC2IF==1);
+       // RC1IF = 0;
+    }        	       	
 }

@@ -165,6 +165,16 @@ void TMR0_ISR()
 		
 		// Process learn button push events.
 		check_button();
+        
+        // Control RF LED2/3 ON/OFF
+        if( led_count!=0 )
+        {
+            if( --led_count==0 )
+            {
+                LED_RX_IN = 1;
+                LED_RX_OUT = 1;
+            }
+        }
     }	
 }
 

@@ -349,6 +349,7 @@ uint8_t remote_setting(void)
 	if( sms_buffer[x_cnt]=='2' )		// retrieve system config
 	{
 		x_cnt++;
+        // 20#
 		if( (sms_buffer[x_cnt]=='0')&&(sms_buffer[x_cnt+1]=='#') )
 		{
 			x_cnt += 2;

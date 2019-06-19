@@ -40,6 +40,8 @@ extern void start_timer0();
 extern void TMR0_ISR();
 extern void Uart_disable(void);
 
+extern void check_RF_device();
+
 /*****************************************************
  * VARIABLES
  ****************************************************/
@@ -67,15 +69,14 @@ uint16_t 	adc_count = 0;
 uint8_t 	Respond_T_Hour = 0;
 uint8_t 	Respond_T_Day = 0;
 uint8_t 	err_count=0;
-uint8_t 	LED_count = 0;
+//uint8_t 	LED_count = 0;
 uint8_t 	error_status_count = 0;
 uint8_t 	alarm_count = 0;
-//uint8_t 	rx2_cnt = 0;
-//uint8_t 	rx2_buf[20];
+
 uint16_t 	exit_learn;
 uint8_t 	tamper_status = 1;
 uint8_t 	first_tamper = 1;
-uint8_t 	led_count = 0;
+
 uint8_t 	learn_delay = 0;    
 uint16_t 	test_9sec_count=0;
 uint8_t 	OTA_flag = 0;

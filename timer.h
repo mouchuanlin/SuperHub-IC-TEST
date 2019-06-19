@@ -21,6 +21,9 @@ extern uint8_t buttonPressCount;
 extern uint8_t tmr3_cnt;
 extern state_t myState;
 
+// This variable used to turn off LED2/3. Only ON for 1 second.
+uint8_t led_count = 0;
+
 #define _100milliseconds    781         // Timer0 interval for 8MHz clk
 
 #define _1seconds           7812        // Timer3 interval for 8MHz clock

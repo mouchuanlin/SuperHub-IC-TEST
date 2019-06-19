@@ -14,15 +14,10 @@ extern state_t myState;
 void check_state()
 {
 //    check_alarm_tamper();
-    check_button();
-    control_leds();
-    //control_leds_gainwise();
     
     process_event_queue();
 //    process_ADC();
 //    check_supervisory();()
-    
-    
     if (process_restart())
     {
         myState = SEND_TEST;
@@ -156,4 +151,23 @@ void process_supervisory()
 		check_supervisory();
 		chk_supervisory = 0;
 	}
+}
+
+void check_RF_device()
+{
+    
+    if( WIFI_INT==1&&RF_wait_count==0 )
+    {
+        LED_G = 0;
+        OSCCON = HIGH_FREQ_OSCCON;	// 4MHz
+        T0CON = HIGH_FREQ_T0CON;             //1*4000 = 50,000us
+        HL_freq = 1;
+        UART2_init();
+        CREN1 = 0;
+        RF_wait_count = 100;      
+        TMR0IE = 1;//
+        TMR0ON = 1;
+        CREN1 = 1;
+        RC2IE = 1;
+    }
 }
