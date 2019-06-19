@@ -16,6 +16,7 @@ void check_state()
 //    check_alarm_tamper();
     check_button();
     control_leds();
+    //control_leds_gainwise();
     
     process_event_queue();
 //    process_ADC();

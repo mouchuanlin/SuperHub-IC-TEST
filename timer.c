@@ -161,6 +161,7 @@ void TMR0_ISR()
         TMR0IF = 0;
         reload_timer0();
         control_leds();
+        //control_leds_gainwise();
 		
 		// Process learn button push events.
 		check_button();

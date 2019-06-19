@@ -25,7 +25,7 @@ typedef enum LED_STATES {
     SENSOR_ADD,     		// learn_btn 5-2	Green on solid, blue blinking
     SENSOR_DELETE,  		// learn_btn 5-3	Blue on solid, green blinking
     LINE_FAULT,     		// Both LEDs blink 0.3s ON/4.7s OFF
-    RF_INT          		// Green on solid for 10s (or maybe less)
+    RF_INTR          		// Green on solid for 10s (or maybe less)
 } led_states_t;
 
 //--------------------   
@@ -51,6 +51,7 @@ typedef enum LED_STATES {
 void update_led_state(led_states_t new_state);
 void control_leds();
 
+void control_leds_gainwise();
 
 // Global variables - defined in main.c
 extern uint8_t 		gled_tmr0_tick, bled_tmr0_tick;

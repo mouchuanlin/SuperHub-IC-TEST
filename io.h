@@ -228,6 +228,9 @@ uint8_t alarm_string[NUM_OF_STR][MAX_STR_SIZE] = {
 #define LED_RF_ADD 6 
 #define LED_RF_DEL 7 
 #define MD_POWER_LOSS 8 
+
+#define POWER_ON    9
+#define RF_INT      10
 //--------------------       
 #define EVENT_MAX 50
 #define BT_EOL_RESEND 1 //DAY
@@ -288,7 +291,7 @@ uint8_t signal_val;
 uint8_t key_p,key[100];
 uint8_t back_door;
 uint8_t respond_day = 0;
-uint8_t LED_flash_type = 0;
+uint8_t LED_flash_type = LED_OFF;
 uint16_t retry_count = 0;
 uint8_t IP_type = 0;
 uint8_t test_enable=0;

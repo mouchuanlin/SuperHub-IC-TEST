@@ -47,6 +47,10 @@ int main(int argc, char** argv)
     
     // Powerup modem, send AT command to init modem.
     start_modem();
+    
+    // Turn off modem before going to infinite loop.
+    LED_flash_type = LED_OFF;
+    //Uart_disable();
     poweroff_modem();
     update_led_state(IDLE);
 

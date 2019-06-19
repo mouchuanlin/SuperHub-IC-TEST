@@ -60,6 +60,8 @@ extern void delay5ms(uint16_t cnt);
 extern void add_event(uint8_t event,uint8_t zone);
 extern uint8_t check_supervisory(void);
 extern void UART2_init();
+extern void control_leds();
+extern void control_leds_gainwise();
 
 
 

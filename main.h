@@ -38,6 +38,7 @@ extern void UART2_ISR();
 
 extern void start_timer0();
 extern void TMR0_ISR();
+extern void Uart_disable(void);
 
 /*****************************************************
  * VARIABLES
