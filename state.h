@@ -63,9 +63,7 @@ extern void UART2_init();
 extern void control_leds();
 extern void control_leds_gainwise();
 
-
-
-
+extern void check_RF_device();
 
 
 #endif	/* STATE_H */

@@ -2,59 +2,14 @@
 // modem.c
 //
 
-
 #include <pic18f26k22.h>
 #include <xc.h>
-
-
 
 #include "modem.h"
 #include "io.h"
 #include "led.h"
 #include "uart.h"
 #include "eeprom.h"
-
-void powerup_modem()
-{
-    MD_POWER = POWER_ON;
-    
-    delayseconds(2);
-    MD_RESET = 1;
-    delayseconds(1);
-    MD_RESET = 0;   
-    delayseconds(2);
-    
-    MD_START = 0;
-    delayseconds(3);
-    MD_START = 1;   
-    
-    // delay 25 seconds for modem to power up
-    delayseconds(25);
-    
-    MD_START = 0;    
-}
-
-void start_modem()
-{
-//    CLRWDT();
-//    MD_POWER = POWER_ON;
-//    //__delay_ms(25000);
-//    delayseconds(25);
-        
-    update_led_state(POWERON);
-       
-    powerup_modem();
-    
-    while (!md_config_ok())
-        restart_modem();
-    
-    poweroff_modem();
-    //MD_POWER = POWER_OFF;
-    
-    myState = SLEEP;
-    update_led_state(IDLE);
-    //md_started = true;
-}
 
 bool md_config_ok()
 {
@@ -82,23 +37,6 @@ alarm_start:
     
     return true;
 }
-
-void restart_modem()
-{
-    CLRWDT();
-    //MD_POWER = POWER_OFF;
-    poweroff_modem();
-
-    delayseconds(5);
-   
-    powerup_modem();
-}
-
-void poweroff_modem()
-{
-    MD_POWER = POWER_OFF;
-}
-
 
 uint8_t wait_AT_cmd_response()
 {
@@ -147,8 +85,6 @@ uint8_t wait_AT_cmd_response()
             delayseconds(1);
         }while(--cnt!=0);
 
-
-
         power_status = MD_POWER_LOSS;
         //goto module_start;
 		return false;
@@ -166,10 +102,7 @@ uint8_t wait_AT_cmd_response()
     }while(--cnt!=0&&rsp=='E');
 	
     wait_ok_respond(40);
-//    if( GEMALTO )
-//        GM_module_first_run();
-//    else TL_module_first_run();    
-    
+ 
     TL_module_first_run();
     //--------------------------------
     delay5ms(100);
@@ -190,7 +123,6 @@ uint8_t wait_AT_cmd_response()
     else //if( Module_type==LE866 )    
         soutdata("LE866\r\n$");    
     delayseconds(1);
-	
 	
 	return 1;
 }
@@ -268,14 +200,6 @@ uint8_t check_network_registration()
 	return true;    
 }
 
-bool check_apn_status()
-{
-    if ((read_ee(EE_PAGE0, APN_ADDR) == '#') && (read_ee(EE_PAGE0, IP1_ADDR) == '#'))
-        return true;
-    else
-        return false; 
-}
-
 uint8_t start_send_alarm()
 {
 	uint8_t cnt,rsp,temp;
@@ -317,7 +241,7 @@ uint8_t wait_SMS_setting()
     if( listen_sms_state==1 )    
     {
         
-        sms_time = read_ee(0x00,0xB8);   //wait SMS time
+        sms_time = read_ee(0x00,SMS_WAIT_TIME_ADDR);   //wait SMS time
         set_sms_init();    
         do{
             cnt = 12;
@@ -374,7 +298,73 @@ uint8_t wait_SMS_setting()
 	return true;
 }
 
+
+bool check_apn_status()
+{
+    if ((read_ee(EE_PAGE0, APN_ADDR) == '#') && (read_ee(EE_PAGE0, IP1_ADDR) == '#'))
+        return true;
+    else
+        return false; 
+}
+
+void powerup_modem()
+{
+    MD_POWER = POWER_ON;
     
+    delayseconds(2);
+    MD_RESET = 1;
+    delayseconds(1);
+    MD_RESET = 0;   
+    delayseconds(2);
+    
+    MD_START = 0;
+    delayseconds(3);
+    MD_START = 1;   
+    
+    // delay 25 seconds for modem to power up
+    delayseconds(25);
+    
+    MD_START = 0;    
+}
+
+void start_modem()
+{
+//    CLRWDT();
+//    MD_POWER = POWER_ON;
+//    //__delay_ms(25000);
+//    delayseconds(25);
+        
+    update_led_state(POWERON);
+       
+    powerup_modem();
+    
+    while (!md_config_ok())
+        restart_modem();
+    
+    poweroff_modem();
+    //MD_POWER = POWER_OFF;
+    
+    myState = SLEEP;
+    update_led_state(IDLE);
+    //md_started = true;
+}
+
+void restart_modem()
+{
+    CLRWDT();
+    //MD_POWER = POWER_OFF;
+    poweroff_modem();
+
+    delayseconds(5);
+   
+    powerup_modem();
+}
+
+void poweroff_modem()
+{
+    MD_POWER = POWER_OFF;
+}
+
 void process_event_queue()
 {
 	// Event queue is not empty

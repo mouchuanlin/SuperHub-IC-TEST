@@ -21,6 +21,7 @@ uint8_t function_code(void)
 	
 	switch(temp1)
 	{
+		// 01#, 02# ...
 		case(1):	
 	   	case(2):
        	case(3):	
@@ -73,6 +74,7 @@ uint8_t function_code(void)
 					break;
 		default:	if( temp1>=41&&temp1<=56 )//68 )
                     {
+						// sensor device ID - 41 - 56
                         respond = set_n41_to_68(temp1);                        
                     }else
                         return('E');

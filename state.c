@@ -13,11 +13,15 @@ extern state_t myState;
 
 void check_state()
 {
-//    check_alarm_tamper();
-    
-    process_event_queue();
+
+    check_RF_device();
+
+//    check_alarm_tamper();    
 //    process_ADC();
 //    check_supervisory();()
+    
+    process_event_queue();
+        
     if (process_restart())
     {
         myState = SEND_TEST;

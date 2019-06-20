@@ -73,7 +73,7 @@ uint8_t 	err_count=0;
 uint8_t 	error_status_count = 0;
 uint8_t 	alarm_count = 0;
 
-uint16_t 	exit_learn;
+
 uint8_t 	tamper_status = 1;
 uint8_t 	first_tamper = 1;
 

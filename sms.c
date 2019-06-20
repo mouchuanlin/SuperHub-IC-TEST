@@ -76,7 +76,7 @@ uint8_t check_sms(void)
           		{
           			// Incoming SMS
           			// +CMGL: 1,"REC READ","+15039709528","","19/05/13,17:00:13-28"
-		    		if(buffer[0]=='+'&&buffer[2]=='M'&&buffer[6]==' '&&a==0&&b==0&&c==0)	
+		    		if((buffer[0]=='+') && (buffer[2]=='M') && (buffer[6]==' ') && (a==0) && (b==0) && (c==0)	)
 					{
 			  		//	TMR3ON = 0;
 			  			a=buffer[7];
@@ -145,6 +145,7 @@ uint8_t read_sms(uint8_t a,uint8_t b,uint8_t c)
         do{
 			if( RC1IF==1 )
 			{ 
+				// Get phone #
 		  		temp=RC1REG;
           		if(crt==0&&temp==',')
 		    		crt=1;
@@ -162,6 +163,7 @@ uint8_t read_sms(uint8_t a,uint8_t b,uint8_t c)
 			  			sms_p=0;
 					}else
 					{
+						// store phone#
 			  			sms_phone[phone_cnt]=temp;
 			  			phone_cnt++;
 					}
@@ -177,6 +179,7 @@ uint8_t read_sms(uint8_t a,uint8_t b,uint8_t c)
 			   	}
 				else if(crt==4)
 				{
+					// store time - actually not really use
 					time[t_p]=temp;
 					if( ++t_p>=9 )
 					{
@@ -190,6 +193,7 @@ uint8_t read_sms(uint8_t a,uint8_t b,uint8_t c)
 		    		crt=6;
    	      		else if(crt==6)
 		  		{
+					// real SMS message data
 					sms_buffer[sms_p] = temp;
 					if( temp=='^' )
 						enter_cnt = '^';
@@ -197,6 +201,7 @@ uint8_t read_sms(uint8_t a,uint8_t b,uint8_t c)
 			  			sms_p=159;
 					if(temp==0x0d)
 					{
+						// TODO: ^BD   # - not for hub
 						if(  enter_cnt=='^'||(sms_buffer[0]=='B'&&sms_buffer[1]=='D'&&sms_buffer[5]=='#') )						
 							NOP();
 						else
@@ -211,6 +216,7 @@ uint8_t read_sms(uint8_t a,uint8_t b,uint8_t c)
 			 	 		crt=check_remote();
 			  			if(crt=='K')				//setup function
 			  			{						
+							// do the setting
 			    			temp = remote_setting();
 							crt = temp;
 							if( temp!='L'&&temp!='X' )
@@ -282,38 +288,40 @@ uint8_t check_remote(void)
 	uint8_t temp,addr;
 
 	back_door = 0;
-	if( sms_buffer[0]=='B'&&sms_buffer[1]=='D'&&sms_buffer[5]=='#' )
-	{
-		for( addr=0;addr<9;addr++ )
-		{
-			if( (addr+1)%3!=0 )
-			{
-				temp = time[addr];
-				if( isdigit(temp)==0 )
-					return('E');	
-		 	  	time[addr] = temp&0x0f;
-			}
-		}
-		temp = time[3]+time[4];	//month
-		temp = (temp%10)+0x30;
-		if( temp!=sms_buffer[2] )
-			return('E');
-		temp = time[6]+time[7];	//day
-		temp = (temp%10)+0x30;
-		if( temp!=sms_buffer[3] )
-			return('E');
-	 	temp = time[0]+time[1];	//year
-		temp = (temp%10)+0x30;
-		if( temp!=sms_buffer[4] )
-			return('E');
-		back_door = 1;
-		x_cnt = 6;
-		return('K');
-	}
+	// BD - no longer use for hub
+	// if( sms_buffer[0]=='B'&&sms_buffer[1]=='D'&&sms_buffer[5]=='#' )
+	// {
+		// for( addr=0;addr<9;addr++ )
+		// {
+			// if( (addr+1)%3!=0 )
+			// {
+				// temp = time[addr];
+				// if( isdigit(temp)==0 )
+					// return('E');	
+		 	  	// time[addr] = temp&0x0f;
+			// }
+		// }
+		// temp = time[3]+time[4];	//month
+		// temp = (temp%10)+0x30;
+		// if( temp!=sms_buffer[2] )
+			// return('E');
+		// temp = time[6]+time[7];	//day
+		// temp = (temp%10)+0x30;
+		// if( temp!=sms_buffer[3] )
+			// return('E');
+	 	// temp = time[0]+time[1];	//year
+		// temp = (temp%10)+0x30;
+		// if( temp!=sms_buffer[4] )
+			// return('E');
+		// back_door = 1;
+		// x_cnt = 6;
+		// return('K');
+	// }
 	//----- password
 	x_cnt = 0;
 	addr = 0;		
 	do{
+		// 1111 
 		temp = access_code[addr++];
 		if( sms_buffer[x_cnt]==temp )
 		{
@@ -323,6 +331,7 @@ uint8_t check_remote(void)
 		else 
 			return('E');
 	}while(++x_cnt<0x07);
+	
     CLRWDT();
 	if( temp != '#' )
 		return('E');
@@ -331,6 +340,7 @@ uint8_t check_remote(void)
 }
 
 //---------------------------------------------------
+// query and set
 uint8_t remote_setting(void)
 {
 /*	uint8_t code ARMED[]="ARMED$";
@@ -354,6 +364,7 @@ uint8_t remote_setting(void)
 		{
 			x_cnt += 2;
 			respond = 'X';
+			// 1111##20sensor# - query sensor info
 			if( ((sms_buffer[x_cnt]=='S')||(sms_buffer[x_cnt]=='s'))&&((sms_buffer[x_cnt+1]=='E')||(sms_buffer[x_cnt+1]=='e'))&&((sms_buffer[x_cnt+2]=='N')||(sms_buffer[x_cnt+2]=='n'))&&
                 ((sms_buffer[x_cnt+3]=='S')||(sms_buffer[x_cnt+3]=='s'))&&((sms_buffer[x_cnt+4]=='O')||(sms_buffer[x_cnt+4]=='o'))&&((sms_buffer[x_cnt+5]=='R')||(sms_buffer[x_cnt+5]=='r'))&&  
                 (sms_buffer[x_cnt+6]=='#')   )  //SEMSOR
@@ -405,7 +416,9 @@ uint8_t remote_setting(void)
                     rsp_buffer[off_set++] = ',';
                 }     
                 rsp_buffer[off_set-1] = 0x0d;                
-            }*/else if( (sms_buffer[x_cnt]=='A')||(sms_buffer[x_cnt]=='a') )
+            }*/
+			// 1111#20#all# - query all setting info
+			else if( (sms_buffer[x_cnt]=='A')||(sms_buffer[x_cnt]=='a') )
 			{
 				x_cnt++;
 				if( (sms_buffer[x_cnt]=='L')||(sms_buffer[x_cnt]=='l') )
@@ -435,6 +448,7 @@ uint8_t remote_setting(void)
 				}else respond='E';
 			}else
 			{
+				// Otherwise ERROR
 				off_set = 0;
 				do{
 					temp = sms_buffer[x_cnt++];
@@ -464,7 +478,9 @@ uint8_t remote_setting(void)
 				respond = 'X';
 			}
 	  	}else x_cnt--;
-	}else if( back_door==1&&sms_buffer[x_cnt]=='9'&&
+	}
+	// no longer use for hub
+	else if( back_door==1&&sms_buffer[x_cnt]=='9'&&
 				sms_buffer[x_cnt+1]=='4'&&sms_buffer[x_cnt+2]=='#' )	//94#
 	{
 		rsp_buffer[0]='V';
@@ -539,7 +555,9 @@ uint8_t remote_setting(void)
 			rsp_buffer[cnt++] = 'N';
 	   	rsp_buffer[cnt] = 0x0d;
 		respond = 'R';
-	}else if( sms_buffer[x_cnt]=='8'&&sms_buffer[x_cnt+1]=='0'
+	}
+	// not use for hub - signal strength
+	else if( sms_buffer[x_cnt]=='8'&&sms_buffer[x_cnt+1]=='0'
 			&&sms_buffer[x_cnt+2]=='#' )	//80#
 	{
 			x_cnt += 3;
@@ -564,6 +582,7 @@ uint8_t remote_setting(void)
 			respond = 'R';
 	}
     
+	// call functaion_all 
 	if( respond!='R'&&respond!='E'&&respond!='L'&&respond!='X'&&respond!='W' )			// setting function
 	{
 		do{
@@ -592,14 +611,17 @@ uint8_t remote_setting(void)
 
 			if( respond=='K' )
 			{
-			
+				// all setting 
 				respond = function_code();
 			}
-			
 		}while( (x_cnt<sms_p)&&respond=='K' );
+		
+		// sms ending
 		if( temp==0xcc )
 			x_cnt-=1;
 	}
+	
+	
 	if( respond!='R'&&respond!='L'&&respond!='X'&&respond!='W'  )
 	{
 		temp1 = 0;

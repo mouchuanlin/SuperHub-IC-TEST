@@ -9,6 +9,53 @@
 #include "io.h"
 #include "led.h"
 
+// TMR0 used for LED control and learn button process. 100 ms per tick.
+void TMR0_ISR()
+{
+    // TMR0 Overflow Interrupt Flag bit          
+    if (TMR0IF)
+    {
+        TMR0IF = 0;
+        reload_timer0();
+        control_leds();
+        //control_leds_gainwise();
+		
+		// Process learn button push events.
+		check_button();
+        
+        // Control RF LED2/3 ON/OFF. ON for 1 second.
+        if( led_count!=0 )
+        {
+            if( --led_count==0 )
+            {
+                LED_RX_IN = 1;
+                LED_RX_OUT = 1;
+            }
+        }
+        
+        // Dont' go SLEEP for 10 seconds for RF communication.
+        if( RF_wait_count!=0 )            
+            --RF_wait_count;
+        
+        // 60 seconds to exit add/del sensor mode.
+        exit_learning_mode();
+    }	
+}
+
+void TMR3_ISR()
+{
+	if (TMR3IF)
+    //if (buttonPressCount != 0)
+    {
+
+//        reload_timer3_100ms();
+//		
+//        //process_sms_menu();    
+//
+//		process_button_push();	
+    }    
+}
+
 void delay5ms(uint16_t cnt)
 {
     uint8_t a,b;
@@ -151,62 +198,10 @@ void reload_timer3_100ms()
     TMR0H = ((65535-_100milliseconds)/256);	
 }
 
-
-// TMR0 used for LED control and learn button process. 100 ms per tick.
-void TMR0_ISR()
+void exit_learning_mode()
 {
-    // TMR0 Overflow Interrupt Flag bit          
-    if (TMR0IF)
-    {
-        TMR0IF = 0;
-        reload_timer0();
-        control_leds();
-        //control_leds_gainwise();
-		
-		// Process learn button push events.
-		check_button();
-        
-        // Control RF LED2/3 ON/OFF. ON for 1 second.
-        if( led_count!=0 )
-        {
-            if( --led_count==0 )
-            {
-                LED_RX_IN = 1;
-                LED_RX_OUT = 1;
-            }
-        }
-        
-        // Dont' go SLEEP for 10 seconds for RF communication.
-        if( RF_wait_count!=0 )
-        {
-//            LED_G = 0;
-//            if( --RF_wait_count==0 )
-//            {           
-//               // OSCCON = LOW_FREQ_OSCCON;
-//                HL_freq = 0;
-//                T0CON = LOW_FREQ_T0CON;             //1*4000 = 50,000us
-//                TMR0IE = 0;//
-//                TMR0ON = 0;
-//            }
-            
-            
-            --RF_wait_count;
-        }
-    }	
-}
-
-void TMR3_ISR()
-{
-	if (TMR3IF)
-    //if (buttonPressCount != 0)
-    {
-
-//        reload_timer3_100ms();
-//		
-//        //process_sms_menu();    
-//
-//		process_button_push();	
-    }    
+    if( ++exit_learn>=600 )     //600*100ms=60Sec
+        learning_mode = KEY_NONE;
 }
 
 void process_sms_menu()

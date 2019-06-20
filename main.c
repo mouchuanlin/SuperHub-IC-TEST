@@ -12,6 +12,7 @@
 #include "io.h"
 #include "state.h"
 #include "led.h"
+#include "timer.h"
 
 // Global variables
 state_t     myState = POWER_UP;
@@ -23,11 +24,13 @@ led_states_t    led_state = IDLE;
 uint8_t         ver_select = 0;
 
 // button press
-bool    inButtonMenu = false;
-uint8_t buttonPressCount = 0;
-uint8_t tmr3_cnt = 0;
-bool    g_op_state = false;
-bit     listen_sms_state = 0;  
+bool        inButtonMenu = false;
+uint8_t     buttonPressCount = 0;
+uint8_t     tmr3_cnt = 0;
+bool        g_op_state = false;
+bit         listen_sms_state = 0;  
+uint16_t 	exit_learn = 0;
+
 
 bit     ADC_time = 0;
 
@@ -71,10 +74,12 @@ int main(int argc, char** argv)
 
            check_button();
            control_leds();
+           
+           exit_learning_mode();
         }
 
         check_state();
-        check_RF_device();
+
         
 //        if (event_queue_is_empty() && STATE == IDLE && test_count == 0 && MD_STATE == MD_OFF)
 //        {
