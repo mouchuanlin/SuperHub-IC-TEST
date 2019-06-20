@@ -12,14 +12,6 @@
 #include "stdbool.h"
 
 /*****************************************************
- * VARIABLES
- ****************************************************/
-uint8_t 	rx2_cnt = 0;
-uint8_t 	rx2_buf[20];
-
-extern  uint8_t led_count;
-
-/*****************************************************
  * FUNCTION PROTOTYPES
  ****************************************************/
 void UART1_init();
@@ -36,6 +28,14 @@ extern void out_sbuf2(uint8_t tmp);
 extern uint8_t check_ID(uint8_t *ptr);
 extern uint8_t add_ID(uint8_t *ptr);
 extern uint8_t del_ID(uint8_t id);
+
+/*****************************************************
+ * VARIABLES
+ ****************************************************/
+uint8_t 	rx2_cnt = 0;
+uint8_t 	rx2_buf[20];
+
+extern  uint8_t led_count;
 
 #endif	/* UART_H */
 

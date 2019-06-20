@@ -11,7 +11,7 @@
 #include <stdint.h>
 
 /*****************************************************
- * VARIABLES
+ * FUNCTION PROTOTYPES
  ****************************************************/
 typedef enum LED_STATES {
     IDLE,           		// LEDs off
@@ -28,6 +28,18 @@ typedef enum LED_STATES {
     RF_INTR          		// Green on solid for 10s (or maybe less)
 } led_states_t;
 
+void update_led_state(led_states_t new_state);
+void control_leds();
+
+void control_leds_gainwise();
+
+// Global variables - defined in main.c
+extern uint8_t 		gled_tmr0_tick, bled_tmr0_tick;
+extern led_states_t led_state;
+
+/*****************************************************
+ * VARIABLES
+ ****************************************************/
 //--------------------   
 // LED state
 //#define LED_OFF 0
@@ -44,18 +56,6 @@ typedef enum LED_STATES {
 #define G_OFF()             G_LED=1
 #define B_ON()              B_LED=0
 #define B_OFF()             B_LED=1
-
-/*****************************************************
- * FUNCTION PROTOTYPES
- ****************************************************/
-void update_led_state(led_states_t new_state);
-void control_leds();
-
-void control_leds_gainwise();
-
-// Global variables - defined in main.c
-extern uint8_t 		gled_tmr0_tick, bled_tmr0_tick;
-extern led_states_t led_state;
 
 #endif	/* LED_H */
 

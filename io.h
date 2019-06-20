@@ -9,9 +9,21 @@
 extern "C" {
 #endif
     
+/*****************************************************
+ * INCLUDES
+ ****************************************************/       
 #include "stdint.h"
 #include "stdbool.h"
     
+/*****************************************************
+ * FUNCTION PROTOTYPES
+ ****************************************************/  
+void ADC_init(void);
+void IO_init(void);    
+    
+/*****************************************************
+ * VARIABLES
+ ****************************************************/    
 //#define M_866
 //#define M_910
 //#define DEBUG
@@ -110,7 +122,6 @@ extern "C" {
 #define WIFI_TX             PORTBbits.RB7
 #define WIFI_TX_TRIS        TRISBbits.TRISB7
     
-
 //-----------------
 #define HIGH_FREQ_OSCCON 0x68   
 #define HIGH_FREQ_T0CON 0x87
@@ -307,11 +318,6 @@ uint8_t chk_supervisory = 0;
 
 uint8_t Module_type = EMS31;
 //uint8_t ver_select = 0;
-
-
-
-void ADC_init(void);
-void IO_init(void);
 
 
 #ifdef	__cplusplus

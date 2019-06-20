@@ -10,6 +10,15 @@
  * INCLUDES
  ****************************************************/
 
+
+/*****************************************************
+ * FUNCTION PROTOTYPES
+ ****************************************************/ 
+
+
+/*****************************************************
+ * VARIABLES
+ ****************************************************/
 // PIC18F26K22 Configuration Bit Settings
 // 'C' source line config statements
 
@@ -81,6 +90,5 @@
 #define TAMPER_INT          INTCON3bits.INT2IF
 #define ALARM_INT           INTCON3bits.INT1IF
 #define TEST_INT            INTCONbits.RBIF
-
 
 #endif	/* CONFIG_H */

@@ -21,12 +21,9 @@ void clear_queue();
 bool queue_is_empty();
 uint8_t get_next_from_queue(uint8_t *index);
 
-
-
 /*****************************************************
  * VARIABLES
  ****************************************************/
-
 // Transmit types:
 uint8_t AlarmGB = 'A';
 uint8_t AlarmLB = 'B';

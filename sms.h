@@ -8,10 +8,15 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
+
+/*****************************************************
+ * INCLUDES
+ ****************************************************/    
+#include "stdint.h"  
     
-#include "stdint.h"
-
-
+/*****************************************************
+ * FUNCTION PROTOTYPES
+ ****************************************************/    
 void    set_sms_init(void);
 uint8_t check_sms(void);
 uint8_t read_sms(uint8_t, uint8_t, uint8_t);
@@ -21,11 +26,16 @@ uint8_t remote_setting(void);
 void    send_respond(uint8_t);
 void    select_sms_type(bit);
 uint8_t respond_setting(uint8_t,uint8_t);
+void    get_access_code();
 
 extern void     out_sbuf(uint8_t tmp);
 extern void     soutdata(uint8_t *dat);
 extern uint8_t  wait_ok_respond(uint16_t);
 extern uint8_t  check_csq(void);
+
+/*****************************************************
+ * VARIABLES
+ ****************************************************/
 
 #ifdef	__cplusplus
 }

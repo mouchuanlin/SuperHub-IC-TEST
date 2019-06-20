@@ -45,8 +45,6 @@ extern void check_RF_device();
 /*****************************************************
  * VARIABLES
  ****************************************************/
-
-
 uint8_t Standby_f = 0;
 uint8_t Error_f = 0;
 
@@ -72,7 +70,6 @@ uint8_t 	err_count=0;
 //uint8_t 	LED_count = 0;
 uint8_t 	error_status_count = 0;
 uint8_t 	alarm_count = 0;
-
 
 uint8_t 	tamper_status = 1;
 uint8_t 	first_tamper = 1;

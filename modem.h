@@ -14,18 +14,6 @@
 #include "state.h"
 
 /*****************************************************
- * VARIABLES
- ****************************************************/
-// button press
-extern bool     inButtonMenu;
-extern uint8_t  buttonPressCount;
-extern uint8_t  tmr3_cnt;
-extern state_t  myState;
-extern uint8_t  OTA_flag;
-extern bit      listen_sms_state;  
-
-
-/*****************************************************
  * FUNCTION PROTOTYPES
  ****************************************************/
 void 	powerup_modem();
@@ -64,10 +52,21 @@ extern uint8_t  check_emc_stack(void);
 extern void     check_state();
 extern uint8_t  check_OTA(void);
 
+/*****************************************************
+ * VARIABLES
+ ****************************************************/
 // The Carriage Return (CR) character (0x0D, \r) moves the cursor to the beginning of the line without advancing to the next line. 
 // The Line Feed (LF) character (0x0A, \n) moves the cursor down to the next line without returning to the beginning of the line.
 #define CR 		0x0D
 #define LF 		0x0A
+
+// button press
+extern bool     inButtonMenu;
+extern uint8_t  buttonPressCount;
+extern uint8_t  tmr3_cnt;
+extern state_t  myState;
+extern uint8_t  OTA_flag;
+extern bit      listen_sms_state;  
     
 
 #endif	/* MODEM_H */

@@ -26,8 +26,8 @@ uint8_t x_cnt;
 void set_sms_init(void)
 {
     uint8_t const cmgf[] = "AT+CMGF=1\r\n$";
-    uint8_t const cpms[]="AT+CPMS=\"ME\",\"ME\",\"ME\"\r\n$";
-	uint8_t const cnmi[]="AT+CNMI=1,1\r\n$";
+    uint8_t const cpms[] = "AT+CPMS=\"ME\",\"ME\",\"ME\"\r\n$";
+	uint8_t const cnmi[] = "AT+CNMI=1,1\r\n$";
     //sms
     CREN1 = 0;
     soutdata(&cmgf);
@@ -112,6 +112,16 @@ uint8_t check_sms(void)
 	return 0;
 }
 
+void get_access_code()
+{
+    uint8_t temp = 0;
+            
+	// get access code from eeprom
+    do{
+        access_code[temp] = read_ee(0x00,0xC0+temp);
+    }while(++temp<7);       
+}
+
 //---------------------------------------------------
 uint8_t read_sms(uint8_t a,uint8_t b,uint8_t c)
 {
@@ -126,9 +136,10 @@ uint8_t read_sms(uint8_t a,uint8_t b,uint8_t c)
 	memset( sms_buffer,0xff,sizeof(sms_buffer) );
 	memset( time,'0',sizeof(time) );
     temp = 0;
-    do{
-        access_code[temp] = read_ee(0x00,0xC0+temp);
-    }while(++temp<7);    
+	
+    // get access code
+    get_access_code();
+	
   	soutdata(cmgr);
   	out_sbuf(a);
   	if(b!=',')
@@ -201,16 +212,11 @@ uint8_t read_sms(uint8_t a,uint8_t b,uint8_t c)
 			  			sms_p=159;
 					if(temp==0x0d)
 					{
-						// TODO: ^BD   # - not for hub
-						if(  enter_cnt=='^'||(sms_buffer[0]=='B'&&sms_buffer[1]=='D'&&sms_buffer[5]=='#') )						
+						if( (sms_buffer[0]==access_code[0])&&(sms_buffer[1]==access_code[1])&&(sms_buffer[2]==access_code[2])&&(sms_buffer[3]==access_code[3]) )							
 							NOP();
-						else
-						{
-							if( (sms_buffer[0]==access_code[0])&&(sms_buffer[1]==access_code[1])&&(sms_buffer[2]==access_code[2])&&(sms_buffer[3]==access_code[3]) )							
-								NOP();
-							else										
-								break;
-						}
+						else										
+							break;
+						
 			  			sms_buffer[sms_p-1] = 0xcc;
 						
 			 	 		crt=check_remote();
@@ -287,36 +293,7 @@ uint8_t check_remote(void)
 {
 	uint8_t temp,addr;
 
-	back_door = 0;
-	// BD - no longer use for hub
-	// if( sms_buffer[0]=='B'&&sms_buffer[1]=='D'&&sms_buffer[5]=='#' )
-	// {
-		// for( addr=0;addr<9;addr++ )
-		// {
-			// if( (addr+1)%3!=0 )
-			// {
-				// temp = time[addr];
-				// if( isdigit(temp)==0 )
-					// return('E');	
-		 	  	// time[addr] = temp&0x0f;
-			// }
-		// }
-		// temp = time[3]+time[4];	//month
-		// temp = (temp%10)+0x30;
-		// if( temp!=sms_buffer[2] )
-			// return('E');
-		// temp = time[6]+time[7];	//day
-		// temp = (temp%10)+0x30;
-		// if( temp!=sms_buffer[3] )
-			// return('E');
-	 	// temp = time[0]+time[1];	//year
-		// temp = (temp%10)+0x30;
-		// if( temp!=sms_buffer[4] )
-			// return('E');
-		// back_door = 1;
-		// x_cnt = 6;
-		// return('K');
-	// }
+
 	//----- password
 	x_cnt = 0;
 	addr = 0;		
@@ -365,8 +342,9 @@ uint8_t remote_setting(void)
 			x_cnt += 2;
 			respond = 'X';
 			// 1111##20sensor# - query sensor info
-			if( ((sms_buffer[x_cnt]=='S')||(sms_buffer[x_cnt]=='s'))&&((sms_buffer[x_cnt+1]=='E')||(sms_buffer[x_cnt+1]=='e'))&&((sms_buffer[x_cnt+2]=='N')||(sms_buffer[x_cnt+2]=='n'))&&
-                ((sms_buffer[x_cnt+3]=='S')||(sms_buffer[x_cnt+3]=='s'))&&((sms_buffer[x_cnt+4]=='O')||(sms_buffer[x_cnt+4]=='o'))&&((sms_buffer[x_cnt+5]=='R')||(sms_buffer[x_cnt+5]=='r'))&&  
+			if( (toupper(sms_buffer[x_cnt]) == 'S') && (toupper(sms_buffer[x_cnt+1]) == 'E') && 
+				(toupper(sms_buffer[x_cnt+2]) == 'N') && (toupper(sms_buffer[x_cnt+3]) == 'S') && 
+				(toupper(sms_buffer[x_cnt+4]) == 'O') && (toupper(sms_buffer[x_cnt+5]) == 'R') &&  
                 (sms_buffer[x_cnt+6]=='#')   )  //SEMSOR
             {
                 off_set = 0;
@@ -418,13 +396,14 @@ uint8_t remote_setting(void)
                 rsp_buffer[off_set-1] = 0x0d;                
             }*/
 			// 1111#20#all# - query all setting info
-			else if( (sms_buffer[x_cnt]=='A')||(sms_buffer[x_cnt]=='a') )
+			//else if( (sms_buffer[x_cnt]=='A')||(sms_buffer[x_cnt]=='a') )
+			else if( toupper(sms_buffer[x_cnt]) == 'A') 
 			{
 				x_cnt++;
-				if( (sms_buffer[x_cnt]=='L')||(sms_buffer[x_cnt]=='l') )
+				if( toupper(sms_buffer[x_cnt]) == 'L' )
 				{
 					x_cnt++;
-					if( (sms_buffer[x_cnt]=='L'||sms_buffer[x_cnt]=='l')&&(sms_buffer[x_cnt+1]=='#') )
+					if( (toupper(sms_buffer[x_cnt]) == 'L') && (sms_buffer[x_cnt+1] == '#') )
 					{
 						rsp_buffer[0]='V';
 						rsp_buffer[1]='.';
@@ -478,108 +457,6 @@ uint8_t remote_setting(void)
 				respond = 'X';
 			}
 	  	}else x_cnt--;
-	}
-	// no longer use for hub
-	else if( back_door==1&&sms_buffer[x_cnt]=='9'&&
-				sms_buffer[x_cnt+1]=='4'&&sms_buffer[x_cnt+2]=='#' )	//94#
-	{
-		rsp_buffer[0]='V';
-		rsp_buffer[1]='.';
-		rsp_buffer[2]= VERSION[0];
-		rsp_buffer[3]='.';
-		rsp_buffer[4]= VERSION[1];
-		rsp_buffer[5]='.';
-		rsp_buffer[6]= VERSION[2];
-		rsp_buffer[7]='-';
-
-		cnt = 8;//0;
-		temp = 0x60;
-		do{
-			temp1 = read_ee(0x01,temp);
-			if( temp1==0x0c||temp1=='#' )
-				break;
-		  	rsp_buffer[cnt++] = temp1;
-		}while(++temp<0x80);	
-		rsp_buffer[cnt++] = ',';
-
-		data_int = read_ee(0x00,0xe6)<<8;
-		data_int += read_ee(0x00,0xe7);
-
-		temp1 = 0;
-		temp = data_int/10000;
-		if( temp!=0 )
-		{	
-			temp1 = 1;
-			rsp_buffer[cnt++] = temp+0x30;
-		}
-		data_int %= 10000;
-		temp = data_int/1000;
-		if( temp!=0||temp1==1 )
-		{
-			temp1 = 1;
-			rsp_buffer[cnt++] = temp+0x30;
-		}
-		data_int %= 1000;
-		temp = data_int/100;
-		if( temp!=0||temp1==1 )
-		{
-			temp1 = 1;
-			rsp_buffer[cnt++] = temp+0x30;
-		}
-		data_int %= 100;
-		temp = data_int/10;
-		if( temp!=0||temp1==1 )
-		{
-			temp1 = 1;
-			rsp_buffer[cnt++] = temp+0x30;
-		}
-		temp = data_int%10;
-		rsp_buffer[cnt++] = temp+0x30;
-		rsp_buffer[cnt++] = ',';
-		temp = read_ee(0x00,0x7e);
-		temp += 0x30;
-		rsp_buffer[cnt++] = temp;
-		rsp_buffer[cnt++] = ',';
-		temp = read_ee(0x00,0x7f);
-		rsp_buffer[cnt++] = (temp/10)+0x30;
-		rsp_buffer[cnt++] = (temp%10)+0x30;
-		rsp_buffer[cnt++] = ',';
-		temp = 0xb0;
-		do{
-			temp1 = read_ee(0x00,temp);
-			if( temp1==0x0c||temp1=='#' )
-				break;
-		  	rsp_buffer[cnt++] = temp1;
-		}while(++temp<0xc0);
-		if( temp==0xb0 )
-			rsp_buffer[cnt++] = 'N';
-	   	rsp_buffer[cnt] = 0x0d;
-		respond = 'R';
-	}
-	// not use for hub - signal strength
-	else if( sms_buffer[x_cnt]=='8'&&sms_buffer[x_cnt+1]=='0'
-			&&sms_buffer[x_cnt+2]=='#' )	//80#
-	{
-			x_cnt += 3;
-			cnt = 5;
-			do{
-				delay5ms(100);
-				temp = check_csq();		
-			}while(--cnt!=0&&temp==0);
-			cnt = 0;
-			temp = 113-(temp*2);
-			rsp_buffer[cnt++] = '-';
-			temp1 = (temp/100)+0x30;
-			if( temp1!='0' )
-				rsp_buffer[cnt++] = temp1; 
-			temp %= 100;
-			rsp_buffer[cnt++] = (temp/10)+0x30;
-			rsp_buffer[cnt++] = (temp%10)+0x30;
-			rsp_buffer[cnt++] = 'd';
-			rsp_buffer[cnt++] = 'B';
-			rsp_buffer[cnt++] = 'm';
-			rsp_buffer[cnt++] = 0x0d;
-			respond = 'R';
 	}
     
 	// call functaion_all 
