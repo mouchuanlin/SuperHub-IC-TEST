@@ -54,10 +54,11 @@ int main(int argc, char** argv)
     poweroff_modem();
     update_led_state(IDLE);
 
-
 	while (1)
 	{          
-        // This portion need WDT.
+        // This is the case going to SLEEP mode. This portion need WDT.
+        // When RF INT detected, will set RF_wait_count 100 (10 seconds) for RF communication.
+        // Can't go SLEEP if we need RF communication.
         if( RF_wait_count==0)
         {
            SWDTEN = 1;

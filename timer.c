@@ -166,7 +166,7 @@ void TMR0_ISR()
 		// Process learn button push events.
 		check_button();
         
-        // Control RF LED2/3 ON/OFF
+        // Control RF LED2/3 ON/OFF. ON for 1 second.
         if( led_count!=0 )
         {
             if( --led_count==0 )
@@ -174,6 +174,23 @@ void TMR0_ISR()
                 LED_RX_IN = 1;
                 LED_RX_OUT = 1;
             }
+        }
+        
+        // Dont' go SLEEP for 10 seconds for RF communication.
+        if( RF_wait_count!=0 )
+        {
+//            LED_G = 0;
+//            if( --RF_wait_count==0 )
+//            {           
+//               // OSCCON = LOW_FREQ_OSCCON;
+//                HL_freq = 0;
+//                T0CON = LOW_FREQ_T0CON;             //1*4000 = 50,000us
+//                TMR0IE = 0;//
+//                TMR0ON = 0;
+//            }
+            
+            
+            --RF_wait_count;
         }
     }	
 }

@@ -116,16 +116,13 @@ uint8_t check_supervisory(void);
 uint8_t send_trigger_to_RF(uint8_t type);
 void    rsp_SUP_LBT(void);
 void    write_EE_setting(uint8_t page, uint8_t addr, uint8_t const setting[]);
+uint8_t read_ee(uint8_t, uint8_t );
+void    write_ee(uint8_t, uint8_t, uint8_t );
 
-extern uint8_t  read_ee(uint8_t, uint8_t );
-extern void     write_ee(uint8_t, uint8_t, uint8_t );
 extern void     delay5ms(uint16_t);
 extern void     delayseconds(uint16_t secs);    
 extern void     add_event(uint8_t event,uint8_t zone);
 
-
-uint8_t read_ee(uint8_t, uint8_t );
-void    write_ee(uint8_t, uint8_t, uint8_t );
 
 #ifdef	__cplusplus
 }

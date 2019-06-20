@@ -155,7 +155,7 @@ void process_supervisory()
 
 void check_RF_device()
 {
-    
+    // RF interrupt
     if( WIFI_INT==1&&RF_wait_count==0 )
     {
         LED_G = 0;
