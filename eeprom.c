@@ -117,7 +117,7 @@ void init_eeprom()
     for(uint8_t i = 0; i <(16*8); i++ )      		//28
         write_ee(EE_PAGE1, i, 0);    
     
-    load_RF_devID_table();
+    load_device_id_table();
     
     //---------IP OTA---------      		//36
     write_EE_setting(EE_PAGE1, IP_OTA_ADDR, IP_OTA); 
@@ -136,6 +136,7 @@ void init_eeprom()
 void load_default(void)
 {
     encryption = read_ee(EE_PAGE0, ENCRYPTION_ADDR);
+    // How often we want report low 
     respond_day = read_ee(EE_PAGE0, TESTING_FREQ_ADDR);
     test_enable = read_ee(EE_PAGE0, TP_PIN_ADDR);
 }
@@ -167,16 +168,16 @@ void check_led_type(void)
 }
 
 //---------------new add 2017/11/23
-void load_RF_devID_table()
+void load_device_id_table()
 {
     uint8_t cnt1,cnt2,addr;
     for( cnt1=0;cnt1<28;cnt1++ )
     {
         addr =cnt1*8;
         for( cnt2=0;cnt2<8;cnt2++ )
-            RF_devID_table[cnt1][cnt2] = read_ee(1,addr+cnt2 );
+            device_id_table[cnt1][cnt2] = read_ee(1,addr+cnt2 );
         
-        RF_devID_table[cnt1][cnt2] = 0;
+        device_id_table[cnt1][cnt2] = 0;
     }
     CLRWDT();
 }
@@ -188,7 +189,7 @@ uint8_t check_ID(uint8_t *ptr)
     {
         for( cnt2=0;cnt2<6;cnt2++ )
         {
-            temp = RF_devID_table[cnt1][cnt2];
+            temp = device_id_table[cnt1][cnt2];
             if( temp != ptr[cnt2] )
             {
          //       out_sbuf2(ptr[cnt2]);
@@ -214,21 +215,21 @@ uint8_t add_ID(uint8_t *ptr)
     GIE = 0;
     for( cnt1=0;cnt1<16;cnt1++ )    //28
     {
-        temp = RF_devID_table[cnt1][0];
+        temp = device_id_table[cnt1][0];
         if( temp==0x00 )
         {            
             addr =cnt1*8;
             for( cnt2=0;cnt2<6;cnt2++)
             {
                 temp = ptr[cnt2];
-                RF_devID_table[cnt1][cnt2]=temp;
+                device_id_table[cnt1][cnt2]=temp;
                 write_ee(1,(addr+cnt2),temp);
             }
-            RF_devID_table[cnt1][6]=0;
+            device_id_table[cnt1][6]=0;
             write_ee(1,addr+6,0);
-            RF_devID_table[cnt1][7]=0;
+            device_id_table[cnt1][7]=0;
             write_ee(1,addr+7,0);
-            RF_devID_table[cnt1][8]=0;
+            device_id_table[cnt1][8]=0;
             GIE = 1;
             return('K');
         }             
@@ -245,7 +246,7 @@ uint8_t del_ID(uint8_t id)
     addr =id*8;
     for( cnt1=0;cnt1<8;cnt1++ )
     {
-        RF_devID_table[id][cnt1] = 0x00;
+        device_id_table[id][cnt1] = 0x00;
         write_ee(1,addr+cnt1,0x00);
         return('K');
     }
@@ -253,42 +254,7 @@ uint8_t del_ID(uint8_t id)
     return('E');
 }
 
-uint8_t check_supervisory(void)
-{
-    uint8_t cnt1,cnt2,temp;
-    for( cnt1=0;cnt1<16;cnt1++ )    //28
-    {
-        if( RF_devID_table[cnt1][0]!=0 )
-        {
-            if( RF_devID_table[cnt1][7] < 84 )         // 12 = 1Day  84 = 7Day
-            {
-                if( ++RF_devID_table[cnt1][7] >= 84 )
-                {            
-                    add_event(SUPERVISORY_T,cnt1+3);
-                    RF_devID_table[cnt1][7] = 'S';
-                }
-            }
-        }
-        CLRWDT();
-    }    
-    return(0);   
-}
 
-void rsp_SUP_LBT(void)
-{
-    uint8_t cnt1,cnt2,temp;
-    for( cnt1=0;cnt1<16;cnt1++ )    //28
-    {
-        if( RF_devID_table[cnt1][0]!=0 )
-        {
-            if( RF_devID_table[cnt1][6]=='B' )                  
-                add_event(LOW_BATTERY_T,cnt1+3);       
-            if( RF_devID_table[cnt1][7]=='S' )                  
-                add_event(SUPERVISORY_T,cnt1+3);            
-        }
-    }
-    CLRWDT();
-}
 
 /*uint8_t send_trigger_to_RF(uint8_t type)
 {

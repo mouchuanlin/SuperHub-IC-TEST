@@ -181,7 +181,7 @@ void UART2_ISR()
                    
                     if( zone!=0 )
                     {
-                        RF_devID_table[zone-3][7] = 0;     //clear supervisory count
+                        device_id_table[zone-3][7] = 0;     //clear supervisory count
                         LED_RX_OUT = 0; // Yellow ON - active LOW
                     }
                     if( learning_mode==KEY_NONE )
@@ -238,17 +238,17 @@ void UART2_ISR()
                             }    
                             if( ((rx2_buf[4]&0x02)!=0) )   //Tamper open
                             {
-                                if( RF_devID_table[zone-3][8]==0 )
+                                if( device_id_table[zone-3][8]==0 )
                                 {
                                     add_event(TAMPER_OPEN_T,zone);     
-                                    RF_devID_table[zone-3][8]=1; 
+                                    device_id_table[zone-3][8]=1; 
                                 }
                             }else                           //Tamper close
                             {
-                                if( RF_devID_table[zone-3][8]==1 )
+                                if( device_id_table[zone-3][8]==1 )
                                 {
                                     add_event(TAMPER_CLOSE_T,zone);     
-                                    RF_devID_table[zone-3][8]=0; 
+                                    device_id_table[zone-3][8]=0; 
                                 }
                             }
                             if( (rx2_buf[4]&0x10)!=0 )   //Low Battery

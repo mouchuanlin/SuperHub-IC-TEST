@@ -48,6 +48,8 @@ bool    process_restart();
 void 	process_ADC();
 void 	process_RF_interrupt();
 void 	process_supervisory();
+uint8_t check_supervisory();
+
 
 extern void control_leds();
 extern void process_event_queue();
@@ -58,7 +60,7 @@ extern void restart_modem();
 extern void poweroff_modem();
 extern void delay5ms(uint16_t cnt);
 extern void add_event(uint8_t event,uint8_t zone);
-extern uint8_t check_supervisory(void);
+
 extern void UART2_init();
 extern void control_leds();
 extern void control_leds_gainwise();

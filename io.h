@@ -244,7 +244,9 @@ uint8_t alarm_string[NUM_OF_STR][MAX_STR_SIZE] = {
 #define RF_INT      10
 //--------------------       
 #define EVENT_MAX 50
-#define BT_EOL_RESEND 1 //DAY
+
+// TODO: Supposed to be send oout once every 7 days
+#define BT_EOL_RESEND       7       // days
 //--------------------
 //#ifdef M_866
     #define POWER_ON  0   
@@ -311,7 +313,7 @@ uint16_t ADC_data = 0;
 uint8_t RF_wait_count = 0;
 
 // RF slave device ID table
-uint8_t RF_devID_table[28][9];
+uint8_t device_id_table[28][9];
 uint8_t learning_mode = 0;
 uint8_t power_status=0;
 uint8_t chk_supervisory = 0;

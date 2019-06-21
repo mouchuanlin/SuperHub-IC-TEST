@@ -39,6 +39,7 @@ void TMR0_ISR()
         
         // 60 seconds to exit add/del sensor mode.
         exit_learning_mode();
+        calculate_adc_time();
     }	
 }
 
@@ -271,4 +272,67 @@ void process_sms_menu()
 //        
 //        //update_led_state(POWERON);
 //    }    
+}
+
+void calculate_adc_time()
+{
+    // Use timer0 to calculate.
+    //if( ++adc_count >= (18000*0.9888) )       //[3600*10]*100ms=3600sec=1hr            //0.979  -1.56
+    // TODO: FOR TESTING ONLY
+    if( ++adc_count >= 10 )       //[3600*10]*100ms=3600sec=1hr            //0.979  -1.56
+    {            
+        chk_supervisory++;    //----add supervisory
+        adc_count = 0;   
+        if( ++Respond_T_Hour >= 24 )       // 24 hours
+        {
+            Respond_T_Hour = 0;
+            Respond_T_Day++;
+            // How often for supervisory message. respond_day is in EEPROM TESTING_FREQ_ADDR address.
+            if( Respond_T_Day >= respond_day )         
+            {
+                Respond_T_Day = 0;
+                add_event(TEST_CYCLE_S,0);             
+                response_low_batt();
+                OTA_flag = 1;
+            }
+            // BT_S_response - battery for smoke hub (smoke hub only)
+            // BT_S_response - battery for board (for both smoke/super hub)
+            if( BT_S_respond!=0 )
+                BT_S_respond--;
+            if( BT_L_respond!=0 )
+                BT_L_respond--;
+            if( EOL_respond!=0 )
+                EOL_respond--;
+            
+            if( OTA_flag==2 )
+                OTA_flag = 1;
+        }            
+    }
+    else if( (adc_count%300)==0 )        //every 10 mins check low battery
+    {
+        ADC_time = 1;
+    }
+
+}
+
+// Check one per 24 hours
+// Once not receive the data, then report device failure
+void response_low_batt()
+{
+    uint8_t cnt1,cnt2,temp;
+    
+    // smoke hub battery
+    for( cnt1=0;cnt1<16;cnt1++ )    //28
+    {
+        if( device_id_table[cnt1][0]!=0 )
+        {
+            // RF Battery
+            if( device_id_table[cnt1][6]=='B' )                  
+                add_event(LOW_BATTERY_T,cnt1+3); 
+            // RF periodical report
+            if( device_id_table[cnt1][7]=='S' )                  
+                add_event(SUPERVISORY_T,cnt1+3);            
+        }
+    }
+    CLRWDT();
 }

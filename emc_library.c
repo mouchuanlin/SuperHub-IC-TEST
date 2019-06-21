@@ -2,16 +2,14 @@
 // emc_library.c
 //
 
-
-
 #include <stdlib.h>
 #include <pic18f26k22.h>
 #include <xc.h>
 
+#include "emc_library.h"
 #include "io.h"
 #include "eeprom.h"
 #include "telit.h"
-
 
 void update_mmcnt(void)
 {
@@ -508,7 +506,7 @@ send_start:
     }
 }
 
-void add_event(uint8_t event,uint8_t zone)
+void add_event(uint8_t event, uint8_t zone)
 {
     event_log[event_count_f][0] = event;
     event_log[event_count_f][1] = zone;

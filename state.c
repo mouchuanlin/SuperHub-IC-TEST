@@ -13,12 +13,11 @@ extern state_t myState;
 
 void check_state()
 {
-
     check_RF_device();
 
 //    check_alarm_tamper();    
-//    process_ADC();
-//    check_supervisory();()
+    process_ADC();
+    process_supervisory();
     
     process_event_queue();
         
@@ -82,7 +81,6 @@ void check_alarm_tamper()
 //
 void add_sensor()
 {
-
     
 }
 
@@ -92,6 +90,37 @@ void add_sensor()
 void delete_sensor()
 {
 
+}
+
+void process_supervisory()
+{
+	if( chk_supervisory>=2 )       //2 hour
+	{
+		check_supervisory();
+		chk_supervisory = 0;
+	}
+}
+
+uint8_t check_supervisory()
+{
+    uint8_t cnt1,cnt2,temp;
+    for( cnt1=0;cnt1<16;cnt1++ )    //28
+    {
+        if( device_id_table[cnt1][0]!=0 )
+        {
+            // Supervisory every 2 hours. 7 days = 84
+            if( device_id_table[cnt1][7] < 84 )         // 12 = 1Day  84 = 7Day
+            {
+                if( ++device_id_table[cnt1][7] >= 84 )
+                {            
+                    add_event(SUPERVISORY_T,cnt1+3);
+                    device_id_table[cnt1][7] = 'S';
+                }
+            }
+        }
+        CLRWDT();
+    }    
+    return(0);   
 }
 
 void process_ADC()
@@ -114,15 +143,18 @@ void process_ADC()
 			delay5ms(1);
 		}while( ((ADCON0&0x02)!=0)&&(--cnt!=0) );
 		
+        // ADRESH: ADC RESULT REGISTER HIGH (ADRESH) ADFM = 1
+        // ADRESL: ADC RESULT REGISTER LOW (ADRESL) ADFM = 1
 		ADC_data = (ADRESH<<8)+ADRESL;
 		ADC_data &= 0x03ff;
-		ADON = 0;                               //748->2.80
-		ADC_time = 0;                           //776->2.70
-		if( ADC_data >776 )                     //806->2.60
-		{                                       //838->2.50
+		ADON = 0;                               //748->2.80 V
+		ADC_time = 0;                           //776->2.70 V
+		if( ADC_data >776 )                     //806->2.60 V
+		{                                       //838->2.50 V
 			if( BT_L_respond==0 )
 			{                    
-				add_event(LOW_BATTERY_S,0);                    
+				add_event(LOW_BATTERY_S,0);    
+                // board battery - send out once a week
 				BT_L_respond = BT_EOL_RESEND;
 			}
 		}else BT_L_respond = 0;
@@ -145,15 +177,6 @@ void process_RF_interrupt()
 		TMR0ON = 1;
 		CREN1 = 1;
 		RC2IE = 1;
-	}
-}
-
-void process_supervisory()
-{
-	if( chk_supervisory>=2 )       //2 hour
-	{
-		check_supervisory();
-		chk_supervisory = 0;
 	}
 }
 

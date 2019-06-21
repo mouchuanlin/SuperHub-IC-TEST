@@ -407,7 +407,7 @@ uint8_t set_n41_to_68(uint8_t type)
         for( cnt=0;cnt<8;cnt++ )
         {            
             write_ee(1,type+cnt,0);
-            RF_devID_table[val][cnt] = 0;
+            device_id_table[val][cnt] = 0;
         }
         return('K');
     }
@@ -428,12 +428,12 @@ uint8_t set_n41_to_68(uint8_t type)
         {
             temp = key[cnt+3];
             write_ee(1,type+cnt,temp);
-            RF_devID_table[val][cnt] = temp;
+            device_id_table[val][cnt] = temp;
         }
         write_ee(1,type+6,0);
-        RF_devID_table[val][6] = 0;
+        device_id_table[val][6] = 0;
         write_ee(1,type+7,0);
-        RF_devID_table[val][7] = 0;
+        device_id_table[val][7] = 0;
         return('K');
     }
     return('E');

@@ -31,10 +31,11 @@ void delayseconds(uint16_t secs);
 void delay5ms(uint16_t cnt);
 void process_sms_menu();
 void exit_learning_mode();
+void calculate_adc_time();
+void response_low_batt();
 
 extern void add_event(uint8_t event,uint8_t zone);
 extern void process_button_push();
-
 
 /*****************************************************
  * VARIABLES
@@ -54,7 +55,12 @@ extern state_t myState;
 extern uint16_t 	exit_learn;
 
 // This variable used to turn off LED2/3. Only ON for 1 second.
-uint8_t led_count = 0;
+uint8_t     led_count = 0;
+uint16_t 	adc_count = 0;
+uint8_t 	Respond_T_Hour = 0;
+uint8_t 	Respond_T_Day = 0;
+uint8_t 	OTA_flag = 0;
+
 
 #endif	/* TIMER_H */
 

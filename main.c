@@ -10,29 +10,7 @@
 #include "main.h"
 
 #include "io.h"
-#include "state.h"
-#include "led.h"
 #include "timer.h"
-
-// Global variables
-state_t     myState = POWER_UP;
-bool        readyForSleep = false;
-
-// LED
-uint8_t         gled_tmr0_tick = 0, bled_tmr0_tick = 0;
-led_states_t    led_state = IDLE;
-uint8_t         ver_select = 0;
-
-// button press
-bool        inButtonMenu = false;
-uint8_t     buttonPressCount = 0;
-uint8_t     tmr3_cnt = 0;
-bool        g_op_state = false;
-bit         listen_sms_state = 0;  
-uint16_t 	exit_learn = 0;
-
-
-bit     ADC_time = 0;
 
 //
 // main
@@ -76,6 +54,7 @@ int main(int argc, char** argv)
            control_leds();
            
            exit_learning_mode();
+           calculate_adc_time();
         }
 
         check_state();
@@ -179,7 +158,7 @@ void init_global_variables()
     learning_mode = KEY_NONE;
     ADC_time = 1;
     
-    load_RF_devID_table();
+    load_device_id_table();
     
     // Smoke hub or super hub?
     ver_select = get_hub_type();

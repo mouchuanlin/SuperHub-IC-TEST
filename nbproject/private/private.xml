@@ -13,7 +13,7 @@
             <url>main.c</url>
             <bookmark id="2">
                 <name/>
-                <line>328</line>
+                <line>327</line>
                 <key/>
             </bookmark>
         </file>
@@ -22,6 +22,9 @@
         <group>
             <file>file:/D:/bitbucket/SuperHub-IC-TEST/main.c</file>
             <file>file:/D:/bitbucket/SuperHub-IC-TEST/timer.h</file>
+            <file>file:/D:/bitbucket/SuperHub-IC-TEST/timer.c</file>
+            <file>file:/D:/bitbucket/SuperHub-IC-TEST/main.h</file>
+            <file>file:/D:/bitbucket/SuperHub-IC-TEST/state.c</file>
         </group>
     </open-files>
 </project-private>

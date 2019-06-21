@@ -21,13 +21,11 @@ extern "C" {
 void    init_eeprom(void);
 void    load_default(void);
 void    check_led_type(void);
-void    load_RF_devID_table(void);
+void    load_device_id_table(void);
 uint8_t check_ID(uint8_t *ptr);
 uint8_t add_ID(uint8_t *ptr);
 uint8_t del_ID(uint8_t id);
-uint8_t check_supervisory(void);
 uint8_t send_trigger_to_RF(uint8_t type);
-void    rsp_SUP_LBT(void);
 void    write_EE_setting(uint8_t page, uint8_t addr, uint8_t const setting[]);
 uint8_t read_ee(uint8_t, uint8_t );
 void    write_ee(uint8_t, uint8_t, uint8_t );

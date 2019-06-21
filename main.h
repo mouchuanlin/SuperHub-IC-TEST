@@ -11,6 +11,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "state.h"
+#include "led.h"
 
 /*****************************************************
  * FUNCTION PROTOTYPES
@@ -31,23 +33,22 @@ extern void restart_modem();
 extern void poweroff_modem();
 extern void check_state();
 extern void init_eeprom();
-extern void load_RF_devID_table();
+extern void load_device_id_table();
 extern void UART_init();
 extern void UART1_ISR();
 extern void UART2_ISR();
-
 extern void start_timer0();
 extern void TMR0_ISR();
 extern void Uart_disable(void);
-
 extern void check_RF_device();
+extern void add_event(uint8_t event, uint8_t zone);
+extern void calculate_adc_time();
 
 /*****************************************************
  * VARIABLES
  ****************************************************/
 uint8_t Standby_f = 0;
 uint8_t Error_f = 0;
-
       
 uint8_t Smoke_respond = 0;    
 //bit Respond_ack = 0;
@@ -63,9 +64,9 @@ uint8_t 	error_count = 0;
 uint16_t 	standby_count = 0;
 uint16_t 	error_time_detect = 0;
 uint16_t 	test_time_detect = 0;
-uint16_t 	adc_count = 0;
-uint8_t 	Respond_T_Hour = 0;
-uint8_t 	Respond_T_Day = 0;
+//uint16_t 	adc_count = 0;
+//uint8_t 	Respond_T_Hour = 0;
+//uint8_t 	Respond_T_Day = 0;
 uint8_t 	err_count=0;
 //uint8_t 	LED_count = 0;
 uint8_t 	error_status_count = 0;
@@ -76,6 +77,27 @@ uint8_t 	first_tamper = 1;
 
 uint8_t 	learn_delay = 0;    
 uint16_t 	test_9sec_count=0;
-uint8_t 	OTA_flag = 0;
+//uint8_t 	OTA_flag = 0;
+
+
+// Global variables
+state_t     myState = POWER_UP;
+bool        readyForSleep = false;
+
+// LED
+uint8_t         gled_tmr0_tick = 0, bled_tmr0_tick = 0;
+led_states_t    led_state = IDLE;
+uint8_t         ver_select = 0;
+
+// button press
+bool        inButtonMenu = false;
+uint8_t     buttonPressCount = 0;
+uint8_t     tmr3_cnt = 0;
+//bool        g_op_state = false;
+bit         listen_sms_state = 0;  
+uint16_t 	exit_learn = 0;
+
+
+bit     ADC_time = 0;
 
 #endif	/* MAIN_H */
