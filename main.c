@@ -16,7 +16,9 @@
 // main
 //
 int main(int argc, char** argv) 
-{   
+{   	
+    uint8_t WDT_count;
+    
     // System init - IO, timer, ADC, UART, interrupt
     init_system();
     
@@ -40,21 +42,28 @@ int main(int argc, char** argv)
         // This is the case going to SLEEP mode. This portion need WDT.
         // When RF INT detected, will set RF_wait_count 100 (10 seconds) for RF communication.
         // Can't go SLEEP if we need RF communication.
+        
+        // TODO: Recalculate WDT value 
         if( RF_wait_count==0)
         {
-           SWDTEN = 1;
-           SLEEP();   
-           NOP();
-           NOP();
-           NOP();
+			SWDTEN = 1;
+			SLEEP();   
+			NOP();
+			NOP();
+			NOP();
+			SWDTEN = 0;
+			
+            // ~200 ms
+			if( ++WDT_count>=3 )
+			{            
+				WDT_count = 0;
 
-           SWDTEN = 0;
-
-           check_button();
-           control_leds();
-           
-           exit_learning_mode();
-           calculate_adc_time();
+			   check_button();
+			   control_leds();
+			   
+			   exit_learning_mode();
+			   calculate_adc_time();
+			}
         }
 
         check_state();
@@ -271,7 +280,7 @@ void superhub_ISR()
             {
                 add_event(TAMPER_OPEN_T,1);
                 tamper_status = 1;        
-                SPK = 0;
+                SPK = 1;
             }
         }
        // Learn button pressed

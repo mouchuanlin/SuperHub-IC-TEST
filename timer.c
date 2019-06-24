@@ -40,6 +40,8 @@ void TMR0_ISR()
         // 60 seconds to exit add/del sensor mode.
         exit_learning_mode();
         calculate_adc_time();
+        
+        check_alarm_tamper();
     }	
 }
 
@@ -277,9 +279,9 @@ void process_sms_menu()
 void calculate_adc_time()
 {
     // Use timer0 to calculate.
-    //if( ++adc_count >= (18000*0.9888) )       //[3600*10]*100ms=3600sec=1hr            //0.979  -1.56
+    if( ++adc_count >= (18000*0.9888) )       //[3600*10]*100ms=3600sec=1hr            //0.979  -1.56
     // TODO: FOR TESTING ONLY
-    if( ++adc_count >= 10 )       //[3600*10]*100ms=3600sec=1hr            //0.979  -1.56
+    //if( ++adc_count >= 10 )       //[3600*10]*100ms=3600sec=1hr            //0.979  -1.56
     {            
         chk_supervisory++;    //----add supervisory
         adc_count = 0;   

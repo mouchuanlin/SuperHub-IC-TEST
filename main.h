@@ -72,8 +72,8 @@ uint8_t 	err_count=0;
 uint8_t 	error_status_count = 0;
 uint8_t 	alarm_count = 0;
 
-uint8_t 	tamper_status = 1;
-uint8_t 	first_tamper = 1;
+//uint8_t 	tamper_status = 1;
+//uint8_t 	first_tamper = 1;
 
 uint8_t 	learn_delay = 0;    
 uint16_t 	test_9sec_count=0;

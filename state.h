@@ -30,6 +30,9 @@ typedef enum State {
     OPERATIONAL
 } state_t;
 
+uint8_t 	tamper_status = 1;
+uint8_t 	first_tamper = 1;
+
 extern bit ADC_time;
 extern uint8_t BT_S_respond;
 extern uint8_t BT_L_respond;
@@ -49,6 +52,7 @@ void 	process_ADC();
 void 	process_RF_interrupt();
 void 	process_supervisory();
 uint8_t check_supervisory();
+void check_alarm_tamper();
 
 
 extern void control_leds();

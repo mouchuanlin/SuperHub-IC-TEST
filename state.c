@@ -5,7 +5,6 @@
 #include <pic18f26k22.h>
 #include <xc.h>
 
-
 #include "state.h"
 #include "io.h"
 
@@ -14,10 +13,10 @@ extern state_t myState;
 void check_state()
 {
     check_RF_device();
-
-//    check_alarm_tamper();    
     process_ADC();
     process_supervisory();
+    check_alarm_tamper();  
+    
     
     process_event_queue();
         
@@ -73,7 +72,18 @@ bool process_restart()
 
 void check_alarm_tamper()
 {
-
+    // TAMPER_PIN == 1 - close
+    if( tamper_status!=0&&TAMPER_PIN==1  )
+    {
+        if( ++tamper_status>5 )
+        {
+            if( first_tamper==0 )                    
+                add_event(TAMPER_CLOSE_T,1);
+            first_tamper = 0;
+            tamper_status = 0;
+            SPK = 0;
+        }
+    }
 }
 
 //
