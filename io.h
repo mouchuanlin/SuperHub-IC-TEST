@@ -99,10 +99,10 @@ void IO_init(void);
 #define MD_TX_TRIS      TRISCbits.TRISC7
     
 ///// PORTB
-// RB0 - WHAT'S THIS FOR???
+// RB0 - Smoke hub ONLY
 #define STANDBY_PIN         PORTBbits.RB0
 #define STANDBY_PIN_TRIS    TRISBbits.TRISB0  
-// RB1 - WHAT'S THIS FOR???  
+// RB1 - Smoke hub ONLY  
 #define ALARM_PIN           PORTBbits.RB1
 #define ALARM_PIN_TRIS      TRISBbits.TRISB1   
 // RB0  
@@ -111,7 +111,7 @@ void IO_init(void);
 // RB1    
 #define LEARN_PIN           PORTBbits.RB1
 #define LEARN_PIN_TRIS      TRISBbits.TRISB1
-// RB2 - WHAT'S THIS FOR???
+// RB2 - Smoke hub ONLY
 #define ERROR_PIN           PORTBbits.RB2
 #define ERROR_PIN_TRIS      TRISBbits.TRISB2    
     
@@ -268,13 +268,13 @@ uint8_t alarm_string[NUM_OF_STR][MAX_STR_SIZE] = {
     
 // SMS listening state
 // TODO: Why not 5-4???
-#define KEY_NONE        0
+#define KEY_NONE        0       // btn 5
 #define KEY_IN_LEARN    1       // btn 5-1
 #define KEY_ADD_ID      2       // btn 5-2
 #define KEY_DEL_ID      3       // btn 5-3
     
 // Hub type - smoke hub or super hub
-#define SMOKER          0
+#define SMOKE_HUB       0
 #define SUPER_HUB       1
 //--------------------
 uint8_t const VERSION[]="1011";
@@ -319,7 +319,6 @@ uint8_t power_status=0;
 uint8_t chk_supervisory = 0;
 
 uint8_t Module_type = EMS31;
-//uint8_t ver_select = 0;
 
 
 #ifdef	__cplusplus

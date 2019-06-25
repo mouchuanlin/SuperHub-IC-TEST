@@ -33,6 +33,7 @@ void process_sms_menu();
 void exit_learning_mode();
 void calculate_adc_time();
 void response_low_batt();
+void handle_smoker();
 
 extern void add_event(uint8_t event,uint8_t zone);
 extern void process_button_push();
@@ -48,11 +49,25 @@ extern void process_button_push();
 #define TMR0_CFG            0x87       // 0x87 = b1000 0111 - timer 0 ON, 1:256 prescale
 
 // button press
-extern bool    inButtonMenu;
-extern uint8_t buttonPressCount;
-extern uint8_t tmr3_cnt;
-extern state_t myState;
-extern uint16_t 	exit_learn;
+extern bool         inButtonMenu;
+extern uint8_t      buttonPressCount;
+extern uint8_t      tmr3_cnt;
+extern state_t      myState;
+extern uint16_t     exit_learn;
+// Smoke or Super hub
+extern uint8_t      hub_type;
+
+extern uint8_t      err_count;
+extern uint8_t      error_status_count;
+extern uint8_t      alarm_count;
+extern uint8_t      Standby_f;
+extern uint8_t      Error_f;
+extern uint16_t 	standby_count;
+extern uint8_t      Smoke_respond;
+extern uint8_t      error_count;
+extern uint16_t 	error_time_detect;
+
+
 
 // This variable used to turn off LED2/3. Only ON for 1 second.
 uint8_t     led_count = 0;

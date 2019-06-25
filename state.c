@@ -15,7 +15,9 @@ void check_state()
     check_RF_device();
     process_ADC();
     process_supervisory();
-    check_alarm_tamper();  
+    
+    if (hub_type == SUPER_HUB)
+        check_alarm_tamper();  
     
     
     process_event_queue();
@@ -75,7 +77,7 @@ void check_alarm_tamper()
     // TAMPER_PIN == 1 - close
     if( tamper_status!=0&&TAMPER_PIN==1  )
     {
-        if( ++tamper_status>5 )
+        if( ++tamper_status>2 )
         {
             if( first_tamper==0 )                    
                 add_event(TAMPER_CLOSE_T,1);

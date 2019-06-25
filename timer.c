@@ -41,7 +41,11 @@ void TMR0_ISR()
         exit_learning_mode();
         calculate_adc_time();
         
-        check_alarm_tamper();
+        if (hub_type == SUPER_HUB)
+            check_alarm_tamper();
+		
+		// Smoker specific 
+		handle_smoker();
     }	
 }
 
@@ -58,6 +62,110 @@ void TMR3_ISR()
 //		process_button_push();	
     }    
 }
+
+void handle_smoker()
+{
+	if( hub_type == SMOKE_HUB )
+	{
+		if( alarm_count!=0 )
+		{
+			if( ALARM_PIN==1 )
+			{
+				if( ++alarm_count>=10 )
+				{
+					add_event(SMOKE_ALARM_T,1); 
+				   // send_trigger_to_RF(1);
+					alarm_count = 0;
+				}
+			}else alarm_count = 0;
+		}
+		if( ERROR_PIN==1 )
+		{
+			if( ++err_count>=10 )   //100ms*10 = 1 sec
+			{
+				if( err_count==10 )
+				{
+				 //   if( alarm_out(TAMPER_OPEN_T)==0 )
+				  //      Tamper_open_f = 1;
+						add_event(TAMPER_OPEN_T,1);
+				}
+				err_count = 10;
+			}
+		}else
+		{
+			if( err_count>=10 )
+			{
+			  //  if( alarm_out(TAMPER_CLOSE_T)==0 )
+				//    Tamper_close_f = 1;
+					add_event(TAMPER_CLOSE_T,1);
+			}
+			err_count = 0;
+		}   
+	
+		if( Standby_f==1 )
+		{
+			Standby_f = 0;
+			standby_count = 0;
+		}else{
+			standby_count++;            //100ms*4000=400Sec
+			if( standby_count>= 4000)
+			{
+				standby_count = 0;
+				Smoke_respond = 1;
+			}
+		}
+	
+		if( Error_f==1 )
+		{
+			Error_f = 0;
+			error_count++;
+			error_time_detect = 0;
+		}else
+		{            
+			if( error_count!=0 )
+			{
+				if( ++error_time_detect>=300 )  //100ms*300=30sec
+				{                    
+					if( error_count==1 )            
+					{
+						if( ++error_status_count>=5 )
+						{
+							if( BT_S_respond==0 )
+							{
+								add_event(LOW_BATTERY_T,1);
+								error_status_count = 0;
+								BT_S_respond = BT_EOL_RESEND;
+							}
+						}
+					}else if( error_count==3 )
+					{
+						if( ++error_status_count>=5 )
+						{
+							if( EOL_respond==0 )
+							{
+								add_event(EOL_T,1);
+								error_status_count = 0;
+								EOL_respond = BT_EOL_RESEND;
+							}
+						}
+					}else error_status_count = 0;
+					error_count = 0;
+					error_time_detect = 0;                                            
+				}
+			}else
+			{
+				if( ++error_time_detect>=300 )  //100ms*300=30sec
+				{ 
+					error_time_detect = 0;   
+					error_status_count = 0;                    
+				}
+			}
+		} 
+    }             
+}
+
+
+
 
 void delay5ms(uint16_t cnt)
 {

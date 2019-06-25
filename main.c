@@ -58,11 +58,21 @@ int main(int argc, char** argv)
 			{            
 				WDT_count = 0;
 
-			   check_button();
-			   control_leds();
-			   
-			   exit_learning_mode();
-			   calculate_adc_time();
+				check_button();
+				control_leds();
+
+				exit_learning_mode();
+				calculate_adc_time();
+               
+				//TODO: use btn 5-4 now.
+				// if((VER_SELECT==1) && (TEST_PIN==1))
+				// {
+					// if( ++test_9sec_count==45 )   //100ms*90
+						// add_event(TEST_PIN_T,0);
+				// }else test_9sec_count = 0;
+				
+				// Smoker specific 
+				handle_smoker();
 			}
         }
 
@@ -111,8 +121,7 @@ void init_system()
     // Init interrupt
     int_init();
 	
-    // Smoke hub or super hub?
-    ver_select = get_hub_type();
+    init_global_variables();
     
     update_led_state(IDLE);
 }
@@ -170,7 +179,8 @@ void init_global_variables()
     load_device_id_table();
     
     // Smoke hub or super hub?
-    ver_select = get_hub_type();
+    hub_type = get_hub_type();
+    
 }
 
 // TODO: Why input/output difference b/w smoke hub and super hub???
@@ -178,9 +188,9 @@ uint8_t get_hub_type()
 {
     uint8_t hub_type = 0;
     
-    if( VER_SELECT==1 ) //Smoker
+    if( VER_SELECT==1 )
     {
-        hub_type = SMOKER;
+        hub_type = SMOKE_HUB;
         TEST_PIN = 1;
         TEST_PIN_TRIS = INPUT;
         INT2IE = 1;     //Enable Int2 interrupt
@@ -214,7 +224,7 @@ void __interrupt isr()
 	//UART2 ISR - RF receiver
     UART2_ISR();
 	
-	// smoker_ISR();
+    smokehub_ISR();
 	superhub_ISR();
 	
 	// TMR0 ISR
@@ -269,9 +279,49 @@ void __interrupt isr()
 	//TMR3_ISR(); 
 }
 
+void smokehub_ISR()
+{
+    uint8_t temp;
+	
+	if( hub_type == SMOKE_HUB )
+    {
+        if( INT0IF==1 )     //STANDBY(PIN4)
+        {
+            INT0IF = 0;
+            Standby_f = 1;
+        }
+        if( INT1IF==1 )     //ALARM(PIN5)
+        {
+            //LED = 0;
+            INT1IF = 0;
+            if( TEST_PIN==1 )
+            {
+                //if( test_enable==1||first_test!=0||Test_click==1 )
+                //    add_event(TEST_PIN_T,2);
+            }else alarm_count = 1;                              
+        }
+        if( INT2IF==1 )     //ERROR(PIN6)
+        {
+            INT2IF = 0;
+            Error_f = 1;
+        }
+        if( RBIF==1 )       //TEST(PIN1)    RB.4
+        {
+            if( TEST_PIN==1 )
+            {
+                test_count++;
+                test_time_detect = 0;
+            }
+            temp = PORTB;
+            NOP();
+            RBIF = 0;
+        }
+    }
+}
+
 void superhub_ISR()
 {
-	if (ver_select == SUPER_HUB)
+	if (hub_type == SUPER_HUB)
     {
        if (INT0IF==1)     //Tamper SW
         {

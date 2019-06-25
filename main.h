@@ -23,11 +23,10 @@ void 	init_stack_buffer();
 void 	init_global_variables();
 uint8_t get_hub_type();
 void 	buzzer_on(uint8_t count);
+void    smokehub_ISR();
 void    superhub_ISR();
 void    sms_menu();
-void    handle_smoker();
 
-// Jen's simple_state_machine pronect
 extern void start_modem();
 extern void restart_modem();
 extern void poweroff_modem();
@@ -68,7 +67,6 @@ uint16_t 	test_time_detect = 0;
 //uint8_t 	Respond_T_Hour = 0;
 //uint8_t 	Respond_T_Day = 0;
 uint8_t 	err_count=0;
-//uint8_t 	LED_count = 0;
 uint8_t 	error_status_count = 0;
 uint8_t 	alarm_count = 0;
 
@@ -87,7 +85,7 @@ bool        readyForSleep = false;
 // LED
 uint8_t         gled_tmr0_tick = 0, bled_tmr0_tick = 0;
 led_states_t    led_state = IDLE;
-uint8_t         ver_select = 0;
+uint8_t         hub_type = 0;
 
 // button press
 bool        inButtonMenu = false;

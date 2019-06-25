@@ -109,15 +109,15 @@ uint8_t wait_AT_cmd_response()
     soutdata("AT+VER=$");
     
     // TODO: This should no functional at all???
-    if( VER_SELECT==1 ) //Smoker
+    if( VER_SELECT==1 )
     {
-        soutdata("Smoker,$");
+        soutdata("Smoke HUB,$");
     }else soutdata("Super HUB,$");
 	
     if( Module_type==EMS31 )    
         soutdata("EMS31\r\n$");
     else if( Module_type==PLS8 )    
-        soutdata("PLS8\r\n$");    
+        soutdata("PLS8\r\n$");
     else if( Module_type==LE910 )    
         soutdata("LE910\r\n$");    
     else //if( Module_type==LE866 )    

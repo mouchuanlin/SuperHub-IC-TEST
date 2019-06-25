@@ -38,6 +38,9 @@ extern uint8_t BT_S_respond;
 extern uint8_t BT_L_respond;
 extern uint8_t EOL_respond;
 
+// Smoke or Super hub
+extern uint8_t      hub_type;
+
 
 /*****************************************************
  * FUNCTION PROTOTYPES
