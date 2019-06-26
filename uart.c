@@ -6,6 +6,7 @@
 #include <xc.h>
 
 #include "uart.h"
+#include "emc_library.h"
 #include "io.h"
 
 void UART_init()

@@ -11,6 +11,7 @@
 
 #include "io.h"
 #include "timer.h"
+#include "emc_library.h"
 
 //
 // main

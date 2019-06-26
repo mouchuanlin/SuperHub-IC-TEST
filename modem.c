@@ -11,7 +11,7 @@
 #include "uart.h"
 #include "eeprom.h"
 
-bool md_config_ok()
+bool modem_config_ok()
 {
     if (!wait_AT_cmd_response())        
 		return false;
@@ -338,7 +338,7 @@ void start_modem()
        
     powerup_modem();
     
-    while (!md_config_ok())
+    while (!modem_config_ok())
         restart_modem();
     
     poweroff_modem();

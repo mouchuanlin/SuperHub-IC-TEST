@@ -18,7 +18,7 @@
  ****************************************************/
 void 	powerup_modem();
 void    start_modem();
-bool    md_config_ok();
+bool    modem_config_ok();
 void    restart_modem();
 void    poweroff_modem();
 uint8_t wait_AT_cmd_response();

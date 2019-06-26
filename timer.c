@@ -6,6 +6,7 @@
 #include <xc.h>
 
 #include "timer.h"
+#include "emc_library.h"
 #include "io.h"
 #include "led.h"
 

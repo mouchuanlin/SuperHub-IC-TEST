@@ -6,6 +6,7 @@
 #include <xc.h>
 
 #include "state.h"
+#include "emc_library.h"
 #include "io.h"
 
 extern state_t myState;
