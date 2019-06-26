@@ -30,7 +30,7 @@ alarm_start:
 		return false;
 	
     //--------- Wait SMS Setting ---------
-	if (!wait_SMS_setting())
+	if (!start_sms())
     {
         goto alarm_start;
     }
@@ -232,7 +232,7 @@ uint8_t start_send_alarm()
 	return true;
 }
 
-uint8_t wait_SMS_setting()
+uint8_t start_sms()
 {
 	uint8_t cnt,rsp,temp;
     uint8_t sms_time;

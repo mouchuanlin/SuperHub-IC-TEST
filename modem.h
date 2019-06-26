@@ -26,7 +26,7 @@ uint8_t check_SIM_state();
 uint8_t check_network_registration();
 bool    check_apn_status();
 uint8_t start_send_alarm();
-uint8_t wait_SMS_setting();
+uint8_t start_sms();
 void    process_event_queue();
 uint8_t process_SMS_setup_state();
 void    out_sbuf(uint8_t tmp);
