@@ -1,5 +1,5 @@
 //
-// Setup_mode.c
+// eeprom_setup.c
 //
 
 #include <ctype.h>

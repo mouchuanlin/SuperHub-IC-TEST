@@ -1,9 +1,9 @@
 //
-// Setup_mode.h
+// eeprom_setup.h
 //
 
-#ifndef SETUP_MODE_H
-#define	SETUP_MODE_H
+#ifndef EEPROM_SETUP_H
+#define	EEPROM_SETUP_H
 
 #ifdef	__cplusplus
 extern "C" {
@@ -43,5 +43,5 @@ uint8_t set_n98(void);
 }
 #endif
 
-#endif	/* SETUP_MODE_H */
+#endif	/* EEPROM_SETUP_H */
 
