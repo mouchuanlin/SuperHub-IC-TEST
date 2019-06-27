@@ -7,7 +7,7 @@
 
 #include "eeprom.h"
 #include "io.h"
-#include "Setup_mode.h"
+#include "eeprom_setup.h"
 
 //-----------------------------------//
 uint8_t function_code(void)

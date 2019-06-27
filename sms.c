@@ -12,7 +12,7 @@
 #include "io.h"
 #include "eeprom.h"
 #include "sms.h"
-#include "Setup_mode.h"
+#include "eeprom_setup.h"
 
 uint8_t sms_p,sms_buffer[160]; 
 uint8_t time[9];
