@@ -109,6 +109,7 @@ uint8_t wait_AT_cmd_response()
     soutdata("AT+VER=$");
     
     // TODO: This should no functional at all???
+    //      THIS IS FOR DEBUG PURPOSE.
     if( VER_SELECT==1 )
     {
         soutdata("Smoke HUB,$");
@@ -240,7 +241,6 @@ uint8_t start_sms()
     // This bit indicating if we are in button 5-1 or not.
     if( listen_sms_state==1 )    
     {
-        
         sms_time = read_ee(0x00,SMS_WAIT_TIME_ADDR);   //wait SMS time
         set_sms_init();    
         do{

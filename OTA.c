@@ -6,6 +6,7 @@
 #include <pic18f26k22.h>
 #include <xc.h>
 
+#include "OTA.h"
 #include "io.h"
 #include "eeprom.h"
 #include "emc_library.h"
@@ -309,9 +310,11 @@ uint8_t OTA_connection_open(uint8_t type)   //0: command mode 1:online mode
 	uint8_t cnt,temp;
 	uint16_t port;
     uint8_t ip_sel,page,addr;
+    // LINE_CARD_ADDR
     temp = read_ee(0x01,0xd0);
     if( temp=='#')
     {
+        // IP1_ADDR
         temp = read_ee(0x00,0x30);        
         ip_sel = 1;
     }else ip_sel = 0;
@@ -322,10 +325,12 @@ uint8_t OTA_connection_open(uint8_t type)   //0: command mode 1:online mode
     //------ port ------
     if( ip_sel == 0)
     {
+        // PORT_OTA_ADDR
         page = 1;
         addr = 0xf0;
     }else 
     {
+        // PORT1_ADDR
         page = 0;
         addr = 0xB0;
     }
@@ -367,10 +372,12 @@ uint8_t OTA_connection_open(uint8_t type)   //0: command mode 1:online mode
     //------ IP ------    
     if( ip_sel == 0)
     {
+        // IP_OTA_ADDR
         page = 1;
         addr = 0xd0;
     }else 
     {
+        // IP1_ADDR
         page = 0;
         addr = 0x30;
     }
@@ -400,12 +407,15 @@ uint8_t check_OTA(void)
     uint8_t rsp,cnt,cnt1;
     cnt = 3;
     do{
+        // OTA ip
         rsp = TL_internet_init();
         if( rsp=='K' )
         {
+            // Connect to OTA server IP
             rsp = OTA_connection_open(0x00);
             if( rsp=='K' )
             {
+                // Send version# to server
                 rsp = OTA_send_data_to_server();
                 cnt1 = 50;
                 do{
@@ -413,28 +423,31 @@ uint8_t check_OTA(void)
                     delay5ms(200);
                 }while(--cnt1!=0&&rsp=='E');
                 //online mode
+                // Update FW version
                 if( rsp=='U' )
                 {
-                    delay5ms(200);
+                    delayseconds(1);
                     TL_connection_close();
-                    delay5ms(200);
+                    delayseconds(1);
+                    
+                    // Reconnect using DATA mode
                     rsp = OTA_connection_open(0x01); 
                     if( rsp=='C' )
                     {
+                        // send "RFQ" to server 
                         out_sbuf('R');
                         out_sbuf('F');
                         out_sbuf('Q');
                         rsp = wait_connect_respond(6000);
+                        // ESC
                         out_sbuf('+');
                         out_sbuf('+');
                         out_sbuf('+');
-                        delay5ms(200);
-                        delay5ms(200);
-                        delay5ms(200);
+                        delayseconds(3);
                         if( rsp=='B' )
                         {                        
                             TL_connection_close();
-                            delay5ms(200);
+                            delayseconds(1);
                             TL_internet_close();
                             return('K');
                         }                          
@@ -442,22 +455,23 @@ uint8_t check_OTA(void)
                 }else if( rsp=='K' )
                 {
                     TL_connection_close();
-                    delay5ms(200);
+                    delayseconds(1);
                     TL_internet_close();
                     return('K');
                 }else if( rsp=='R' )
                 {                    
                     TL_connection_close();
-                    delay5ms(200);
+                    delayseconds(1);
                     TL_internet_close();
                     return('E');
                 }
             }
             TL_connection_close();
         }
-        delay5ms(200);
+        delayseconds(1);
         TL_internet_close();
-        delay5ms(200);
+        delayseconds(1);
     }while(--cnt!=0);
+
     return('E');
 }

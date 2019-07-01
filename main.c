@@ -73,7 +73,7 @@ int main(int argc, char** argv)
 				// }else test_9sec_count = 0;
 				
 				// Smoker specific 
-				handle_smoker();
+				handle_smoke_hub();
 			}
         }
 

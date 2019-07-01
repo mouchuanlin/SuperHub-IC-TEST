@@ -34,8 +34,11 @@ void TL_module_first_run(void)
 //---------------------------------------------------
 uint8_t TL_internet_init(void)
 {
+    // Socket Configuration - #SCFG
     uint8_t const scfg[]="AT#SCFG=1,3,300,90,200,50\r\n$";
+    // GPRS Attach Or Detach - +CGATT
 	uint8_t const cgatt[]="AT+CGATT=1\r\n$";
+    // Define PDP context- +CGDCONT
 	uint8_t const cgdcont[]="AT+CGDCONT=3,\"IP\",\"$";	
     //uint8_t const cgdcont[]="AT+CGDCONT=1,\"IP\",\"internet\"\r\n$";	
     uint8_t const sgact[]="AT#SGACT=3,1\r\n$";    

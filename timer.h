@@ -33,7 +33,7 @@ void process_sms_menu();
 void exit_learning_mode();
 void calculate_adc_time();
 void response_low_batt();
-void handle_smoker();
+void handle_smoke_hub();
 
 extern void add_event(uint8_t event,uint8_t zone);
 extern void process_button_push();

@@ -46,7 +46,7 @@ void TMR0_ISR()
             check_alarm_tamper();
 		
 		// Smoker specific 
-		handle_smoker();
+		handle_smoke_hub();
     }	
 }
 
@@ -64,7 +64,7 @@ void TMR3_ISR()
     }    
 }
 
-void handle_smoker()
+void handle_smoke_hub()
 {
 	if( hub_type == SMOKE_HUB )
 	{

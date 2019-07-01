@@ -17,6 +17,7 @@
       <itemPath>eeprom.h</itemPath>
       <itemPath>telit.h</itemPath>
       <itemPath>eeprom_setup.h</itemPath>
+      <itemPath>ota.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
