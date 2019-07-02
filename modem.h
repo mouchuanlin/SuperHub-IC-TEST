@@ -60,6 +60,9 @@ extern uint8_t  check_OTA(void);
 #define CR 		0x0D
 #define LF 		0x0A
 
+// __delay_ms() need this define)
+#define _XTAL_FREQ 8000000
+
 // button press
 extern bool     inButtonMenu;
 extern uint8_t  buttonPressCount;

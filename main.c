@@ -45,6 +45,10 @@ int main(int argc, char** argv)
         // Can't go SLEEP if we need RF communication.
         
         // TODO: Recalculate WDT value 
+        
+        if (myState == OTA_BOOT)
+            continue;
+        
         if( RF_wait_count==0)
         {
 			SWDTEN = 1;
@@ -64,37 +68,13 @@ int main(int argc, char** argv)
 
 				exit_learning_mode();
 				calculate_adc_time();
-               
-				//TODO: use btn 5-4 now.
-				// if((VER_SELECT==1) && (TEST_PIN==1))
-				// {
-					// if( ++test_9sec_count==45 )   //100ms*90
-						// add_event(TEST_PIN_T,0);
-				// }else test_9sec_count = 0;
-				
+               			
 				// Smoker specific 
 				handle_smoke_hub();
 			}
         }
 
         check_state();
-
-        
-//        if (event_queue_is_empty() && STATE == IDLE && test_count == 0 && MD_STATE == MD_OFF)
-//        {
-//            disable_md_rxint();
-//            terminate_md_uart();
-//            terminate_rf_uart();
-//            SLEEP();
-//            NOP();
-//        }
-//        else if (!event_queue_is_empty())
-//        {
-////            send_data(get_next_event());
-//        }
-//        
-//        SLEEP();
-//        NOP();
     }
 	  
     return (EXIT_SUCCESS);   

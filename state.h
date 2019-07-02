@@ -27,7 +27,9 @@ typedef enum State {
     TEMPER_INT,
     SUPERVISORY,
     ADC,
-    OPERATIONAL
+    OPERATIONAL,
+            
+    OTA_BOOT
 } state_t;
 
 uint8_t 	tamper_status = 1;

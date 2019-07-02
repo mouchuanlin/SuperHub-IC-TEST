@@ -20,6 +20,8 @@ extern "C" {
  ****************************************************/  
 void ADC_init(void);
 void IO_init(void);    
+void set_boot_sel_input();
+void set_boot_sel_output();
     
 /*****************************************************
  * VARIABLES
@@ -47,6 +49,12 @@ void IO_init(void);
 // RA3    
 #define MD_POWER        LATAbits.LATA3
 #define MD_POWER_TRIS   TRISAbits.TRISA3
+
+// RA6 - BOOT_SEL
+#define BOOT_SEL_I      PORTAbits.RA6
+#define BOOT_SEL_O      LATAbits.LATA6
+#define BOOT_SEL_TRIS   TRISAbits.TRISA6
+
 
 ///// PORTC
 // RC1

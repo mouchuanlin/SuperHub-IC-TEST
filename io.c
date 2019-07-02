@@ -23,6 +23,8 @@ void IO_init(void)
     MD_START_TRIS = OUTPUT;
     MD_POWER = 1;   //-----
     MD_POWER_TRIS = OUTPUT;
+    
+    set_boot_sel_input();
 
 //PORTC
     ANSELC = 0x00;    
@@ -75,3 +77,16 @@ void ADC_init(void)
     VREFCON0 = 0b00100000;
 }
 
+void set_boot_sel_input()
+{
+    // BOOT_SEL - RA6
+    BOOT_SEL_I = 1;
+    BOOT_SEL_TRIS = INPUT;
+}
+
+void set_boot_sel_output()
+{
+    // BOOT_SEL - RA6
+    BOOT_SEL_O = 1;
+    BOOT_SEL_TRIS = OUTPUT;
+}

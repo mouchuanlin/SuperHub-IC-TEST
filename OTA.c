@@ -23,12 +23,19 @@ uint8_t wait_connect_respond(uint16_t count)
     CREN1 = 1;
     buffer_p = 0;
     CLRWDT();
+    
+    // BOOT_SEL input from PIC16
+    set_boot_sel_input();
+    
   	do{
         T3CON = 0x71;
         TMR3H = 0x40;   //50ms
         TMR3L = 0;
         TMR3IF = 0;
      	do{
+            if (BOOT_SEL_I == 0)
+                return 'B';
+            
         	if( RC1IF==1)
         	{	   
 		 	 	temp=RC1REG;
@@ -449,6 +456,9 @@ uint8_t check_OTA(void)
                             TL_connection_close();
                             delayseconds(1);
                             TL_internet_close();
+                            
+                            poweroff_modem();
+                            
                             return('K');
                         }                          
                     }

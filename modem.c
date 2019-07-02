@@ -28,6 +28,10 @@ bool modem_config_ok()
 alarm_start:    
 	if (!start_send_alarm())
 		return false;
+
+    // In OTA_BOOT mode, there is no need to do anything else.
+    if (myState == OTA_BOOT)
+        return true;
 	
     //--------- Wait SMS Setting ---------
 	if (!start_sms())
@@ -224,8 +228,17 @@ uint8_t start_send_alarm()
         {
             rsp = check_OTA();
             if( rsp=='E' )
+            {
                 OTA_flag = 2;
-            else OTA_flag = 0;
+                
+                // d. PIC18 strobes BOOT_SEL = 0 for 500us, then BOOT_SEL = 1;
+                set_boot_sel_output();
+                BOOT_SEL_O = 0;
+                __delay_us(500);
+                BOOT_SEL_O = 1;
+                
+                myState = OTA_BOOT;
+            }
         }
     }
     check_led_type();	

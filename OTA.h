@@ -14,8 +14,9 @@
  * FUNCTION PROTOTYPES
  ****************************************************/
 extern void delayseconds(uint16_t secs);
-//extern void delay5ms(uint16_t cnt);
-//extern void TL_connection_close(void);
+extern void poweroff_modem();
+extern void set_boot_sel_input();
+extern void set_boot_sel_output();
 
 /*****************************************************
  * VARIABLES
