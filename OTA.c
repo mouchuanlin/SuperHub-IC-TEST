@@ -12,6 +12,18 @@
 #include "emc_library.h"
 #include "telit.h"
 
+// OTA operation -
+/*
+1. BOOT_SEL line is idle HIGH (1). Your proposed solution could work. So:
+    a. PIC16 gets final data from server (connection still open);
+    b. PIC16 strobes BOOT_SEL = 0 for 500us, then BOOT_SEL = 1;
+    c. PIC18 detects this BOOT_SEL change and closes the port, closes connection, turns off MD_PWR;
+    d. PIC18 strobes BOOT_SEL = 0 for 500us, then BOOT_SEL = 1;
+        [DL] WHY DO WE NEED THIS???
+    e. Then OTA controller takes over and programs the PIC18.
+
+2. PIC18 won't have to do anything after step (d) above.
+ */ 
 
 uint8_t wait_connect_respond(uint16_t count)
 {
@@ -33,6 +45,7 @@ uint8_t wait_connect_respond(uint16_t count)
         TMR3L = 0;
         TMR3IF = 0;
      	do{
+            // b. PIC16 strobes BOOT_SEL = 0 for 500us, then BOOT_SEL = 1;
             if (BOOT_SEL_I == 0)
                 return 'B';
             
@@ -188,9 +201,9 @@ uint8_t OTA_send_data_to_server(void)
     rsp_buffer[tp_cnt++] = VERSION[2];
     rsp_buffer[tp_cnt++] = VERSION[3];
     // CRC
-    tp_cnt = CRC_16(tp_cnt);
+    //tp_cnt = CRC_16(tp_cnt);
     //encryption
-    tp_cnt = encryption_data(tp_cnt);
+    //tp_cnt = encryption_data(tp_cnt);
     
     CREN1 = 0;
     soutdata(&send);
@@ -283,7 +296,7 @@ uint8_t OTA_receive_data_from_server(void)
                             type = 1;
                     }else
                     {
-                        buffer_p = decryption_data(buffer_p,&buffer[0]);
+                        //buffer_p = decryption_data(buffer_p,&buffer[0]);
                         if( buffer[0]=='N'&&buffer[1]=='E'&&buffer[2]=='J'&&buffer[3]==VERSION[0]&&buffer[4]==VERSION[1]&&buffer[5]==VERSION[2]&&buffer[6]==VERSION[3] )
                         {
                             if( buffer[9]==0x0d )
@@ -484,4 +497,16 @@ uint8_t check_OTA(void)
     }while(--cnt!=0);
 
     return('E');
+}
+
+void check_OTA_status()
+{
+//    If it was all received correctly, the OTA controller will just re-program the hub. 
+//    Nothing needs to be implemented in hub code for this.
+//    If it wasn't received correctly, the OTA controller will send the string "OFA" to the hub. 
+//    This signals an OTA failure, at which point the hub needs to check the server again 24 hours later, 
+//    instead of the 15-day (or whatever is programmed) check-in time.    
+    
+    
+    
 }

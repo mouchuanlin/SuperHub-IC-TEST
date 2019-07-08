@@ -13,6 +13,8 @@
 /*****************************************************
  * FUNCTION PROTOTYPES
  ****************************************************/
+void check_OTA_status();
+
 extern void delayseconds(uint16_t secs);
 extern void poweroff_modem();
 extern void set_boot_sel_input();

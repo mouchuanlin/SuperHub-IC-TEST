@@ -13,11 +13,11 @@ void UART_init()
 {
     Enable_Uart_IO();
             
-    UART1_init();
+    UART1_init(115200);
     UART2_init();
 }
 
-void UART1_init()
+void UART1_init(uint16_t baudrate)
 {
     // TxSTAx: TRANSMIT STATUS AND CONTROL REGISTER
     TX1STA = 0x26;       // 0010 0110 - 8-bit, 
@@ -25,9 +25,13 @@ void UART1_init()
     RC1STA = 0x90;       //1001 0000  
     // BAUDCONx: BAUD RATE CONTROL REGISTER
     BAUDCON1 = 0xc8;     //11001000
-    // mlin 
-    SPBRG1 = 16;        // 115200 bps
-//    SPBRG1 = 103;       // 19200 bps
+    
+    // baudrate
+    if (baudrate ==19200)
+        SPBRG1 = 103;       // 19200 bps
+    else
+        SPBRG1 = 16;        // 115200
+
     SPBRGH1 = 0;    
 }
 
@@ -41,9 +45,7 @@ void UART2_init()
     SPBRGH2 = 0;
     WPUB5 = 1;
     RC2IE = 1;
-}
-
-////---------------------------------------------------
+}////---------------------------------------------------
 //void Uart_initial_115200(void)
 //{
 //    // TxSTAx: TRANSMIT STATUS AND CONTROL REGISTER

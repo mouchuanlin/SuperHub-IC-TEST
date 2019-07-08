@@ -43,6 +43,8 @@ extern void check_RF_device();
 extern void add_event(uint8_t event, uint8_t zone);
 extern void calculate_adc_time();
 
+extern void check_OTA_status();
+
 /*****************************************************
  * VARIABLES
  ****************************************************/

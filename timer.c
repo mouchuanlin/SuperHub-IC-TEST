@@ -388,18 +388,20 @@ void process_sms_menu()
 void calculate_adc_time()
 {
     // Use timer0 to calculate.
-    if( ++adc_count >= (18000*0.9888) )       //[3600*10]*100ms=3600sec=1hr            //0.979  -1.56
+    //if( ++adc_count >= (18000*0.9888) )       //[3600*10]*100ms=3600sec=1hr            //0.979  -1.56
     // TODO: FOR TESTING ONLY
-    //if( ++adc_count >= 10 )       //[3600*10]*100ms=3600sec=1hr            //0.979  -1.56
+    if( ++adc_count >= 100 )       //[3600*10]*100ms=3600sec=1hr            //0.979  -1.56
     {            
         chk_supervisory++;    //----add supervisory
         adc_count = 0;   
-        if( ++Respond_T_Hour >= 24 )       // 24 hours
+        if( ++Respond_T_Hour >= 5 )       // 24 hours
         {
             Respond_T_Hour = 0;
             Respond_T_Day++;
             // How often for supervisory message. respond_day is in EEPROM TESTING_FREQ_ADDR address.
-            if( Respond_T_Day >= respond_day )         
+            // TODO: FOR TESTING ONLY
+            respond_day = 0x05;
+             if( Respond_T_Day >= respond_day )         
             {
                 Respond_T_Day = 0;
                 add_event(TEST_CYCLE_S,0);             

@@ -196,7 +196,10 @@ void set_boot_sel_output();
 #define SMOKE_HUB       0
 #define SUPER_HUB       1
 //--------------------
-uint8_t const VERSION[]="1011";
+//uint8_t const VERSION[]="1011";
+// For OTA testing 
+uint8_t const VERSION[]="2040";
+
 //--------------------       
 bit HL_freq = 0;
 //-------------------- 

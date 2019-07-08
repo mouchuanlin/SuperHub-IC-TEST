@@ -94,7 +94,8 @@ extern void     add_event(uint8_t event,uint8_t zone);
     uint8_t const IP2[]="106.104.30.120#";      //02#
     uint8_t const IP3[]="106.104.30.120#";      //03#
     uint8_t const IP4[]="106.104.30.120#";      //04#
-    uint8_t const IP_OTA[]="106.104.30.120#";   //36#
+    // TODO: For testing ONLY.
+    uint8_t const IP_OTA[]="72.197.171.234#";   //36#
     uint16_t const PORT1 = 2020;                //31#   
     uint16_t const PORT2 = 2020;                //32#   
     uint16_t const PORT3 = 2020;                //33#   
@@ -104,12 +105,12 @@ extern void     add_event(uint8_t event,uint8_t zone);
     uint8_t const IP2[]="#";                    //02#
     uint8_t const IP3[]="#";                    //03#
     uint8_t const IP4[]="#";                    //04#
-    uint8_t const IP_OTA[]="#";                 //36#
+    uint8_t const IP_OTA[]="72.197.171.234#";   //36#
     uint16_t const PORT1 = 2020;                //31#   
     uint16_t const PORT2 = 2020;                //32#   
     uint16_t const PORT3 = 2020;                //33#   
     uint16_t const PORT4 = 2020;                //34#   
-    uint16_t const PORT_OTA = 2020;             //37#   
+    uint16_t const PORT_OTA = 2021;             //37#   
 #endif
     uint8_t const ACCESS_CODE[]="1111#";        //05#
     uint8_t const PROGRAM_ACK=0x01;             //06#

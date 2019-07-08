@@ -56,7 +56,7 @@ uint8_t wait_AT_cmd_response()
     do{         
         ///// STEP 1. - change baudrate to 19200 bps in this function.
         //Uart_initial_115200();
-        //UART1_init();
+        UART1_init(115200);
         // mlin - setup modem baud rate
         ///// STEP 2. - +IPR to set modem baudrate to 19200 bps
         soutdata("AT+IPR=115200\r\n$");
@@ -69,7 +69,8 @@ uint8_t wait_AT_cmd_response()
             delayseconds(3);
             ///// STEP 3. - We probably do need this since ???
             //Uart_initial_115200();
-            UART1_init();
+            //UART1_init(19200);
+            UART1_init(115200);
             cnt = check_module_version(1);        
             if( cnt=='K' )
             {
@@ -227,11 +228,12 @@ uint8_t start_send_alarm()
         if( OTA_flag==1 )
         {
             rsp = check_OTA();
-            if( rsp=='E' )
+            if( rsp=='K' )
             {
                 OTA_flag = 2;
                 
                 // d. PIC18 strobes BOOT_SEL = 0 for 500us, then BOOT_SEL = 1;
+                // Tell OTA PIC18 is ready for FW update.
                 set_boot_sel_output();
                 BOOT_SEL_O = 0;
                 __delay_us(500);
@@ -287,8 +289,8 @@ uint8_t start_sms()
                 {
                     ///// STEP 4. - Comment Uart_initial_115200() out. Call Uart_initial() to set to 19200.)
                     //Uart_initial_115200();
-                    UART1_init();
-                    //UART_init(); 
+                    //UART1_init(19200);
+                    UART1_init(115200); 
                     //soutdata("AT+IPR=19200\r\n$");
                     //wait_ok_respond(40);
                     //UART_init();

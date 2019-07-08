@@ -45,7 +45,7 @@ int main(int argc, char** argv)
         // Can't go SLEEP if we need RF communication.
         
         // TODO: Recalculate WDT value 
-        
+        // PIC18 is ready for FW update. Need to know where to check the CRC error from OTA controller.
         if (myState == OTA_BOOT)
             continue;
         
