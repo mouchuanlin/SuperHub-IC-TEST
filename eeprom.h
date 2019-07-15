@@ -14,13 +14,16 @@ extern "C" {
  ****************************************************/
 #include "stdint.h"
 #include "stdbool.h"
+
+#include "led.h"
+    
     
 /*****************************************************
  * FUNCTION PROTOTYPES
  ****************************************************/  
 void    init_eeprom(void);
 void    load_default(void);
-void    check_led_type(void);
+//void    check_led_type(void);
 void    load_device_id_table(void);
 uint8_t check_ID(uint8_t *ptr);
 uint8_t add_ID(uint8_t *ptr);
@@ -33,6 +36,7 @@ void    write_ee(uint8_t, uint8_t, uint8_t );
 extern void     delay5ms(uint16_t);
 extern void     delayseconds(uint16_t secs);    
 extern void     add_event(uint8_t event,uint8_t zone);    
+extern void     check_ip_setting();
     
 /*****************************************************
  * VARIABLES
@@ -130,6 +134,9 @@ extern void     add_event(uint8_t event,uint8_t zone);
 #endif
     uint8_t const ENCRYPTION = 1;               //95#    
 
+    
+    
+extern bool ready_for_sending;    
     
 #ifdef	__cplusplus
 }

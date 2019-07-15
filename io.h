@@ -94,8 +94,8 @@ void set_boot_sel_output();
 #define G_LED               LATBbits.LB3        // Illuminates when RB3 goes low. Use WPU on this pin
 #define G_LED_TRIS          TRISBbits.TRISB3
 
-#define OFF                 1           // for LEDs, current sink
-#define ON                  0    
+//#define OFF                 1           // for LEDs, current sink
+//#define ON                  0    
 //================================================
 //================================================
     
@@ -226,7 +226,6 @@ uint8_t signal_val;
 uint8_t key_p,key[100];
 uint8_t back_door;
 uint8_t respond_day = 0;
-uint8_t LED_flash_type = LED_OFF;
 uint16_t retry_count = 0;
 uint8_t IP_type = 0;
 uint8_t test_enable=0;

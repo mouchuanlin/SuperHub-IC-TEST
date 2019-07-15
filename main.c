@@ -32,11 +32,8 @@ int main(int argc, char** argv)
     // Powerup modem, send AT command to init modem.
     start_modem();
     
-    // Turn off modem before going to infinite loop.
-    LED_flash_type = LED_OFF;
-    //Uart_disable();
-    poweroff_modem();
-    update_led_state(IDLE);
+    // Turn off modem/UART before going to infinite loop.
+    prepare_to_sleep();
 
 	while (1)
 	{          
@@ -59,7 +56,7 @@ int main(int argc, char** argv)
 			SWDTEN = 0;
 			
             // ~200 ms
-			if( ++WDT_count>=3 )
+			if( ++WDT_count >= 3 )
 			{            
 				WDT_count = 0;
 
@@ -104,7 +101,7 @@ void init_system()
 	
     init_global_variables();
     
-    update_led_state(IDLE);
+    update_led_state(OFF);
 }
 
 void int_init()
@@ -197,11 +194,11 @@ void buzzer_on(uint8_t count)
     }
 }
 
-void __interrupt isr()
-{
-	// UART1 ISR - modem
+void __interrupt (high_priority) high_isr()
+{	
+    // UART1 ISR - modem
     UART1_ISR();
-	
+    
 	//UART2 ISR - RF receiver
     UART2_ISR();
 	
@@ -213,33 +210,33 @@ void __interrupt isr()
 	
      // button press
     // TODO: Super hub use INT1 while smoke hub use IO. Will need to check for smoke hub.
-	/*
-    if (INT1IF)
-    {                   
-        // Time out after 2s without edge detection; reset button 
-        INT1IF = 0;
-        INTCONbits.RBIF = 0;
-        PIE2bits.TMR3IE = 1;
-        T3CONbits.TMR3ON = 1;
-		
-        if (inButtonMenu && (buttonPressCount == 0))
-            reload_timer3_5s();
-		else if (buttonPressCount == 0)
-			reload_timer3_2s();
-        
-        buttonPressCount++;                // press count if it times out.
-		
-        if (!inButtonMenu && (buttonPressCount == 5))
-        {
-            reload_timer3_5s();
-            buttonPressCount = 0;
-            inButtonMenu = true;
-            update_led_state(BUTTON_MENU);
-        }
-		
-		
-		//test_count++;
-    } */
+	
+//    if (INT1IF)
+//    {                   
+//        // Time out after 2s without edge detection; reset button 
+//        INT1IF = 0;
+//        INTCONbits.RBIF = 0;
+//        PIE2bits.TMR3IE = 1;
+//        T3CONbits.TMR3ON = 1;
+//		
+//        if (inButtonMenu && (buttonPressCount == 0))
+//            reload_timer3_5s();
+//		else if (buttonPressCount == 0)
+//			reload_timer3_2s();
+//        
+//        buttonPressCount++;                // press count if it times out.
+//		
+//        if (!inButtonMenu && (buttonPressCount == 5))
+//        {
+//            reload_timer3_5s();
+//            buttonPressCount = 0;
+//            inButtonMenu = true;
+//            update_led_state(BUTTON_MENU);
+//        }
+//		
+//		
+//		//test_count++;
+//    } 
     
     
 //        if( INT1IF==1 )     //Learning
@@ -258,6 +255,11 @@ void __interrupt isr()
         
     // timer3 interrupt
 	//TMR3_ISR(); 
+}
+
+void __interrupt(low_priority) low_isr(void)
+{
+
 }
 
 void smokehub_ISR()
@@ -397,7 +399,7 @@ void sms_menu()
         // learn_btn 5-3 - deleting device ID
         case 3:
             learning_mode = KEY_DEL_ID;     
-            update_led_state(SENSOR_DELETE);	
+            update_led_state(SENSOR_DEL);	
 			myState = DEL_SENSOR;				
             break;
             
@@ -415,5 +417,12 @@ void sms_menu()
             myState = LISTEN_SMS;	
             break;   
     }
+}
+
+void prepare_to_sleep()
+{
+    disable_UART();
+    poweroff_modem();
+    update_led_state(OFF);
 }
 

@@ -25,7 +25,7 @@ void control_leds()
 
     switch (led_state)
     {
-        case IDLE:
+        case LED_OFF:
             G_OFF();
             B_OFF();
             gled_tmr0_tick = 0;
@@ -167,7 +167,7 @@ void control_leds()
             }
             break;
             
-        case SENSOR_DELETE:		// SAME 5-2 different lesd
+        case SENSOR_DEL:		// SAME 5-2 different lesd
             B_ON();
             bled_tmr0_tick = 0;
             switch (gled_tmr0_tick)
@@ -203,202 +203,6 @@ void control_leds()
             break;
             
         case RF_INTR:        // Hold here for as long as you want within state machine
-            G_ON();
-            B_OFF();
-            gled_tmr0_tick = 0;
-            bled_tmr0_tick = 0;
-            break;
-    }  
-}
-
-
-void control_leds_gainwise()
-{
-    // TODO: timer0 is setup to 100 ms per tick. Will need to re-verify the code.
-    // 	each tick 100 ms = 0.1 second
-    gled_tmr0_tick++;
-    bled_tmr0_tick++;
-
-    switch (LED_flash_type)
-    {
-        case LED_OFF:
-            G_OFF();
-            B_OFF();
-            gled_tmr0_tick = 0;
-            bled_tmr0_tick = 0;
-            break;
-            
-//        case POWER_ON:			// Green ON 0.5 sec/OFF 1.5 sec
-//            B_OFF();
-//            bled_tmr0_tick = 0;
-//            switch (gled_tmr0_tick)
-//            {
-//                case 1:
-//                    G_ON();
-//                    break;
-//                case 6:
-//                    G_OFF();
-//                    break;
-//                case 16:
-//                    gled_tmr0_tick = 0;
-//                    break;
-//            }
-//            break;
-            
-        case LED_STANDBY:			// LISTEN_SMS Blue LED turns ON_0.5s / OFF_1.5s
-            G_OFF();
-            gled_tmr0_tick = 0;
-            switch (bled_tmr0_tick)
-            {
-                case 1:
-                    B_ON();
-                    break;
-                case 6:		
-                    B_OFF();
-                    break;
-                case 21:	
-                    bled_tmr0_tick = 0;
-                    break;
-            }
-            break;
-            
-        case LED_INTERNET:               // B ON 0.1 sec/OFF 0.1 sec
-            G_OFF();
-            gled_tmr0_tick = 0;
-            switch (bled_tmr0_tick)
-            {
-                case 1:
-                    B_ON();
-                    break;
-                case 2:		
-                    B_OFF();
-                    break;
-                case 3:		//5
-                    bled_tmr0_tick = 0;
-                    break;
-            }
-            break;
-            
-        case LED_REGISTER:
-            G_ON();
-            B_ON();
-            gled_tmr0_tick = 0;
-            bled_tmr0_tick = 0;
-            break;
-            
-        case LED_NO_SET:       // Both LEDs blink oppositely (0.5s)
-            switch(gled_tmr0_tick)
-            {
-                case 1:
-                    G_ON();
-                    B_OFF();
-                    break;
-                case 6:		
-                    G_OFF();
-                    B_ON();
-                    break;
-                case 11:	
-                    gled_tmr0_tick = 0;
-                    bled_tmr0_tick = 0;
-                    break;
-            }
-            break;
-        // ???? B ON B OFF B ON B OFF, G ON, G OFF    
-        case LED_NET_ERR:                  // Blue-blue-green-green cross-flash (0.1s)
-            switch(gled_tmr0_tick)
-            {		
-                case 1:
-                    G_OFF();
-                    B_ON();
-                    break;
-                case 2:		
-                    G_OFF();
-                    B_OFF();
-                    break;
-                case 3:		
-                    G_OFF();
-                    B_ON();
-                    break;
-                case 4:		
-                    G_OFF();
-                    B_OFF();
-                    break;                    
-                case 5:
-                    G_ON();
-                    B_OFF();
-                    break;
-                case 6:		
-                    G_OFF();
-                    B_OFF();
-                    break;
-                case 7:		
-                    G_ON();
-                    B_OFF();
-                    break;
-                case 8:		
-                    G_OFF();
-                    B_OFF();
-                    break;  
-                    gled_tmr0_tick = 0;
-                    bled_tmr0_tick = 0;
-                    break;
-            }
-            break;
-            
-        // // BTN 5-2 - G ON, B ON O.5s/OFF 2s
-        case LED_RF_ADD:		
-            G_ON();
-            gled_tmr0_tick = 0;
-            switch (bled_tmr0_tick)
-            {
-                case 1:
-                    B_ON();
-                    break;
-                case 6:		
-                    B_OFF();
-                    break;
-                case 26:	
-                    bled_tmr0_tick = 0;
-                    break;
-            }
-            break;
-            
-        case LED_RF_DEL:		// SAME 5-2 different lesd
-            B_ON();
-            bled_tmr0_tick = 0;
-            switch (gled_tmr0_tick)
-            {
-                case 1:
-                    G_ON();
-                    break;
-                case 6:		
-                    G_OFF();
-                    break;
-                case 26:		
-                    gled_tmr0_tick = 0;
-                    break;
-            }
-            break;
-            
-        case MD_POWER_LOSS:            // Both LEDs ON_0.3s / OFF_4.7s
-            switch (gled_tmr0_tick)
-            {
-                case 1:
-                    G_ON();
-                    B_ON();
-                    break;
-                case 4:		
-                    G_OFF();
-                    B_OFF();
-                    break;
-                case 50:
-                    gled_tmr0_tick = 0;
-                    bled_tmr0_tick = 0;
-                    break;
-            }
-            break;
-            
-        case RF_INT:        // Hold here for as long as you want within state machine
             G_ON();
             B_OFF();
             gled_tmr0_tick = 0;

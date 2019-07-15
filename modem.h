@@ -52,6 +52,8 @@ extern uint8_t  check_emc_stack(void);
 extern void     check_state();
 extern uint8_t  check_OTA(void);
 
+extern void     check_nework();
+
 /*****************************************************
  * VARIABLES
  ****************************************************/

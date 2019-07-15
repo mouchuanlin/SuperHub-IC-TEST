@@ -11,9 +11,10 @@
 
 void UART_init()
 {
-    Enable_Uart_IO();
+    enable_UART();
             
     UART1_init(115200);
+    //UART1_init(19200);
     UART2_init();
 }
 
@@ -61,7 +62,7 @@ void UART2_init()
 //}
 
 //---------------------------------------------------
-void Uart_disable(void)
+void disable_UART(void)
 {
     RC1STA = 0x00;       //10010000
     MD_RX = 0;
@@ -79,7 +80,7 @@ void Uart_disable(void)
 }
 
 //---------------------------------------------------
-void Enable_Uart_IO(void)
+void enable_UART(void)
 {
     MD_RX = 1;
     MD_RX_TRIS = OUTPUT;

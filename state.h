@@ -59,8 +59,6 @@ void 	process_supervisory();
 uint8_t check_supervisory();
 void check_alarm_tamper();
 
-
-extern void control_leds();
 extern void process_event_queue();
 extern void delayseconds(uint16_t secs);
 
@@ -72,8 +70,6 @@ extern void add_event(uint8_t event,uint8_t zone);
 
 extern void UART2_init();
 extern void control_leds();
-extern void control_leds_gainwise();
-
 extern void check_RF_device();
 
 

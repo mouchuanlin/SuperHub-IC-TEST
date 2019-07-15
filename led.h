@@ -14,7 +14,7 @@
  * FUNCTION PROTOTYPES
  ****************************************************/
 typedef enum LED_STATES {
-    IDLE,           		// LEDs off
+    OFF,           		// LEDs off
     POWERON,       			// "Power ON"; green LED blinking, waiting for modem
     STANDBY,        		// learn_btn 5-1 	Blue LED blinking; used in SMS listen mode (APN set)
     SENDING,        		// learn_btn 5-4	Blue LED blinks 0.1s on/off
@@ -23,15 +23,13 @@ typedef enum LED_STATES {
     SEND_ERR,       		// Blue blinks on 0.1s then while blue off,
 							// green blinks 2x 0.1s on/off
     SENSOR_ADD,     		// learn_btn 5-2	Green on solid, blue blinking
-    SENSOR_DELETE,  		// learn_btn 5-3	Blue on solid, green blinking
+    SENSOR_DEL,  		// learn_btn 5-3	Blue on solid, green blinking
     LINE_FAULT,     		// Both LEDs blink 0.3s ON/4.7s OFF
     RF_INTR          		// Green on solid for 10s (or maybe less)
 } led_states_t;
 
 void update_led_state(led_states_t new_state);
 void control_leds();
-
-void control_leds_gainwise();
 
 // Global variables - defined in main.c
 extern uint8_t 		gled_tmr0_tick, bled_tmr0_tick;

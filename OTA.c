@@ -60,10 +60,13 @@ uint8_t wait_connect_respond(uint16_t count)
                     buffer_p = 19;
                 if( temp==0x0a )
                 {
+                    // CONNECT
                     if( buffer[0]=='C'&&buffer[1]=='O'&&buffer[2]=='N'&&buffer[3]=='N'&&buffer[4]=='E'&&buffer[5]=='C'&&buffer[6]=='T' )
                         temp = 'C';
+                    // NO CARRIER
                     else if( buffer[0]=='N'&&buffer[1]=='O'&&buffer[2]==' '&&buffer[3]=='C'&&buffer[4]=='A'&&buffer[5]=='R'&&buffer[6]=='R' )
                         temp = 'E';  
+                    // ERROR
                     else if( buffer[0]=='E'&&buffer[1]=='R'&&buffer[2]=='R'&&buffer[3]=='O'&&buffer[4]=='R' )
                         temp = 'E';  
                     if(temp=='C'||temp=='E')
@@ -75,11 +78,18 @@ uint8_t wait_connect_respond(uint16_t count)
                     }
                     buffer_p = 0;
                 }
-                if( bad[0]=='B'&&bad[1]=='A'&&bad[2]=='D' )
+                // BAD
+//                If it was all received correctly, the OTA controller will just re-program the hub. 
+//                Nothing needs to be implemented in hub code for this.
+//                If it wasn't received correctly, the OTA controller will send the string "OFA" to the hub. 
+//                This signals an OTA failure, at which point the hub needs to check the server again 24 hours later, 
+//                instead of the 15-day (or whatever is programmed) check-in time.
+                //if( bad[0]=='B'&&bad[1]=='A'&&bad[2]=='D' )
+                if( bad[0]=='O'&&bad[1]=='F'&&bad[2]=='A' )
                 {
                     RC1IE = 1;
                     CREN1 = 0;
-                    return('B');	
+                    return('F');	
                 }
         	}
             if( OERR1==1 )
@@ -458,7 +468,7 @@ uint8_t check_OTA(void)
                         out_sbuf('R');
                         out_sbuf('F');
                         out_sbuf('Q');
-                        rsp = wait_connect_respond(6000);
+                        rsp = wait_connect_respond(10000);
                         // ESC
                         out_sbuf('+');
                         out_sbuf('+');
@@ -473,7 +483,14 @@ uint8_t check_OTA(void)
                             poweroff_modem();
                             
                             return('K');
-                        }                          
+                        }     
+                        else
+                        {
+                            TL_connection_close();
+                            delayseconds(1);
+                            TL_internet_close();
+                            return 'F';
+                        }
                     }
                 }else if( rsp=='K' )
                 {

@@ -94,7 +94,7 @@ uint8_t check_sms(void)
 						//if( temp=='W' )
 						//	reset_system();
                         load_default();
-                        check_led_type();
+                        check_ip_setting();
 						return 1;
 					}
                     count = 100;

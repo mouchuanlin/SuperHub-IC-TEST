@@ -476,7 +476,10 @@ send_start:
                             #endif
                         }while(--count!=0&&rsp=='E');
                     }
-                }else LED_flash_type = LED_NET_ERR;
+                }else 
+                {
+                    update_led_state(SEND_ERR);
+                }
                 delay5ms(100);
                 TL_connection_close();
                 delay5ms(200);

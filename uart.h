@@ -16,8 +16,8 @@
  ****************************************************/
 void UART1_init(uint16_t baudrate);
 void UART2_init();
-void Enable_Uart_IO();
-void Uart_disable();
+void enable_UART();
+void disable_UART();
 void UART_init();
 
 void UART1_ISR();

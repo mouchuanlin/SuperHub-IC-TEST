@@ -234,6 +234,7 @@ uint8_t TL_send_data_to_server(void)
     CREN1 = 0;
     soutdata(&send);
     cnt = tp_cnt;
+    // Convert to ASCII - 0x30 is 0
     out_sbuf((cnt/100)+0x30);
     cnt %= 100;
     out_sbuf((cnt/10)+0x30);

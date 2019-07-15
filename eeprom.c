@@ -153,16 +153,16 @@ void write_EE_setting(uint8_t page, uint8_t addr, uint8_t const setting[])
 }
 
 // Check if the APN & IP1 has been set. In this case, will try to send data.
-void check_led_type(void)
+void check_ip_setting()
 {
     if((read_ee(EE_PAGE0, APN_ADDR)=='#') || (read_ee(EE_PAGE0, IP1_ADDR)=='#'))    
     {
-        LED_flash_type = LED_NO_SET;
+        ready_for_sending = false;
         IP_type = 0;
     }
     else
     {
-        LED_flash_type = LED_STANDBY;
+        ready_for_sending = true;
         IP_type = 1;
     }
 }

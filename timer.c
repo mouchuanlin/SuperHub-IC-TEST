@@ -19,8 +19,7 @@ void TMR0_ISR()
         TMR0IF = 0;
         reload_timer0();
         control_leds();
-        //control_leds_gainwise();
-		
+	
 		// Process learn button push events.
 		check_button();
         
@@ -34,7 +33,7 @@ void TMR0_ISR()
             }
         }
         
-        // Dont' go SLEEP for 10 seconds for RF communication.
+        // Don't go SLEEP for 10 seconds for RF communication.
         if( RF_wait_count!=0 )            
             --RF_wait_count;
         
@@ -164,9 +163,6 @@ void handle_smoke_hub()
 		} 
     }             
 }
-
-
-
 
 void delay5ms(uint16_t cnt)
 {
@@ -345,7 +341,7 @@ void process_sms_menu()
             //PREV_STATE = STATE;
             myState = ADD_SENSOR;
             //start_sensor_tmr();
-            update_led_state(SENSOR_ADD);
+            update_led_state(ADD_SENSOR);
         }
         // learn_btn 5-3 - deleting device ID
         else if (buttonPressCount == 3)
@@ -355,7 +351,7 @@ void process_sms_menu()
             //PREV_STATE = STATE;
             myState = DEL_SENSOR;
             //start_sensor_tmr();
-            update_led_state(SENSOR_DELETE);
+            update_led_state(DEL_SENSOR);
         }
         // learn_btn 5-4 - sending test alarm              
         else if (buttonPressCount == 4)
@@ -370,7 +366,7 @@ void process_sms_menu()
         {
             inButtonMenu = (bool)(~inButtonMenu);       // toggle menu on/off
             tmr3_cnt = 0;
-            myState = IDLE;
+            myState = OFF;
         }   
 
         buttonPressCount = 0;       // clear button presses once we extract next state info
@@ -388,19 +384,19 @@ void process_sms_menu()
 void calculate_adc_time()
 {
     // Use timer0 to calculate.
-    //if( ++adc_count >= (18000*0.9888) )       //[3600*10]*100ms=3600sec=1hr            //0.979  -1.56
+    if( ++adc_count >= (18000*0.9888) )       //[3600*10]*100ms=3600sec=1hr            //0.979  -1.56
     // TODO: FOR TESTING ONLY
-    if( ++adc_count >= 100 )       //[3600*10]*100ms=3600sec=1hr            //0.979  -1.56
+    //if( ++adc_count >= 300 )       //[3600*10]*100ms=3600sec=1hr            //0.979  -1.56
     {            
         chk_supervisory++;    //----add supervisory
         adc_count = 0;   
-        if( ++Respond_T_Hour >= 5 )       // 24 hours
+        if( ++Respond_T_Hour >= 24 )       // 24 hours
         {
             Respond_T_Hour = 0;
             Respond_T_Day++;
             // How often for supervisory message. respond_day is in EEPROM TESTING_FREQ_ADDR address.
             // TODO: FOR TESTING ONLY
-            respond_day = 0x05;
+            //respond_day = 0x05;
              if( Respond_T_Day >= respond_day )         
             {
                 Respond_T_Day = 0;

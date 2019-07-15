@@ -57,6 +57,7 @@ uint8_t wait_AT_cmd_response()
         ///// STEP 1. - change baudrate to 19200 bps in this function.
         //Uart_initial_115200();
         UART1_init(115200);
+        //UART1_init(19200);
         // mlin - setup modem baud rate
         ///// STEP 2. - +IPR to set modem baudrate to 19200 bps
         soutdata("AT+IPR=115200\r\n$");
@@ -195,7 +196,7 @@ uint8_t check_network_registration()
     delay5ms(100);
     // mlin - AT+CSQ doesn't seems get response???
     rsp = check_csq();
-    check_led_type();
+    check_ip_setting();
     // mlin - why "AT\\Q0\r\n$"
     soutdata("AT\\Q0\r\n$");
     
@@ -210,9 +211,10 @@ uint8_t start_send_alarm()
 {
 	uint8_t cnt,rsp,temp;
 	
-    if( LED_flash_type==LED_STANDBY )
+    if (ready_for_sending)
     {
-        LED_flash_type = LED_INTERNET;
+        //LED_flash_type = LED_INTERNET;
+        //update_led_state(SENDING);
         rsp = check_emc_stack();
         if( rsp=='U' )
         {
@@ -228,7 +230,13 @@ uint8_t start_send_alarm()
         if( OTA_flag==1 )
         {
             rsp = check_OTA();
-            if( rsp=='K' )
+            if( rsp=='F' )
+            {
+                // Setup for next OTA in 24 hours
+                respond_day = 1;
+            }
+            //if( rsp=='K' )
+            else
             {
                 OTA_flag = 2;
                 
@@ -240,10 +248,11 @@ uint8_t start_send_alarm()
                 BOOT_SEL_O = 1;
                 
                 myState = OTA_BOOT;
+                respond_day = read_ee(EE_PAGE0, TESTING_FREQ_ADDR);
             }
         }
     }
-    check_led_type();	
+    check_ip_setting();	
 	
 	return true;
 }
@@ -351,6 +360,7 @@ void start_modem()
         
     update_led_state(POWERON);
        
+    enable_UART();    
     powerup_modem();
     
     while (!modem_config_ok())
@@ -360,7 +370,7 @@ void start_modem()
     //MD_POWER = POWER_OFF;
     
     myState = SLEEP;
-    update_led_state(IDLE);
+    update_led_state(OFF);
     //md_started = true;
 }
 

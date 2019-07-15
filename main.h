@@ -26,6 +26,7 @@ void 	buzzer_on(uint8_t count);
 void    smokehub_ISR();
 void    superhub_ISR();
 void    sms_menu();
+void    prepare_to_sleep();
 
 extern void start_modem();
 extern void restart_modem();
@@ -38,7 +39,7 @@ extern void UART1_ISR();
 extern void UART2_ISR();
 extern void start_timer0();
 extern void TMR0_ISR();
-extern void Uart_disable(void);
+extern void disable_UART(void);
 extern void check_RF_device();
 extern void add_event(uint8_t event, uint8_t zone);
 extern void calculate_adc_time();
@@ -86,7 +87,7 @@ bool        readyForSleep = false;
 
 // LED
 uint8_t         gled_tmr0_tick = 0, bled_tmr0_tick = 0;
-led_states_t    led_state = IDLE;
+led_states_t    led_state = OFF;
 uint8_t         hub_type = 0;
 
 // button press
@@ -98,6 +99,10 @@ bit         listen_sms_state = 0;
 uint16_t 	exit_learn = 0;
 
 
-bit     ADC_time = 0;
+bit         ADC_time = 0;
+
+
+//
+bool        ready_for_sending = false;
 
 #endif	/* MAIN_H */
