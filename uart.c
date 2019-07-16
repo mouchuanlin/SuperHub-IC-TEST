@@ -46,7 +46,9 @@ void UART2_init()
     SPBRGH2 = 0;
     WPUB5 = 1;
     RC2IE = 1;
-}////---------------------------------------------------
+}
+
+////---------------------------------------------------
 //void Uart_initial_115200(void)
 //{
 //    // TxSTAx: TRANSMIT STATUS AND CONTROL REGISTER
@@ -77,6 +79,16 @@ void disable_UART(void)
    // WIFI_TX = 0;
    // WIFI_TX_TRIS = OUTPUT;
     RC2IE = 0;
+}
+
+void disable_UART1()
+{
+    RC1STA = 0x00;       //10010000
+    MD_RX = 0;
+    MD_RX_TRIS = OUTPUT;
+    MD_TX = 1;
+    MD_TX_TRIS = INPUT;
+    RC1IE = 0;
 }
 
 //---------------------------------------------------
@@ -149,15 +161,20 @@ void UART2_ISR()
                    }
                     out_sbuf2(0x0d);//
                     out_sbuf2(0x0a);//*/
-                if( rx2_buf[0]=='$'&&rx2_buf[5]=='\r'&&rx2_buf[6]=='\n' )     //rf data in  $+3byte serial+1byte status+<CR>+<LF>                    
+                
+                //RF data in HEX - $+3byte serial+1byte status+<CR>+<LF>
+                if( rx2_buf[0]=='$'&&rx2_buf[5]=='\r'&&rx2_buf[6]=='\n' )                    
                 {                
                //    out_sbuf2('a');/////
                //     out_sbuf2('t');//////
                //    out_sbuf2('-');//////
                     led_count = 10;
                     LED_RX_IN = 0;  // green ON - active LOW
-                    rx2_cnt = 1;
+                    
+                    // Decode 3 byte serial
+                    rx2_cnt = 1;                                             
                     do{
+                        // Convert to ASCII
                         temp = (rx2_buf[rx2_cnt]>>4)&0x0f;
                         if( temp>=10 )
                         {
@@ -282,9 +299,9 @@ void UART2_ISR()
                         out_sbuf2(0x0d);
                         out_sbuf2(0x0a);*/
                     }    
-                    //send respond
-                    for( rx2_cnt=0;rx2_cnt<7;rx2_cnt++)
-                        out_sbuf2(rx2_buf[rx2_cnt]);
+                    //send response
+                    for( uint8_t i=0;i<7;i++)
+                        out_sbuf2(rx2_buf[i]);
                     //------------
                 }
                 rx2_cnt = 0;

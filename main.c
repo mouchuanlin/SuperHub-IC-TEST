@@ -421,7 +421,7 @@ void sms_menu()
 
 void prepare_to_sleep()
 {
-    disable_UART();
+    //disable_UART1();
     poweroff_modem();
     update_led_state(OFF);
 }

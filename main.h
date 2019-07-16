@@ -40,6 +40,7 @@ extern void UART2_ISR();
 extern void start_timer0();
 extern void TMR0_ISR();
 extern void disable_UART(void);
+extern  void disable_UART1();
 extern void check_RF_device();
 extern void add_event(uint8_t event, uint8_t zone);
 extern void calculate_adc_time();
