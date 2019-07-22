@@ -68,8 +68,8 @@ void set_boot_sel_output();
 //================================================
 ///// LED
 // RC4 - LED1 - PCB marking, or LED3 - panel
-#define LED_B           LATCbits.LATC4
-#define LED_B_TRIS      TRISCbits.TRISC4
+#define LED_R           LATCbits.LATC4
+#define LED_R_TRIS      TRISCbits.TRISC4
 // RB3    
 #define LED_G           LATBbits.LATB3
 #define LED_G_TRIS      TRISBbits.TRISB3
@@ -88,8 +88,8 @@ void set_boot_sel_output();
 
 //=================================================    
 //PORTC
-#define B_LED               LATCbits.LC4        // Illuminates when RC4 goes low. Use WPU on this pin
-#define B_LED_TRIS          TRISCbits.TRISC4
+#define R_LED               LATCbits.LC4        // Illuminates when RC4 goes low. Use WPU on this pin
+#define R_LED_TRIS          TRISCbits.TRISC4
 //PORTB
 #define G_LED               LATBbits.LB3        // Illuminates when RB3 goes low. Use WPU on this pin
 #define G_LED_TRIS          TRISBbits.TRISB3

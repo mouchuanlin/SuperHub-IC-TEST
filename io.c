@@ -32,8 +32,8 @@ void IO_init(void)
     SPK_TRIS = OUTPUT;    
     VER_SELECT = 1;
     VER_SELECT_TRIS = INPUT; 
-    LED_B = 1;
-    LED_B_TRIS = OUTPUT;
+    LED_R = 1;
+    LED_R_TRIS = OUTPUT;
     LED_RX_OUT = 1;      
     LED_RX_OUT_TRIS = OUTPUT;            
     LED_G = 1;      

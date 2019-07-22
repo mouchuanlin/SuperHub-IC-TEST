@@ -52,8 +52,8 @@ extern led_states_t led_state;
 
 #define G_ON()              G_LED=0
 #define G_OFF()             G_LED=1
-#define B_ON()              B_LED=0
-#define B_OFF()             B_LED=1
+#define R_ON()              R_LED=0
+#define R_OFF()             R_LED=1
 
 #endif	/* LED_H */
 
