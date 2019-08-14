@@ -239,6 +239,7 @@ void start_timer0()
 	// (1/8M)*4*256*781=99.9968ms
     TMR0L = ((65535-_100milliseconds)%256);//for 8MHz
     TMR0H = ((65535-_100milliseconds)/256);
+
     TMR0IF = 0;
     TMR0IE = 1;
     INTCONbits.GIE = 1;
@@ -283,8 +284,8 @@ void reload_timer3_2s()
 //    TMR3H = 0x30;
 //    TMR3L = 0;
     
-    TMR0L = ((65535-_2seconds)%256);//for 8MHz
-    TMR0H = ((65535-_2seconds)/256);
+    TMR3L = ((65535-_2seconds)%256);//for 8MHz
+    TMR3H = ((65535-_2seconds)/256);
     
     TMR3IF = 0;
     TMR3IE = 1;
@@ -295,15 +296,23 @@ void reload_timer3_5s()
 //    TMR3H = 0x78;
 //    TMR3L = 0;'
 	//disable_tmr3();
-    TMR0L = ((65535-_5seconds)%256);//for 8MHz
-    TMR0H = ((65535-_5seconds)/256);
+    TMR3L = ((65535-_5seconds)%256);//for 8MHz
+    TMR3H = ((65535-_5seconds)/256);
 	//enable_tmr3();
 }
 
 void reload_timer3_100ms()
 {
-    TMR0L = ((65535-_100milliseconds)%256);//for 8MHz
-    TMR0H = ((65535-_100milliseconds)/256);	
+    T3CON = 0x87;
+    TMR3L = ((65535-_100milliseconds)%256);//for 8MHz
+    TMR3H = ((65535-_100milliseconds)/256);	
+}
+
+void reload_timer3_50ms()
+{
+    T3CON = 0x71;
+    TMR3H = 0x40;   //50ms
+    TMR3L = 0;    
 }
 
 void exit_learning_mode()
@@ -391,13 +400,15 @@ void calculate_adc_time()
         chk_supervisory++;    //----add supervisory
         adc_count = 0;   
         if( ++Respond_T_Hour >= 24 )       // 24 hours
+        //if( ++Respond_T_Hour >= 2 )       // 24 hours
         {
             Respond_T_Hour = 0;
             Respond_T_Day++;
             // How often for supervisory message. respond_day is in EEPROM TESTING_FREQ_ADDR address.
             // TODO: FOR TESTING ONLY
             //respond_day = 0x05;
-             if( Respond_T_Day >= respond_day )         
+            if( Respond_T_Day >= respond_day )   
+            //if( Respond_T_Day >= 0x02 )  
             {
                 Respond_T_Day = 0;
                 add_event(TEST_CYCLE_S,0);             

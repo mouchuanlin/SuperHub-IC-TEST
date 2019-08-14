@@ -47,16 +47,21 @@ uint8_t TL_internet_init(void)
 
     CREN1 = 0;
     delay5ms(100);
+    // AT#SCFG=1,3,300,90,200,50
 	soutdata(scfg);
 	delay5ms(100);
+    // AT+CGATT=1
 	soutdata(cgatt);
 //	if( wait_ok_respond(200)=='N' )
 		wait_ok_respond(200);
     CREN1 = 0;
    	delay5ms(100);
+    
+    // AT+CGDCONT=3,"IP","c2.korem2m.com"
 	soutdata(cgdcont);
 	cnt = 0x10;
 	do{
+        // APN - 35# - "c2.korem2m.com"
 		temp = read_ee(0x00,cnt);
 		if( temp!='#' )
 			out_sbuf(temp);
@@ -70,6 +75,7 @@ uint8_t TL_internet_init(void)
    	delay5ms(100);
     
     CREN1 = 0;
+    // AT#SGACT=3,1
 	soutdata(&sgact);
 	count = 0;
     buffer_p = 0;
@@ -88,6 +94,7 @@ uint8_t TL_internet_init(void)
 					buffer_p = 31;			
 		  		if( temp==0x0a )	//Network opened
 				{
+                    // #SGACT: 10.133.224.83
 					if( buffer[0]=='#'&&buffer[1]=='S'&&buffer[2]=='G'&&buffer[3]=='A'&&buffer[4]=='C'&&buffer[5]=='T'&&buffer[6]==':' )
                     {
                         TMR3ON = 0;
@@ -117,28 +124,31 @@ uint8_t TL_connection_open(uint8_t type)
     uint8_t buffer_p,buffer[32];
 	uint8_t cnt,temp;
 	uint16_t port;
-    if( type==0x01 )
-        temp = read_ee(0x00,0x30);
-    else if( type==0x02 )
-        temp = read_ee(0x00,0x50);
-    else if( type==0x03 )
-        temp = read_ee(0x00,0x70);
-    else temp = read_ee(0x00,0x90);
+    
+    // Get IP1/2/3/4 depends on type value.
+    get_ip_addr(type);
+    
     if( temp=='#' )
         return('E');
     CREN1 = 0;
+    // AT#SD=1,0,2021,"72.197.171.234",0,0,1
 	soutdata(&netconnect);
+    
     //------ port ------
+    // Get 2 bytes of port number
     if( type==0x01 )
 		cnt = 0xB0;
 	else if( type==0x02 )
 		cnt = 0xB2;
 	else if( type==0x03 )
 		cnt = 0xB4;
-	else cnt = 0xB6;
+	else 
+        cnt = 0xB6;
 
 	port = read_ee(0,cnt)<<8;
 	port += read_ee(0,cnt+1);
+    
+
 	cnt = 0;
 	temp = port/10000;
 	if( temp!=0 )
@@ -171,6 +181,7 @@ uint8_t TL_connection_open(uint8_t type)
 	out_sbuf( temp+0x30 );
     out_sbuf(',');
     out_sbuf('"');
+    
     //------ IP ------    
     if( type==0x01 )
 		cnt = 0x30;
@@ -338,4 +349,20 @@ uint8_t TL_receive_data_from_server(void)
     TMR3IF = 0;
   	TMR3ON = 0;
     return('E');
+}
+
+uint8_t get_ip_addr(uint8_t type)
+{
+    uint8_t temp;
+    
+    if( type==0x01 )
+        temp = read_ee(EE_PAGE0, IP1_ADDR);
+    else if( type==0x02 )
+        temp = read_ee(EE_PAGE0, IP2_ADDR);
+    else if( type==0x03 )
+        temp = read_ee(EE_PAGE0, IP3_ADDR);
+    else 
+        temp = read_ee(EE_PAGE0, IP4_ADDR);    
+    
+    return temp;
 }

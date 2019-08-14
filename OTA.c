@@ -60,9 +60,14 @@ uint8_t wait_connect_respond(uint16_t count)
                     buffer_p = 19;
                 if( temp==0x0a )
                 {
+                    // TODO: the hand-shaking diagram doesn't CONNECT but for now the server send CONNECT and RED.
                     // CONNECT
                     if( buffer[0]=='C'&&buffer[1]=='O'&&buffer[2]=='N'&&buffer[3]=='N'&&buffer[4]=='E'&&buffer[5]=='C'&&buffer[6]=='T' )
                         temp = 'C';
+                    
+                    // RED
+                    if ( buffer[0]=='R'&&buffer[1]=='E'&&buffer[2]=='D' )
+                            temp = 'C';
                     // NO CARRIER
                     else if( buffer[0]=='N'&&buffer[1]=='O'&&buffer[2]==' '&&buffer[3]=='C'&&buffer[4]=='A'&&buffer[5]=='R'&&buffer[6]=='R' )
                         temp = 'E';  
@@ -320,6 +325,13 @@ uint8_t OTA_receive_data_from_server(void)
                     buffer_p = 0;
 			 	}
         	}
+            // Receive Overrun Error - clearing the CREN bit to clear the error.
+            if (OERR1 == 1)
+            {
+                CREN1 = 0;
+                NOP();
+                CREN1 = 1;
+            }
      	}while(TMR3IF==0);
         CLRWDT();
         TMR3IF = 0;
@@ -340,17 +352,20 @@ uint8_t OTA_connection_open(uint8_t type)   //0: command mode 1:online mode
 	uint8_t cnt,temp;
 	uint16_t port;
     uint8_t ip_sel,page,addr;
-    // LINE_CARD_ADDR
-    temp = read_ee(0x01,0xd0);
+    
+    // IP_OTA_ADDR
+    //temp = read_ee(0x01,0xd0);
+    temp = get_ota_ip_addr();
     if( temp=='#')
     {
         // IP1_ADDR
-        temp = read_ee(0x00,0x30);        
+        temp = get_ip1_addr();        
         ip_sel = 1;
     }else ip_sel = 0;
     if( temp=='#' )
         return('E');
     CREN1 = 0;
+    // AT#SD=1,0,2020,"198.17.112.128",0,0,1
 	soutdata(&netconnect);
     //------ port ------
     if( ip_sel == 0)
@@ -437,7 +452,7 @@ uint8_t check_OTA(void)
     uint8_t rsp,cnt,cnt1;
     cnt = 3;
     do{
-        // OTA ip
+        // Connecting to APN
         rsp = TL_internet_init();
         if( rsp=='K' )
         {
@@ -445,12 +460,13 @@ uint8_t check_OTA(void)
             rsp = OTA_connection_open(0x00);
             if( rsp=='K' )
             {
-                // Send version# to server
+                // Sending version# to server - NEJ2040
                 rsp = OTA_send_data_to_server();
                 cnt1 = 50;
                 do{
+                    // Receiving from server - NEJ2040RFQ
                     rsp = OTA_receive_data_from_server();     
-                    delay5ms(200);
+                    delayseconds(1);
                 }while(--cnt1!=0&&rsp=='E');
                 //online mode
                 // Update FW version
@@ -464,15 +480,15 @@ uint8_t check_OTA(void)
                     rsp = OTA_connection_open(0x01); 
                     if( rsp=='C' )
                     {
-                        // send "RFQ" to server 
+                        // send to server - RFQ
                         out_sbuf('R');
                         out_sbuf('F');
                         out_sbuf('Q');
-                        rsp = wait_connect_respond(10000);
-                        // ESC
-                        out_sbuf('+');
-                        out_sbuf('+');
-                        out_sbuf('+');
+                        rsp = wait_connect_respond(6000);
+//                        // ESC
+//                        out_sbuf('+');
+//                        out_sbuf('+');
+//                        out_sbuf('+');
                         delayseconds(3);
                         if( rsp=='B' )
                         {                        
@@ -526,4 +542,14 @@ void check_OTA_status()
     
     
     
+}
+
+uint8_t get_ota_ip_addr()
+{
+    return read_ee(EE_PAGE1, IP_OTA_ADDR);
+}
+
+uint8_t get_ip1_addr()
+{
+    return read_ee(EE_PAGE0, IP1_ADDR);
 }

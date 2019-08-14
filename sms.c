@@ -42,27 +42,28 @@ void set_sms_init(void)
 uint8_t check_sms(void)
 {
   	uint8_t const cmgl[]="AT+CMGL=\"ALL\"\r\n$";
-  	uint8_t temp,a,b,c;
+  	uint8_t temp, a, b, c;
     uint8_t buffer[160];
-    uint8_t buffer_p;
+    uint8_t buffer_p = 0;
     uint16_t count;
+    
     CREN1 = 0;
 	soutdata(&cmgl);
     T3CON = 0x71;
     TMR3H = 0xa0;   //50ms
     TMR3L = 0;
     TMR3IF = 0;    
-    count = 600;         //50ms*600=30sec
-    buffer_p = 0;
-	a = 0;
-	b = 0;
-    c = 0;
+    
+    // TODO: Doesn't this suppose to use SMS_WAIT_TIME???
+    count = 1000;         //50ms*600=30sec
+    a = b = c = 0;
+
     RCIE = 0;
     CREN1 = 1;
 	do{ 
-        T3CON = 0x71;
-        TMR3H = 0x40;   //50ms
-        TMR3L = 0;
+        // Timer 3 for 50 ms.
+        reload_timer3_50ms();
+       
         do{
             // RC1IF: EUSART1 Receive Interrupt Flag bit
 			if( RC1IF==1 )
@@ -82,7 +83,7 @@ uint8_t check_sms(void)
 			  			a=buffer[7];
 			  			b=buffer[8];
                         c=buffer[9];
-						count=100;
+						count = 100;
 					}else if(buffer[0]=='O'&&buffer[1]=='K')		// OK response
 					{
 						if( a==0 && b==0 )
@@ -101,14 +102,24 @@ uint8_t check_sms(void)
 					buffer_p=0;
           		}
         	}
+            // Receive Overrun Error - clearing the CREN bit to clear the error.
+            if (OERR1 == 1)
+            {
+                CREN1 = 0;
+                NOP();
+                CREN1 = 1;
+            }
      	}while(TMR3IF==0 );
+        
         //LED = ~LED;
         CLRWDT();
 		TMR3IF = 0;
   	}while(--count!=0);
+    
   	TMR3ON = 0;
     load_default();
     RC1IE = 1;
+    
 	return 0;
 }
 

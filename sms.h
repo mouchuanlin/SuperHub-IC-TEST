@@ -32,6 +32,8 @@ extern void     out_sbuf(uint8_t tmp);
 extern void     soutdata(uint8_t *dat);
 extern uint8_t  wait_ok_respond(uint16_t);
 extern uint8_t  check_csq(void);
+extern void     reload_timer3_100ms();
+extern void     reload_timer3_50ms();
 
 /*****************************************************
  * VARIABLES

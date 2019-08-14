@@ -24,6 +24,8 @@ void reload_timer3_5s();
 void reload_timer3_100ms();
 void timer0_init();
 
+void reload_timer3_50ms();
+
 void TMR0_ISR();
 void TMR3_ISR();
 

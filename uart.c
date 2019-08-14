@@ -135,13 +135,11 @@ void UART2_ISR()
             // If exceed MAX size, save to the last spot.
             if( ++rx2_cnt >= MAX_RX2_BUF_SIZE )
                 rx2_cnt = MAX_RX2_BUF_SIZE - 1;
-            //out_sbuf2(rx2_cnt+0x30);
-			
+            
             // 7 bytes RF data in HEX - $ + 3byte ID + 1byte status + <CR> + <LF>
             // TODO: This might be able to call process_RF_data() in infinite loop instead of processing in ISR.
-			if( temp == LF )  
-				process_RF_data();
-
+			if( temp == LF )      // \n
+				process_RF_data();          
         };
        // RC1IF = 0;
     }        	       	
@@ -167,26 +165,12 @@ void process_RF_data()
 			rx2_cnt = 7;
 		}
 	}
-/*    out_sbuf2('a');/////
-		out_sbuf2('t');//////
-	   out_sbuf2('-');//////
-	   for( zone=0;zone<rx2_cnt;zone++ )
-	   {
-		   temp = rx2_buf[zone];
-		   out_sbuf2((temp>>4)+0x30);
-			out_sbuf2((temp&0x0f)+0x30);
-	   }
-		out_sbuf2(0x0d);//
-		out_sbuf2(0x0a);//*/
 	
 	// 7 bytes RF data in HEX - $ + 3byte ID + 1byte status + <CR> + <LF>
     // Cell configuration data saved in EEPROM is in ASCII. Need convert 3 byte ID to ASCII.
 	// TODO: Can add CRC check after status byte.
 	if( (rx2_buf[0]=='$') && (rx2_buf[5] == CR) && (rx2_buf[6] == LF) )                    
 	{                
-   //    out_sbuf2('a');/////
-   //     out_sbuf2('t');//////
-   //    out_sbuf2('-');//////
 		led_count = 10;
 		LED_RX_IN = 0;  // green ON - active LOW
 		
@@ -194,11 +178,7 @@ void process_RF_data()
         decode_device_id(id);
         
 		temp = rx2_buf[4];
-		//out_sbuf2((temp>>4)+0x30);
-		//out_sbuf2((temp&0x0f)+0x30);
-		//out_sbuf2(0x0d);//
-		//out_sbuf2(0x0a);//
-		//out_sbuf2('-');
+
 		zone = check_ID(&id);       //respond zone number(3~30),error=0
 	   
 		if( zone!=0 )
@@ -220,14 +200,9 @@ void process_RF_data()
             // TODO: Why del_ID() input zone instead of id???
             else if( (learning_mode==KEY_DEL_ID) && (zone!=0) )
 				zone = del_ID(zone); 
-			
-			/*out_sbuf2('$');
-			out_sbuf2('A');
-			out_sbuf2('L');
-			out_sbuf2(0x0d);
-			out_sbuf2(0x0a);*/
 		}    
-		//send response
+        
+		// Send response to RF receiver. Same data as we received.
         ACK_to_RF_receiver();
 	}
 	rx2_cnt = 0;

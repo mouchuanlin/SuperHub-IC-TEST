@@ -36,7 +36,26 @@
 
 // CONFIG2H
 #pragma config WDTEN = SWON      // Watchdog Timer Enable bits (Watch dog timer is always disabled. SWDTEN has no effect.)
-#pragma config WDTPS = 16    	// Watchdog Timer Postscale Select bits (1:32768)
+
+//    bit 5-2 WDTPS<3:0>: Watchdog Timer Postscale Select bits
+//    1111 = 1:32,768
+//    1110 = 1:16,384
+//    1101 = 1:8,192
+//    1100 = 1:4,096
+//    1011 = 1:2,048
+//    1010 = 1:1,024
+//    1001 = 1:512
+//    1000 = 1:256
+//    0111 = 1:128
+//    0110 = 1:64
+//    0101 = 1:32
+//    0100 = 1:16
+//    0011 = 1:8
+//    0010 = 1:4
+//    0001 = 1:2
+//    0000 = 1:1
+
+#pragma config WDTPS = 16    	// Watchdog timer set to 128 ms = 4ms * 32 = 128 ms
 
 // CONFIG3H
 #pragma config CCP2MX = PORTC1  // CCP2 MUX bit (CCP2 input/output is multiplexed with RC1)

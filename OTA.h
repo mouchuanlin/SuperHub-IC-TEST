@@ -13,7 +13,9 @@
 /*****************************************************
  * FUNCTION PROTOTYPES
  ****************************************************/
-void check_OTA_status();
+void    check_OTA_status();
+uint8_t get_ota_ip_addr();
+uint8_t get_ip1_addr();
 
 extern void delayseconds(uint16_t secs);
 extern void poweroff_modem();

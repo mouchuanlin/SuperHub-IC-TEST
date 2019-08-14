@@ -227,30 +227,31 @@ uint8_t start_send_alarm()
 			return false;
         }
         
-        if( OTA_flag==1 )
-        {
-            rsp = check_OTA();
-            if( rsp=='F' )
-            {
-                // Setup for next OTA in 24 hours
-                respond_day = 1;
-            }
-            //if( rsp=='K' )
-            else
-            {
-                OTA_flag = 2;
-                
-                // d. PIC18 strobes BOOT_SEL = 0 for 500us, then BOOT_SEL = 1;
-                // Tell OTA PIC18 is ready for FW update.
-                set_boot_sel_output();
-                BOOT_SEL_O = 0;
-                __delay_us(500);
-                BOOT_SEL_O = 1;
-                
-                myState = OTA_BOOT;
-                respond_day = read_ee(EE_PAGE0, TESTING_FREQ_ADDR);
-            }
-        }
+        // TODO: Comment out OTA function for now since we don't have OTA working at all.
+//        if( OTA_flag==1 )
+//        {
+//            rsp = check_OTA();
+//            if( rsp=='F' )
+//            {
+//                // Setup for next OTA in 24 hours
+//                respond_day = 1;
+//            }
+//            //if( rsp=='K' )
+//            else
+//            {
+//                OTA_flag = 2;
+//                
+//                // d. PIC18 strobes BOOT_SEL = 0 for 500us, then BOOT_SEL = 1;
+//                // Tell OTA PIC18 is ready for FW update.
+//                set_boot_sel_output();
+//                BOOT_SEL_O = 0;
+//                __delay_us(500);
+//                BOOT_SEL_O = 1;
+//                
+//                myState = OTA_BOOT;
+//                respond_day = read_ee(EE_PAGE0, TESTING_FREQ_ADDR);
+//            }
+//        }
     }
     check_ip_setting();	
 	
