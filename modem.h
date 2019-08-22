@@ -38,6 +38,7 @@ uint8_t check_module_run(void);
 uint8_t check_sim_card(void);
 uint8_t check_register(uint8_t);
 uint8_t check_csq(void);
+void    send_test_AT_commands();
 
 
 extern void     delay5ms(uint16_t cnt);
@@ -51,8 +52,8 @@ extern uint8_t  check_sms(void);
 extern uint8_t  check_emc_stack(void);
 extern void     check_state();
 extern uint8_t  check_OTA(void);
-
 extern void     check_nework();
+extern void     check_receive_overrun();
 
 /*****************************************************
  * VARIABLES

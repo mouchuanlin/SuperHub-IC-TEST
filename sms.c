@@ -73,9 +73,9 @@ uint8_t check_sms(void)
           		if(++buffer_p==31)
             		buffer_p--;
 
-          		if( temp == 0x0a )	// LF
+          		if( temp == LF )	// 0x0A
           		{
-          			// Incoming SMS
+          			// List Messages - +CMGL
           			// +CMGL: 1,"REC READ","+15039709528","","19/05/13,17:00:13-28"
 		    		if((buffer[0]=='+') && (buffer[2]=='M') && (buffer[6]==' ') && (a==0) && (b==0) && (c==0)	)
 					{
@@ -103,15 +103,10 @@ uint8_t check_sms(void)
           		}
         	}
             // Receive Overrun Error - clearing the CREN bit to clear the error.
-            if (OERR1 == 1)
-            {
-                CREN1 = 0;
-                NOP();
-                CREN1 = 1;
-            }
-     	}while(TMR3IF==0 );
-        
-        //LED = ~LED;
+			check_receive_overrun();
+			
+     	} while(TMR3IF==0 );
+
         CLRWDT();
 		TMR3IF = 0;
   	}while(--count!=0);
@@ -121,6 +116,17 @@ uint8_t check_sms(void)
     RC1IE = 1;
     
 	return 0;
+}
+
+void check_receive_overrun()
+{
+	// Receive Overrun Error - clearing the CREN bit to clear the error.
+	if (OERR1 == 1)
+	{
+		CREN1 = 0;
+		NOP();
+		CREN1 = 1;
+	}	
 }
 
 void get_access_code()
@@ -536,14 +542,16 @@ uint8_t remote_setting(void)
 void send_respond(uint8_t type)
 {
 	uint8_t temp;
-  	uint8_t const cmgs[]="AT+CMGS=\"$";
+  	uint8_t const cmgs[]="AT+CMGS=\"$"; 
   	uint8_t a,b,c;
 	uint8_t page,addr,ad_tp;
 	uint8_t x_tp,x_vl,over_dp;
+    
 	page = 2;
 	x_tp = 0;
 	over_dp = 0;
 	do{
+        CLRWDT();
 		ad_tp = 0;
 		if( type=='L' )
 		{
@@ -595,10 +603,11 @@ void send_respond(uint8_t type)
 			a++;
 		}while(temp!='"');
         CLRWDT();
-		out_sbuf(0x0d);
-        out_sbuf(0x0a);
+		out_sbuf(CR);   // 0x0D
+        out_sbuf(LF);     // 0x0A
         CREN1 = 1;
-	  	//wait ">"
+        
+	  	// Wait for '>'
   		a=100;
 	  	do{
     	 	T3CON = 0x71;
@@ -616,43 +625,37 @@ void send_respond(uint8_t type)
 		 	TMR3IF=0;
 	  	}while(--a!=0);
   		delay5ms(20);
-	  	//reply data
+        
+	  	// Response data
 		if( type=='X' )
 			a = x_tp;
-	   	else a = 0;
+	   	else 
+            a = 0;
+        
 		c = enc_cnt;
 		x_vl = 0;
 		do{
 			b = rsp_buffer[a++];
-			/*if( type==0||type=='L'||type=='X' )
-			{*/
-				out_sbuf(b);
-				if( rsp_buffer[a]==0x0d )
-				{
-					x_vl = 0x0d;
-					break;
-			 	}
-	 		/*}
-			else
-			{
-				temp = (b>>4)&0x0f;
-				temp = PDU[temp];
-				out_sbuf(temp);
-				temp = b&0x0f;
-				temp = PDU[temp];
-				out_sbuf(temp);
-				if( --c==0 )
-					break;
-			}*/
+
+            out_sbuf(b);
+            if( rsp_buffer[a] == CR )
+            {
+                x_vl = 0x0d;
+                break;
+            }
 		}while( (over_dp==0&&a<140)||(over_dp==1&&a<250) );
+        
         CLRWDT();
 		over_dp = 1;
 		x_tp = a;
-		delay5ms(20);
+		delay5ms(60);
+        
+        // To write the message issue Ctrl-Z char (0x1A hex).
+        // To exit without writing the message issue ESC char (0x1B hex).
 #ifndef send_ok
-			out_sbuf(0x1b);
+			out_sbuf(ESC);
 #else
-			out_sbuf(0x1a);
+			out_sbuf(CTRL_Z);
 #endif
 	   	//wait "OK"	<10sec>
   		a=200;		
@@ -667,6 +670,8 @@ void send_respond(uint8_t type)
 			  		if(temp=='K')
 			    		a=1;
 				}
+                
+                check_receive_overrun();
 	     	}while(TMR3IF==0);
             CLRWDT();
 		 	TMR3IF=0;

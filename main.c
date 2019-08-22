@@ -43,8 +43,8 @@ int main(int argc, char** argv)
         
         // TODO: Recalculate WDT value 
         // PIC18 is ready for FW update. Need to know where to check the CRC error from OTA controller.
-        if (myState == OTA_BOOT)
-            continue;
+//        if (myState == OTA_BOOT)
+//            continue;
         
         if( RF_wait_count==0)
         {

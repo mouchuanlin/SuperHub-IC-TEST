@@ -310,6 +310,7 @@ void reload_timer3_100ms()
 
 void reload_timer3_50ms()
 {
+    // 0111 0001 - Fosc, 1:8 pre-scale, enable
     T3CON = 0x71;
     TMR3H = 0x40;   //50ms
     TMR3L = 0;    

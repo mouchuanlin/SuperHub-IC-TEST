@@ -12,7 +12,9 @@
 #include "eeprom.h"
 
 bool modem_config_ok()
-{
+{			
+    SWDTEN = 0;
+
     if (!wait_AT_cmd_response())        
 		return false;
         
@@ -47,7 +49,8 @@ uint8_t wait_AT_cmd_response()
 	uint8_t cnt,rsp,temp;
 		
 	rsp = 15;
-    
+    UART1_init(115200);
+            
     // STEPS change UART1 baudrate to 19200 bps
     //  1. Init UART 115200
     //  2. +IRP=19200
@@ -56,7 +59,7 @@ uint8_t wait_AT_cmd_response()
     do{         
         ///// STEP 1. - change baudrate to 19200 bps in this function.
         //Uart_initial_115200();
-        UART1_init(115200);
+        //UART1_init(115200);
         //UART1_init(19200);
         // mlin - setup modem baud rate
         ///// STEP 2. - +IPR to set modem baudrate to 19200 bps
@@ -71,7 +74,7 @@ uint8_t wait_AT_cmd_response()
             ///// STEP 3. - We probably do need this since ???
             //Uart_initial_115200();
             //UART1_init(19200);
-            UART1_init(115200);
+            //UART1_init(115200);
             cnt = check_module_version(1);        
             if( cnt=='K' )
             {
@@ -117,9 +120,9 @@ uint8_t wait_AT_cmd_response()
     // TODO: This should no functional at all???
     //      THIS IS FOR DEBUG PURPOSE.
     if( VER_SELECT==1 )
-    {
         soutdata("Smoke HUB,$");
-    }else soutdata("Super HUB,$");
+    else 
+        soutdata("Super HUB,$");
 	
     if( Module_type==EMS31 )    
         soutdata("EMS31\r\n$");
@@ -197,6 +200,10 @@ uint8_t check_network_registration()
     // mlin - AT+CSQ doesn't seems get response???
     rsp = check_csq();
     check_ip_setting();
+    
+    // TODO: Send TEST AT commands. 
+    //send_test_AT_commands();
+    
     // mlin - why "AT\\Q0\r\n$"
     soutdata("AT\\Q0\r\n$");
     
@@ -205,6 +212,67 @@ uint8_t check_network_registration()
     //OTA_flag = 1; //----------------------------------
 	
 	return true;    
+}
+
+void send_test_AT_commands()
+{
+    // TODO:
+    soutdata("AT+CMEE=2\r\n$");    
+    delay5ms(20);
+
+    soutdata("AT#CCID\r\n$");    
+    delay5ms(20);
+
+    soutdata("CSQ\r\n$");    
+    delay5ms(20);
+    
+    soutdata("AT#MONI\r\n$");    
+    delay5ms(20);  
+    
+    soutdata("AT+COPS?\r\n$");    
+    delay5ms(20); 
+    
+    soutdata("AT+CGREG?\r\n$");    
+    delay5ms(20); 
+    
+    soutdata("AT+CEREG?\r\n$");    
+    delay5ms(20);
+    
+    soutdata("AT+CGDCONT?\r\n$");    
+    delay5ms(20);   
+    
+    soutdata("AT#SGACT=1,1\r\n$");    
+    delay5ms(20);
+    
+    soutdata("AT+CGSN\r\n$");    
+    delay5ms(20);
+    
+    soutdata("AT#SNUM=1,9566405896\r\n$");    
+    delay5ms(20);
+    
+    soutdata("AT+CNUM\r\n$");    
+    delay5ms(20); 
+    
+    soutdata("AT+CNUM=?\r\n$");    
+    delay5ms(20);          
+    
+    soutdata("AT+CPIN?\r\n$");    
+    delay5ms(20);  
+   
+    soutdata("AT+CGMR\r\n$");    
+    delay5ms(20);
+    
+    soutdata("AT+CIMI\r\n$");    
+    delay5ms(20);
+    
+    soutdata("ATI1\r\n$");    
+    delay5ms(20);
+    
+    soutdata("ATI4\r\n$");    
+    delay5ms(20);    
+    
+    soutdata("CSQ\r\n$");    
+    delay5ms(20);    
 }
 
 uint8_t start_send_alarm()
@@ -483,6 +551,8 @@ uint8_t wait_ok_respond(uint16_t count)
                     buffer_p = 0;
                 }
         	}
+            check_receive_overrun();
+            
      	}while(TMR3IF==0);  // TMR3IF: TMR3 Overflow Interrupt Flag bit
         CLRWDT();
         TMR3IF = 0;
@@ -523,6 +593,8 @@ uint8_t check_module_run(void)
 				if( temp=='K' )
                     return('K');
 			}
+            
+            check_receive_overrun();
 		}while(TMR3IF==0 );
         CLRWDT();
 		TMR3IF = 0;
@@ -541,9 +613,10 @@ uint8_t check_module_version(uint8_t type)
 	uint8_t buf_cnt=0;
  
     CREN1 = 0;
-    if( type%2==0 )
-        soutdata(&at4);
-    else soutdata(&at3);
+//    if( type%2==0 )
+//        soutdata(&at4);
+//    else soutdata(&at3);
+    soutdata(&at4);
     T3CON = 0x71;
     TMR3H = 0x40;   //50ms
     TMR3L = 0;
@@ -592,6 +665,8 @@ uint8_t check_module_version(uint8_t type)
 					buf_cnt = 0;
 				}
 			}
+            
+            check_receive_overrun();
 		}while(TMR3IF==0 );
         CLRWDT();
 		TMR3IF = 0;

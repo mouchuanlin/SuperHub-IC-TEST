@@ -142,7 +142,6 @@ void control_leds()
                 case 8:		
                     G_OFF();
                     R_OFF();
-                    break;  
                     gled_tmr0_tick = 0;
                     bled_tmr0_tick = 0;
                     break;

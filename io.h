@@ -159,8 +159,8 @@ void set_boot_sel_output();
 #define LED_RF_DEL 7 
 #define MD_POWER_LOSS 8 
 
-#define POWER_ON    9
-#define RF_INT      10
+//#define POWER_ON    9
+//#define RF_INT      10
 //--------------------       
 #define EVENT_MAX 50
 

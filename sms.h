@@ -27,6 +27,7 @@ void    send_respond(uint8_t);
 void    select_sms_type(bit);
 uint8_t respond_setting(uint8_t,uint8_t);
 void    get_access_code();
+void    check_receive_overrun();
 
 extern void     out_sbuf(uint8_t tmp);
 extern void     soutdata(uint8_t *dat);
@@ -38,6 +39,10 @@ extern void     reload_timer3_50ms();
 /*****************************************************
  * VARIABLES
  ****************************************************/
+// To write the message issue Ctrl-Z char (0x1A hex).
+// To exit without writing the message issue ESC char (0x1B hex).
+#define CTRL_Z  0x1A
+#define ESC     0x1B
 
 #ifdef	__cplusplus
 }
