@@ -49,7 +49,6 @@ uint8_t wait_AT_cmd_response()
 	uint8_t cnt,rsp,temp;
 		
 	rsp = 15;
-    UART1_init(115200);
             
     // STEPS change UART1 baudrate to 19200 bps
     //  1. Init UART 115200
@@ -59,7 +58,7 @@ uint8_t wait_AT_cmd_response()
     do{         
         ///// STEP 1. - change baudrate to 19200 bps in this function.
         //Uart_initial_115200();
-        //UART1_init(115200);
+        UART1_init(115200);
         //UART1_init(19200);
         // mlin - setup modem baud rate
         ///// STEP 2. - +IPR to set modem baudrate to 19200 bps
@@ -67,14 +66,17 @@ uint8_t wait_AT_cmd_response()
         //soutdata("AT+IPR=19200\r\n$");
         wait_ok_respond(40);
         //UART_init();
+        delay5ms(20);
+        // AT
         cnt = check_module_run();
         if( cnt!='K' )
         {
-            delayseconds(3);
+            //delayseconds(3);
             ///// STEP 3. - We probably do need this since ???
             //Uart_initial_115200();
             //UART1_init(19200);
-            //UART1_init(115200);
+            UART1_init(115200);
+            // ATI4
             cnt = check_module_version(1);        
             if( cnt=='K' )
             {
@@ -821,6 +823,8 @@ uint8_t check_register(uint8_t type)
 					buf_cnt = 0;
 				}
 			}
+            
+            check_receive_overrun();
 		}while(TMR3IF==0 );
         CLRWDT();
 		TMR3IF = 0;
