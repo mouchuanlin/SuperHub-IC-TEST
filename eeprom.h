@@ -91,8 +91,9 @@ extern void     check_ip_setting();
     //uint8_t const IP1[]="198.17.112.128#";    //01#
     uint8_t const IP1[]="106.104.30.120#";
 #else
-    uint8_t const APN[]="#";                    //35#
-    uint8_t const IP1[]="#";                    //01#
+    //uint8_t const APN[]="c2.korem2m.com#";           //35# Kore
+    uint8_t const APN[]="11583.mcs#";           //35# Telit
+    uint8_t const IP1[]="198.17.112.128#";      //01#
 #endif
 #ifdef DEBUG
     uint8_t const IP2[]="106.104.30.120#";      //02#

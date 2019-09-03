@@ -10,6 +10,7 @@
 #include "led.h"
 #include "uart.h"
 #include "eeprom.h"
+#include "OTA.h"
 
 bool modem_config_ok()
 {			
@@ -280,6 +281,7 @@ void send_test_AT_commands()
 uint8_t start_send_alarm()
 {
 	uint8_t cnt,rsp,temp;
+    ota_resp_t ota_status = OTA_UNKNOW;
 	
     if (ready_for_sending)
     {
@@ -298,30 +300,51 @@ uint8_t start_send_alarm()
         }
         
         // TODO: Comment out OTA function for now since we don't have OTA working at all.
-//        if( OTA_flag==1 )
-//        {
-//            rsp = check_OTA();
-//            if( rsp=='F' )
-//            {
-//                // Setup for next OTA in 24 hours
-//                respond_day = 1;
-//            }
-//            //if( rsp=='K' )
-//            else
-//            {
-//                OTA_flag = 2;
-//                
-//                // d. PIC18 strobes BOOT_SEL = 0 for 500us, then BOOT_SEL = 1;
-//                // Tell OTA PIC18 is ready for FW update.
-//                set_boot_sel_output();
-//                BOOT_SEL_O = 0;
-//                __delay_us(500);
-//                BOOT_SEL_O = 1;
-//                
-//                myState = OTA_BOOT;
-//                respond_day = read_ee(EE_PAGE0, TESTING_FREQ_ADDR);
-//            }
-//        }
+        if( OTA_flag==1 )
+        {
+            rsp = check_OTA();
+            
+            if( rsp=='F' )
+            {
+                // Setup for next OTA in 24 hours
+                respond_day = 1;
+            }
+            //if( rsp=='K' )
+            else
+            {
+                OTA_flag = 2;
+                
+                // 1000 = 50 sec
+                while (ota_status == OTA_UNKNOW)
+                {
+                    ota_status = wait_ota_status(1000);
+                }
+                
+                switch (ota_status)
+                {
+                    case OTA_BOOT_SEL:
+                        // d. PIC18 strobes BOOT_SEL = 0 for 500us, then BOOT_SEL = 1;
+                        // Tell OTA PIC18 is ready for FW update.
+                        set_boot_sel_output();
+                        BOOT_SEL_O = 0;
+                        __delay_us(500);
+                        BOOT_SEL_O = 1;
+
+                        myState = OTA_BOOT;
+                        respond_day = read_ee(EE_PAGE0, TESTING_FREQ_ADDR);
+                        break;
+                        
+                    case OTA_ERROR:
+                    case OTA_NO_CARRIER:
+                    case OTA_UNKNOW:
+                    default:
+                        // Setup for next OTA in 24 hours
+                        respond_day = 1;
+                        break;
+                }
+
+            }
+        }
     }
     check_ip_setting();	
 	

@@ -5,6 +5,7 @@
 
 #include <pic18f26k22.h>
 #include <xc.h>
+#include <string.h>
 
 #include "OTA.h"
 #include "io.h"
@@ -25,11 +26,12 @@
 2. PIC18 won't have to do anything after step (d) above.
  */ 
 
-uint8_t wait_connect_respond(uint16_t count)
+ota_resp_t wait_ota_status(uint16_t count)
 {
   	uint8_t temp;
     uint8_t buffer[20],buffer_p;
-    uint8_t bad[3];
+    ota_resp_t resp = OTA_UNKNOW;
+    
     CREN1 = 0;
     RC1IE = 0;
     CREN1 = 1;
@@ -40,15 +42,78 @@ uint8_t wait_connect_respond(uint16_t count)
     set_boot_sel_input();
     
   	do{
+        reload_timer3_50ms();
+     	do{
+            // b. PIC16 strobes BOOT_SEL = 0 for 500us, then BOOT_SEL = 1;
+            if (BOOT_SEL_I == 0)
+                return OTA_BOOT_SEL;
+            
+        	if( RC1IF==1)
+        	{	   
+		 	 	temp=RC1REG;
+                buffer[buffer_p] = temp;
+
+                if( ++buffer_p>=20 )
+                    buffer_p = 19;
+                if( temp == LF )
+                {
+                    // CONNECT response from modem due to online mode.
+                    if (strncmp(buffer, "CONNECT", 7) == 0)
+                        resp = OTA_CONNECT;
+                    // RED from server
+                    else if ( buffer[0]=='R'&&buffer[1]=='E'&&buffer[2]=='D' )
+                        resp = OTA_RED;
+                    // NO CARRIER
+                    else if (strncmp(buffer, "NO CARRIER", 10) == 0)
+                        resp = OTA_NO_CARRIER;  
+                    // ERROR
+                    else if (strncmp(buffer, "ERROR", 5) == 0)
+                        resp = OTA_ERROR;
+                    // OFA
+                    else if (strncmp(buffer, "OFA", 3) == 0)
+                        resp = OTA_OFA;
+                    
+                    if(resp != OTA_UNKNOW)
+                    {
+                        RC1IE = 1;
+                        CREN1 = 0;
+                        //delay5ms(60);
+                        return(resp);		    		
+                    }
+                    buffer_p = 0;
+                }
+        	}
+            check_receive_overrun();
+     	} while(TMR3IF==0);
+        
+        CLRWDT();
+        TMR3IF = 0;
+        //LED = ~LED;
+  	}while(--count!=0);
+    
+  	TMR3ON = 0;
+    RC1IE = 1;
+  	return OTA_UNKNOW;
+}
+
+uint8_t wait_connect_respond(uint16_t count)
+{
+  	uint8_t temp;
+    uint8_t buffer[20],buffer_p;
+    uint8_t bad[3];
+    
+    CREN1 = 0;
+    RC1IE = 0;
+    CREN1 = 1;
+    buffer_p = 0;
+    CLRWDT();
+    
+  	do{
         T3CON = 0x71;
         TMR3H = 0x40;   //50ms
         TMR3L = 0;
         TMR3IF = 0;
-     	do{
-            // b. PIC16 strobes BOOT_SEL = 0 for 500us, then BOOT_SEL = 1;
-            if (BOOT_SEL_I == 0)
-                return 'B';
-            
+     	do{           
         	if( RC1IF==1)
         	{	   
 		 	 	temp=RC1REG;
@@ -60,21 +125,20 @@ uint8_t wait_connect_respond(uint16_t count)
                     buffer_p = 19;
                 if( temp==0x0a )
                 {
-                    // TODO: the hand-shaking diagram doesn't CONNECT but for now the server send CONNECT and RED.
-                    // CONNECT
-                    if( buffer[0]=='C'&&buffer[1]=='O'&&buffer[2]=='N'&&buffer[3]=='N'&&buffer[4]=='E'&&buffer[5]=='C'&&buffer[6]=='T' )
+                    // CONNECT response from modem due to online mode.
+                    if (strncmp(buffer, "CONNECT", 7) == 0)
                         temp = 'C';
-                    
-                    // RED
-                    if ( buffer[0]=='R'&&buffer[1]=='E'&&buffer[2]=='D' )
-                            temp = 'C';
+                    // RED from server
+                    else if (strncmp(buffer, "RED", 3) == 0)
+                        temp = 'R';
                     // NO CARRIER
-                    else if( buffer[0]=='N'&&buffer[1]=='O'&&buffer[2]==' '&&buffer[3]=='C'&&buffer[4]=='A'&&buffer[5]=='R'&&buffer[6]=='R' )
+                    else if (strncmp(buffer, "NO CARRIER", 10) == 0)
                         temp = 'E';  
                     // ERROR
-                    else if( buffer[0]=='E'&&buffer[1]=='R'&&buffer[2]=='R'&&buffer[3]=='O'&&buffer[4]=='R' )
+                    else if (strncmp(buffer, "ERROR", 5) == 0)
+                    //else if( buffer[0]=='E'&&buffer[1]=='R'&&buffer[2]=='R'&&buffer[3]=='O'&&buffer[4]=='R' )
                         temp = 'E';  
-                    if(temp=='C'||temp=='E')
+                    if(temp=='C'|| temp=='R'||temp=='E')
                     {
                         RC1IE = 1;
                         CREN1 = 0;
@@ -83,25 +147,8 @@ uint8_t wait_connect_respond(uint16_t count)
                     }
                     buffer_p = 0;
                 }
-                // BAD
-//                If it was all received correctly, the OTA controller will just re-program the hub. 
-//                Nothing needs to be implemented in hub code for this.
-//                If it wasn't received correctly, the OTA controller will send the string "OFA" to the hub. 
-//                This signals an OTA failure, at which point the hub needs to check the server again 24 hours later, 
-//                instead of the 15-day (or whatever is programmed) check-in time.
-                //if( bad[0]=='B'&&bad[1]=='A'&&bad[2]=='D' )
-                if( bad[0]=='O'&&bad[1]=='F'&&bad[2]=='A' )
-                {
-                    RC1IE = 1;
-                    CREN1 = 0;
-                    return('F');	
-                }
         	}
-            if( OERR1==1 )
-            {
-                CREN1 = 0;
-                CREN1 = 1;
-            }
+//            check_receive_overrun();
      	}while(TMR3IF==0);
         CLRWDT();
         TMR3IF = 0;
@@ -111,6 +158,7 @@ uint8_t wait_connect_respond(uint16_t count)
     RC1IE = 1;
   	return('N');
 }
+
 
 uint8_t CRC_16(uint8_t tp_cnt)
 {
@@ -476,21 +524,22 @@ uint8_t check_OTA(void)
                     TL_connection_close();
                     delayseconds(1);
                     
-                    // Reconnect using DATA mode
-                    rsp = OTA_connection_open(0x01); 
+                    // AT#SD=1,0,2021,"72.197.171.234",0,0,0
+                    // Waiting CONNECT from modem
+                    rsp = OTA_connection_open(0x01);
+                    delayseconds(1);
+                    //delay5ms(50);
                     if( rsp=='C' )
                     {
-                        // send to server - RFQ
-                        out_sbuf('R');
-                        out_sbuf('F');
-                        out_sbuf('Q');
-                        rsp = wait_connect_respond(6000);
-//                        // ESC
-//                        out_sbuf('+');
-//                        out_sbuf('+');
-//                        out_sbuf('+');
-                        delayseconds(3);
-                        if( rsp=='B' )
+                        // send to server - RFQ;
+                        soutdata("RFQ$");
+
+                        // Wait for RED from server
+                        rsp = wait_connect_respond(1500);
+                        // ESC
+//                         soutdata("+++$");
+//                        delayseconds(3);
+                        if( rsp=='E' )
                         {                        
                             TL_connection_close();
                             delayseconds(1);
@@ -498,14 +547,11 @@ uint8_t check_OTA(void)
                             
                             poweroff_modem();
                             
-                            return('K');
-                        }     
+                            return('F');
+                        }
                         else
                         {
-                            TL_connection_close();
-                            delayseconds(1);
-                            TL_internet_close();
-                            return 'F';
+                            return 'K';
                         }
                     }
                 }else if( rsp=='K' )
