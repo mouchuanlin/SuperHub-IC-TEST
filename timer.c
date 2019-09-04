@@ -49,19 +49,19 @@ void TMR0_ISR()
     }	
 }
 
-void TMR3_ISR()
-{
-	if (TMR3IF)
-    //if (buttonPressCount != 0)
-    {
-
-//        reload_timer3_100ms();
-//		
-//        //process_sms_menu();    
+//void TMR3_ISR()
+//{
+//	if (TMR3IF)
+//    //if (buttonPressCount != 0)
+//    {
 //
-//		process_button_push();	
-    }    
-}
+////        reload_timer3_100ms();
+////		
+////        //process_sms_menu();    
+////
+////		process_button_push();	
+//    }    
+//}
 
 void handle_smoke_hub()
 {
@@ -212,18 +212,18 @@ void delayseconds(uint16_t secs)
     }
 }
 
-void timer0_init()
-{
-    // T0CON: TIMER0 CONTROL REGISTER
-    // 0x87 = b1000 0111 - Enable Timer0, 16 bit timer, 1:256 prescale value.
-    // (1/8M)*4*256*781=99.9968ms
-    T0CON = HIGH_FREQ_T0CON;
-    // Timer0 Register, High/Low Byte
-    TMR0L = ((65535-HIGH_FREQ_TMR0)%256);
-    TMR0H = ((65535-HIGH_FREQ_TMR0)/256);
-    TMR0IF = 0;
-    TMR0IE = 1;
-}
+//void timer0_init()
+//{
+//    // T0CON: TIMER0 CONTROL REGISTER
+//    // 0x87 = b1000 0111 - Enable Timer0, 16 bit timer, 1:256 prescale value.
+//    // (1/8M)*4*256*781=99.9968ms
+//    T0CON = HIGH_FREQ_T0CON;
+//    // Timer0 Register, High/Low Byte
+//    TMR0L = ((65535-HIGH_FREQ_TMR0)%256);
+//    TMR0H = ((65535-HIGH_FREQ_TMR0)/256);
+//    TMR0IF = 0;
+//    TMR0IE = 1;
+//}
 
 // Timer0 used to control LEDs.
 void start_timer0()
@@ -253,60 +253,60 @@ void reload_timer0()
     TMR0H = ((65535-_100milliseconds)/256);
 }
 
-void enable_tmr3()
-{
-    // T3CON: Timer3 Control Register
-    //  0011 0001 
-    //T3CON = 0b00110001;//    0x71;
-    T3CON = 0x87;   // 1000 0111
-    INTCONbits.GIE = 0;
-    INTCONbits.PEIE = 1;
-    PIE2bits.TMR3IE = 1;
-    
-    PIR2bits.TMR3IF = 0;
-    INTCONbits.GIE = 1;
-}
+//void enable_tmr3()
+//{
+//    // T3CON: Timer3 Control Register
+//    //  0011 0001 
+//    //T3CON = 0b00110001;//    0x71;
+//    T3CON = 0x87;   // 1000 0111
+//    INTCONbits.GIE = 0;
+//    INTCONbits.PEIE = 1;
+//    PIE2bits.TMR3IE = 1;
+//    
+//    PIR2bits.TMR3IF = 0;
+//    INTCONbits.GIE = 1;
+//}
 
-void disable_tmr3()
-{
-//    buttonPressCount = 0;
-//    tmr3_cnt = 0;
-    T3CONbits.TMR3ON = 0;
-	
-	TMR3IF = 0;
-    PIE2bits.TMR3IE = 0;
-    PIR2bits.TMR3IF = 0;
-}
+//void disable_tmr3()
+//{
+////    buttonPressCount = 0;
+////    tmr3_cnt = 0;
+//    T3CONbits.TMR3ON = 0;
+//	
+//	TMR3IF = 0;
+//    PIE2bits.TMR3IE = 0;
+//    PIR2bits.TMR3IF = 0;
+//}
 
 /* Control button press timeout*/
-void reload_timer3_2s()
-{
-//    TMR3H = 0x30;
-//    TMR3L = 0;
-    
-    TMR3L = ((65535-_2seconds)%256);//for 8MHz
-    TMR3H = ((65535-_2seconds)/256);
-    
-    TMR3IF = 0;
-    TMR3IE = 1;
-}
+//void reload_timer3_2s()
+//{
+////    TMR3H = 0x30;
+////    TMR3L = 0;
+//    
+//    TMR3L = ((65535-_2seconds)%256);//for 8MHz
+//    TMR3H = ((65535-_2seconds)/256);
+//    
+//    TMR3IF = 0;
+//    TMR3IE = 1;
+//}
 
-void reload_timer3_5s()
-{
-//    TMR3H = 0x78;
-//    TMR3L = 0;'
-	//disable_tmr3();
-    TMR3L = ((65535-_5seconds)%256);//for 8MHz
-    TMR3H = ((65535-_5seconds)/256);
-	//enable_tmr3();
-}
+//void reload_timer3_5s()
+//{
+////    TMR3H = 0x78;
+////    TMR3L = 0;'
+//	//disable_tmr3();
+//    TMR3L = ((65535-_5seconds)%256);//for 8MHz
+//    TMR3H = ((65535-_5seconds)/256);
+//	//enable_tmr3();
+//}
 
-void reload_timer3_100ms()
-{
-    T3CON = 0x87;
-    TMR3L = ((65535-_100milliseconds)%256);//for 8MHz
-    TMR3H = ((65535-_100milliseconds)/256);	
-}
+//void reload_timer3_100ms()
+//{
+//    T3CON = 0x87;
+//    TMR3L = ((65535-_100milliseconds)%256);//for 8MHz
+//    TMR3H = ((65535-_100milliseconds)/256);	
+//}
 
 void reload_timer3_50ms()
 {
@@ -322,6 +322,7 @@ void exit_learning_mode()
         learning_mode = KEY_NONE;
 }
 
+/*
 void process_sms_menu()
 {
     tmr3_cnt++;
@@ -390,6 +391,7 @@ void process_sms_menu()
 //        //update_led_state(POWERON);
 //    }    
 }
+*/
 
 void calculate_adc_time()
 {

@@ -14,7 +14,7 @@
 /*****************************************************
  * FUNCTION PROTOTYPES
  ****************************************************/
-void UART1_init(uint16_t baudrate);
+void UART1_init(uint32_t baudrate);
 void UART2_init();
 void enable_UART();
 void disable_UART();

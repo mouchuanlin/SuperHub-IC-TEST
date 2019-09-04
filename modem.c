@@ -4,6 +4,7 @@
 
 #include <pic18f26k22.h>
 #include <xc.h>
+#include <string.h>
 
 #include "modem.h"
 #include "io.h"
@@ -217,6 +218,7 @@ uint8_t check_network_registration()
 	return true;    
 }
 
+/*
 void send_test_AT_commands()
 {
     // TODO:
@@ -277,6 +279,7 @@ void send_test_AT_commands()
     soutdata((uint8_t *) "AT+CSQ\r\n$");    
     delay5ms(20);    
 }
+*/
 
 uint8_t start_send_alarm()
 {
@@ -494,18 +497,18 @@ void process_event_queue()
 	}
 }
 
-uint8_t process_SMS_setup_state()
-{
-	if ( listen_sms_state==1 )
-	{                     
-		MD_POWER = POWER_OFF;
-
-		//goto module_start;
-		return false;
-	}	
-	
-	return true;
-}
+//uint8_t process_SMS_setup_state()
+//{
+//	if ( listen_sms_state==1 )
+//	{                     
+//		MD_POWER = POWER_OFF;
+//
+//		//goto module_start;
+//		return false;
+//	}	
+//	
+//	return true;
+//}
 
 void out_sbuf(uint8_t tmp)
 {
@@ -562,10 +565,11 @@ uint8_t wait_ok_respond(uint16_t count)
                     buffer_p = 19;
                 if (temp == LF)     // 0x0A, \n
                 {
-                    if( buffer[0]=='O'&&buffer[1]=='K' )
+                    if (strncmp(buffer, "OK", 2) == 0)
                         temp = 'K';
-                    else if(buffer[0]=='E'&&buffer[1]=='R'&&buffer[2]=='R' )
+                    else if (strncmp(buffer, "ERROR", 5) == 0)
                         temp = 'E';
+                    
                     if(temp=='K'||temp=='E')
                     {
                         RC1IE = 1;
@@ -639,9 +643,12 @@ uint8_t check_module_version(uint8_t type)
  
     CREN1 = 0;
 //    if( type%2==0 )
-//        soutdata(&at4);
-//    else soutdata(&at3);
-    soutdata(at4);
+//        soutdata(at4);
+//    else 
+//        soutdata(at3);
+    
+     soutdata(at4);
+
     T3CON = 0x71;
     TMR3H = 0x40;   //50ms
     TMR3L = 0;
@@ -664,25 +671,35 @@ uint8_t check_module_version(uint8_t type)
 				buffer[buf_cnt] = temp;
 				if( ++buf_cnt >=32 )
 					buf_cnt = 31;
-				if( temp==0x0a )
+                
+				if( temp == LF )
 				{		  
-					if( buffer[0]=='E'&&buffer[1]=='M'&&buffer[2]=='S'&&buffer[3]=='3'&&buffer[4]=='1' )
+					//if( buffer[0]=='E'&&buffer[1]=='M'&&buffer[2]=='S'&&buffer[3]=='3'&&buffer[4]=='1' )
+                    if (strncmp(buffer, "EMS31", 5) == 0)
 					{
                         Module_type = EMS31;
                         return('K');
-                    }else if( buffer[0]=='P'&&buffer[1]=='L'&&buffer[2]=='S'&&buffer[3]=='8' )
+                    }
+                    //else if( buffer[0]=='P'&&buffer[1]=='L'&&buffer[2]=='S'&&buffer[3]=='8' )
+                    else if (strncmp(buffer, "PLS8", 4) == 0)
 					{
                         Module_type = PLS8;
                         return('K');
-                    }else if( buffer[0]=='E'&&buffer[1]=='H'&&buffer[2]=='S'&&buffer[3]=='5' )
+                    }
+                    //else if( buffer[0]=='E'&&buffer[1]=='H'&&buffer[2]=='S'&&buffer[3]=='5' )
+                    else if (strncmp(buffer, "EHS5", 4) == 0)
 					{
                         Module_type = EHS5;
                         return('K');
-                    }else if( (buffer[0]=='L'||buffer[0]=='U')&&buffer[1]=='E'&&buffer[2]=='9'&&buffer[3]=='1'&&buffer[4]=='0' )
+                    }
+                    else if( (buffer[0]=='L'||buffer[0]=='U')&&buffer[1]=='E'&&buffer[2]=='9'&&buffer[3]=='1'&&buffer[4]=='0' )
+                    //else if ((strncmp(buffer, "LE910", 5) == 0) || (strncmp(buffer, "UE910", 5) == 0))
 					{
                         Module_type = LE910;
                         return('K');
-                    }else if( (buffer[0]=='L'||buffer[0]=='U')&&buffer[1]=='E'&&buffer[2]=='8'&&buffer[3]=='6'&&buffer[4]=='6' )
+                    }
+                    //else if( (buffer[0]=='L'||buffer[0]=='U')&&buffer[1]=='E'&&buffer[2]=='8'&&buffer[3]=='6'&&buffer[4]=='6' )
+                    else if ((strncmp(buffer, "LE866", 5) == 0) || (strncmp(buffer, "UE866", 5) == 0))
 					{
                         Module_type = LE866;
                         return('K');

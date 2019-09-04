@@ -23,7 +23,7 @@ uint8_t read_ee(uint8_t page,uint8_t addr)
 	return(p_data);
 }
 
-void write_ee(uint8_t page,uint8_t addr,uint8_t data_p)
+void write_ee(uint8_t page, uint16_t addr, uint16_t data_p)
 {
     GIE = 0;
     EEADRH = page;
@@ -46,15 +46,15 @@ void write_ee(uint8_t page,uint8_t addr,uint8_t data_p)
 }
 
 // TODO: Check spec
-bool is_first_run()
-{
-    return (bool)(ee_read(0, FIRST_RUN_CHECK) != 0x57);
-}
-
-void save_first_run()
-{
-    ee_write(0, FIRST_RUN_CHECK, 0x57);
-}
+//bool is_first_run()
+//{
+//    return (bool)(ee_read(0, FIRST_RUN_CHECK) != 0x57);
+//}
+//
+//void save_first_run()
+//{
+//    ee_write(0, FIRST_RUN_CHECK, 0x57);
+//}
 
 void init_eeprom()
 {   

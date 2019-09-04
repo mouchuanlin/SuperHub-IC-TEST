@@ -263,7 +263,7 @@ uint8_t read_sms(uint8_t a,uint8_t b,uint8_t c)
 //---------------------------------------------------
 void delete_sms(uint8_t a,uint8_t b,uint8_t c)
 {
-  	uint8_t const cmgd[]="AT+CMGD=$";
+  	uint8_t cmgd[]="AT+CMGD=$";
   	uint8_t temp,count;
     CREN1 = 0;
   	soutdata(cmgd);

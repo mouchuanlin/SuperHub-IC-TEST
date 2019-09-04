@@ -18,7 +18,7 @@ void UART_init()
     UART2_init();
 }
 
-void UART1_init(uint16_t baudrate)
+void UART1_init(uint32_t baudrate)
 {
     // TxSTAx: TRANSMIT STATUS AND CONTROL REGISTER
     TX1STA = 0x26;       // 0010 0110 - 8-bit, 
@@ -64,32 +64,32 @@ void UART2_init()
 //}
 
 //---------------------------------------------------
-void disable_UART(void)
-{
-    RC1STA = 0x00;       //10010000
-    MD_RX = 0;
-    MD_RX_TRIS = OUTPUT;
-    MD_TX = 1;
-    MD_TX_TRIS = INPUT;
-    RC1IE = 0;
-    
-    RC2STA = 0x00;       //10010000
-   // WIFI_RX = 0;
-  //  WIFI_RX_TRIS = OUTPUT;
-   // WIFI_TX = 0;
-   // WIFI_TX_TRIS = OUTPUT;
-    RC2IE = 0;
-}
+//void disable_UART(void)
+//{
+//    RC1STA = 0x00;       //10010000
+//    MD_RX = 0;
+//    MD_RX_TRIS = OUTPUT;
+//    MD_TX = 1;
+//    MD_TX_TRIS = INPUT;
+//    RC1IE = 0;
+//    
+//    RC2STA = 0x00;       //10010000
+//   // WIFI_RX = 0;
+//  //  WIFI_RX_TRIS = OUTPUT;
+//   // WIFI_TX = 0;
+//   // WIFI_TX_TRIS = OUTPUT;
+//    RC2IE = 0;
+//}
 
-void disable_UART1()
-{
-    RC1STA = 0x00;       //10010000
-    MD_RX = 0;
-    MD_RX_TRIS = OUTPUT;
-    MD_TX = 1;
-    MD_TX_TRIS = INPUT;
-    RC1IE = 0;
-}
+//void disable_UART1()
+//{
+//    RC1STA = 0x00;       //10010000
+//    MD_RX = 0;
+//    MD_RX_TRIS = OUTPUT;
+//    MD_TX = 1;
+//    MD_TX_TRIS = INPUT;
+//    RC1IE = 0;
+//}
 
 //---------------------------------------------------
 void enable_UART(void)

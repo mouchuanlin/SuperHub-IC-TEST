@@ -160,92 +160,92 @@ uint8_t wait_connect_respond(uint16_t count)
 }
 
 
-uint8_t CRC_16(uint8_t tp_cnt)
-{
+//uint8_t CRC_16(uint8_t tp_cnt)
+//{
+//
+//    uint8_t cnt,loop; 
+//    uint16_t reg_crc=0xFFFF; 
+//    for( cnt=0;cnt<tp_cnt;cnt++) 
+//    { 
+//        reg_crc ^= rsp_buffer[cnt]; 
+//        for(loop=0;loop<8;loop++) 
+//        { 
+//            if(reg_crc & 0x01)
+//                reg_crc=(reg_crc>>1) ^ 0xA001; 
+//            else 
+//                reg_crc=reg_crc >>1; 
+//        } 
+//    } 
+//    rsp_buffer[tp_cnt++] = reg_crc&0x00ff;
+//    rsp_buffer[tp_cnt++] = reg_crc>>8;
+//    return tp_cnt; 
+//}
 
-    uint8_t cnt,loop; 
-    uint16_t reg_crc=0xFFFF; 
-    for( cnt=0;cnt<tp_cnt;cnt++) 
-    { 
-        reg_crc ^= rsp_buffer[cnt]; 
-        for(loop=0;loop<8;loop++) 
-        { 
-            if(reg_crc & 0x01)
-                reg_crc=(reg_crc>>1) ^ 0xA001; 
-            else 
-                reg_crc=reg_crc >>1; 
-        } 
-    } 
-    rsp_buffer[tp_cnt++] = reg_crc&0x00ff;
-    rsp_buffer[tp_cnt++] = reg_crc>>8;
-    return tp_cnt; 
-}
+//uint8_t decryption_data(uint8_t buffer_p,uint8_t *buffer )
+//{
+//   	uint8_t cnt,temp1,temp2,random,swap;
+//    /*---decrypt code---*/
+//	random = buffer[0];
+//	random = ((random>>4)+(random&0x0f))%16;
+//	//random = 0;
+//	for( cnt=1;cnt<(buffer_p-1);cnt++ )
+//	{
+//		temp2 = buffer[cnt];
+//		temp1 = encryption_code[random];	
+//		temp2 ^= temp1;					//xor		
+//		swap = temp2 <<6;				//left shift 2 bit
+//		temp2 >>= 2;
+//		temp2 += swap;
+//		swap = temp2<<4;					//4bit swap
+//		temp2 >>=4;
+//		temp2 += swap;	
+//		temp2 ^= temp1;					//xor	
+//		buffer[cnt-1] = temp2;
+//		if( ++random>=16 )
+//			random = 0;			
+//	}
+//	return(cnt-1);       
+//}
 
-uint8_t decryption_data(uint8_t buffer_p,uint8_t *buffer )
-{
-   	uint8_t cnt,temp1,temp2,random,swap;
-    /*---decrypt code---*/
-	random = buffer[0];
-	random = ((random>>4)+(random&0x0f))%16;
-	//random = 0;
-	for( cnt=1;cnt<(buffer_p-1);cnt++ )
-	{
-		temp2 = buffer[cnt];
-		temp1 = encryption_code[random];	
-		temp2 ^= temp1;					//xor		
-		swap = temp2 <<6;				//left shift 2 bit
-		temp2 >>= 2;
-		temp2 += swap;
-		swap = temp2<<4;					//4bit swap
-		temp2 >>=4;
-		temp2 += swap;	
-		temp2 ^= temp1;					//xor	
-		buffer[cnt-1] = temp2;
-		if( ++random>=16 )
-			random = 0;			
-	}
-	return(cnt-1);       
-}
-
-uint8_t encryption_data(uint8_t tp_cnt )
-{
-    uint8_t temp,cnt1,cnt2,temp1,random,swap,type,page;
-	uint8_t check_sum,random_log;
-	/*------------random number---------------*/
-	random = (rand()>>8)^rand()^random_rx;
-	random_log = random;
-	check_sum = random;
-	random = ((random>>4)+(random&0x0f))%16;	
-	/*------------encryption ---------------*/
-    cnt1 = 0;
-	do{
-		temp = rsp_buffer[cnt1];
-		/*------------encryption ---------------*/
-		temp1 = encryption_code[random];		
-		temp ^= temp1;					//xor
-		swap = temp<<4;					//4bit swap
-		temp >>=4;
-		temp += swap;	
-		swap = temp >>6;				//left shift 2 bit
-		temp <<= 2;
-		temp += swap;
-		temp ^= temp1;					//xor
-		rsp_buffer[cnt1] = temp;
-		if( ++random>=16 )
-			random = 0;
-		/*-------------encryption --------------*/
-		check_sum ^= temp;	  	
-	}while(++cnt1<tp_cnt);
-    CLRWDT();
-    for( cnt1=tp_cnt;cnt1--;cnt1!=0 )
-    {
-        rsp_buffer[cnt1] = rsp_buffer[cnt1-1];        
-    }
-    rsp_buffer[0] = random_log;
-    tp_cnt++;
-	rsp_buffer[tp_cnt++] = check_sum;
-    return(tp_cnt);
-}
+//uint8_t encryption_data(uint8_t tp_cnt )
+//{
+//    uint8_t temp,cnt1,cnt2,temp1,random,swap,type,page;
+//	uint8_t check_sum,random_log;
+//	/*------------random number---------------*/
+//	random = (rand()>>8)^rand()^random_rx;
+//	random_log = random;
+//	check_sum = random;
+//	random = ((random>>4)+(random&0x0f))%16;	
+//	/*------------encryption ---------------*/
+//    cnt1 = 0;
+//	do{
+//		temp = rsp_buffer[cnt1];
+//		/*------------encryption ---------------*/
+//		temp1 = encryption_code[random];		
+//		temp ^= temp1;					//xor
+//		swap = temp<<4;					//4bit swap
+//		temp >>=4;
+//		temp += swap;	
+//		swap = temp >>6;				//left shift 2 bit
+//		temp <<= 2;
+//		temp += swap;
+//		temp ^= temp1;					//xor
+//		rsp_buffer[cnt1] = temp;
+//		if( ++random>=16 )
+//			random = 0;
+//		/*-------------encryption --------------*/
+//		check_sum ^= temp;	  	
+//	}while(++cnt1<tp_cnt);
+//    CLRWDT();
+//    for( cnt1=tp_cnt;cnt1--;cnt1!=0 )
+//    {
+//        rsp_buffer[cnt1] = rsp_buffer[cnt1-1];        
+//    }
+//    rsp_buffer[0] = random_log;
+//    tp_cnt++;
+//	rsp_buffer[tp_cnt++] = check_sum;
+//    return(tp_cnt);
+//}
 
 uint8_t OTA_send_data_to_server(void)
 {
@@ -577,18 +577,6 @@ uint8_t check_OTA(void)
     }while(--cnt!=0);
 
     return('E');
-}
-
-void check_OTA_status()
-{
-//    If it was all received correctly, the OTA controller will just re-program the hub. 
-//    Nothing needs to be implemented in hub code for this.
-//    If it wasn't received correctly, the OTA controller will send the string "OFA" to the hub. 
-//    This signals an OTA failure, at which point the hub needs to check the server again 24 hours later, 
-//    instead of the 15-day (or whatever is programmed) check-in time.    
-    
-    
-    
 }
 
 uint8_t get_ota_ip_addr()

@@ -30,7 +30,6 @@ typedef enum ota_resp {
 /*****************************************************
  * FUNCTION PROTOTYPES
  ****************************************************/
-void    check_OTA_status();
 uint8_t get_ota_ip_addr();
 uint8_t get_ip1_addr();
 ota_resp_t wait_ota_status(uint16_t count);

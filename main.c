@@ -134,18 +134,18 @@ void int_init()
     GIE = 1; 
 }
 
-void init_stack_buffer()
-{    
-	uint8_t cnt,rsp,temp;
-    
-    for( rsp=0;rsp<BUFFER_STACK;rsp++ )
-    {
-        cnt = 0;
-        do{
-            stack_buffer[rsp][cnt] = 0x00;
-        }while(++cnt<LOG_MAX_T);
-    }
-}
+//void init_stack_buffer()
+//{    
+//	uint8_t cnt,rsp,temp;
+//    
+//    for( rsp=0;rsp<BUFFER_STACK;rsp++ )
+//    {
+//        cnt = 0;
+//        do{
+//            stack_buffer[rsp][cnt] = 0x00;
+//        }while(++cnt<LOG_MAX_T);
+//    }
+//}
 
 void init_global_variables()
 {
