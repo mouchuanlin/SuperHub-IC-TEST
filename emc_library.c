@@ -324,7 +324,7 @@ uint8_t chk_data_type(uint8_t *buffer,uint8_t buffer_p)
     delay5ms(200);
     delay5ms(200);
         delay5ms(200);
-        soutdata("AT+Q=$");
+        soutdata((uinit8_t *) "AT+Q=$");
         cnt = 0;
         do{
             temp1 = buffer[cnt];            
@@ -347,7 +347,7 @@ uint8_t chk_data_type(uint8_t *buffer,uint8_t buffer_p)
 	}else
 	{	
         #ifdef DEBUG
-        soutdata("AT+C=$");
+        soutdata((uinit8_t *) "AT+C=$");
         #endif
 		cnt = 0;
 		do{
@@ -410,7 +410,7 @@ send_start:
         //------------------------
 #ifdef DEBUG
         delay5ms(200);
-        soutdata("AT+Q=$");
+        soutdata((uinit8_t *) "AT+Q=$");
         out_sbuf(ascii[enc_cnt>>4]);
         out_sbuf(ascii[enc_cnt&0x0f]);
         out_sbuf('-');
@@ -452,7 +452,7 @@ send_start:
                             delay5ms(200);
                             //------------------------
                             #ifdef DEBUG
-                            soutdata("AT+U=$");
+                            soutdata((uinit8_t *) "AT+U=$");
                             out_sbuf(ascii[debug_p>>4]);
                             out_sbuf(ascii[debug_p&0x0f]);
                             out_sbuf('-');
@@ -493,7 +493,7 @@ send_start:
             //move_stack_buffer();
             delay5ms(200);
             #ifdef DEBUG
-            soutdata("AT+OK=1\r\n$");
+            soutdata((uinit8_t *) "AT+OK=1\r\n$");
             delay5ms(200);
             #endif
             retry_count = 0;

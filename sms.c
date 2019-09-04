@@ -25,30 +25,30 @@ uint8_t x_cnt;
 
 void set_sms_init(void)
 {
-    uint8_t const cmgf[] = "AT+CMGF=1\r\n$";
-    uint8_t const cpms[] = "AT+CPMS=\"ME\",\"ME\",\"ME\"\r\n$";
-	uint8_t const cnmi[] = "AT+CNMI=1,1\r\n$";
+    uint8_t cmgf[] = "AT+CMGF=1\r\n$";
+    uint8_t cpms[] = "AT+CPMS=\"ME\",\"ME\",\"ME\"\r\n$";
+	uint8_t cnmi[] = "AT+CNMI=1,1\r\n$";
     //sms
     CREN1 = 0;
-    soutdata(&cmgf);
+    soutdata(cmgf);
     wait_ok_respond(40);
- //   soutdata(&cpms);
+ //   soutdata(cpms);
  //   wait_ok_respond(40);
- //   soutdata(&cnmi);
+ //   soutdata(cnmi);
  //   wait_ok_respond(40);    
 }
 
 //---------------------------------------------------
 uint8_t check_sms(void)
 {
-  	uint8_t const cmgl[]="AT+CMGL=\"ALL\"\r\n$";
+  	uint8_t cmgl[]="AT+CMGL=\"ALL\"\r\n$";
   	uint8_t temp, a, b, c;
     uint8_t buffer[160];
     uint8_t buffer_p = 0;
     uint16_t count;
     
     CREN1 = 0;
-	soutdata(&cmgl);
+	soutdata(cmgl);
     T3CON = 0x71;
     TMR3H = 0xa0;   //50ms
     TMR3L = 0;

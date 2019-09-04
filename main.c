@@ -164,22 +164,22 @@ void init_global_variables()
 // TODO: Why input/output difference b/w smoke hub and super hub???
 uint8_t get_hub_type()
 {
-    uint8_t hub_type = 0;
+    uint8_t hubtype = 0;
     
     if( VER_SELECT==1 )
     {
-        hub_type = SMOKE_HUB;
+        hubtype = SMOKE_HUB;
         TEST_PIN = 1;
         TEST_PIN_TRIS = INPUT;
         INT2IE = 1;     //Enable Int2 interrupt
     }else{              //super hub
-        hub_type = SUPER_HUB;   
+        hubtype = SUPER_HUB;   
         LED_RX_IN = 1;
         LED_RX_IN_TRIS = OUTPUT;
         INT2IE = 0;     //Disable Int2 interrupt
     }
     
-    return hub_type;
+    return hubtype;
 }
 
 void buzzer_on(uint8_t count)

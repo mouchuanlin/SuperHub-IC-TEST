@@ -14,19 +14,20 @@
 
 void TL_module_first_run(void)
 {    
-    uint8_t const led_910[] = "AT#GPIO=1,0,2\r\n$";   //910
-    uint8_t const led_866[] = "AT#GPIO=7,0,2\r\n$";   //866
-
-	uint8_t const led1[] = "AT#SLED=4\r\n$";
+    uint8_t led_910[] = "AT#GPIO=1,0,2\r\n$";   //910
+    uint8_t led_866[] = "AT#GPIO=7,0,2\r\n$";   //866
+	uint8_t led1[] = "AT#SLED=4\r\n$";
 
     //led
-    soutdata("ATE1\r\n$");
+    soutdata((uint8_t *) "ATE1\r\n$");
     wait_ok_respond(20);
     if( Module_type==LE910)
-        soutdata(&led_910);
-    else soutdata(&led_866);
+        soutdata(led_910);
+    else 
+        soutdata(led_866);
+    
     wait_ok_respond(40);
-    soutdata(&led1);
+    soutdata(led1);
     wait_ok_respond(40);    
     //time
 }
@@ -35,13 +36,13 @@ void TL_module_first_run(void)
 uint8_t TL_internet_init(void)
 {
     // Socket Configuration - #SCFG
-    uint8_t const scfg[]="AT#SCFG=1,3,300,90,200,50\r\n$";
+    uint8_t scfg[]="AT#SCFG=1,3,300,90,200,50\r\n$";
     // GPRS Attach Or Detach - +CGATT
-	uint8_t const cgatt[]="AT+CGATT=1\r\n$";
+	uint8_t cgatt[]="AT+CGATT=1\r\n$";
     // Define PDP context- +CGDCONT
-	uint8_t const cgdcont[]="AT+CGDCONT=3,\"IP\",\"$";	
+	uint8_t cgdcont[]="AT+CGDCONT=3,\"IP\",\"$";	
     //uint8_t const cgdcont[]="AT+CGDCONT=1,\"IP\",\"internet\"\r\n$";	
-    uint8_t const sgact[]="AT#SGACT=3,1\r\n$";    
+    uint8_t sgact[]="AT#SGACT=3,1\r\n$";    
 	uint8_t cnt,temp,count;
     uint8_t buffer_p,buffer[32];
 
@@ -76,7 +77,7 @@ uint8_t TL_internet_init(void)
     
     CREN1 = 0;
     // AT#SGACT=3,1
-	soutdata(&sgact);
+	soutdata(sgact);
 	count = 0;
     buffer_p = 0;
     RCIE = 0;
@@ -118,8 +119,8 @@ uint8_t TL_internet_init(void)
 //---------------------------------------------------
 uint8_t TL_connection_open(uint8_t type)
 {
-	uint8_t const netconnect[]="AT#SD=1,0,$";
-    uint8_t const net_2[]="\",0,0,1\r\n$";
+	uint8_t netconnect[]="AT#SD=1,0,$";
+    uint8_t net_2[]="\",0,0,1\r\n$";
     //uint8_t const netconnect[]="AT#SD=1,0,2020,\"211.22.241.58\",0,0,1\r\n$";
     uint8_t buffer_p,buffer[32];
 	uint8_t cnt,temp;
@@ -132,7 +133,7 @@ uint8_t TL_connection_open(uint8_t type)
         return('E');
     CREN1 = 0;
     // AT#SD=1,0,2021,"72.197.171.234",0,0,1
-	soutdata(&netconnect);
+	soutdata(netconnect);
     
     //------ port ------
     // Get 2 bytes of port number
@@ -197,7 +198,7 @@ uint8_t TL_connection_open(uint8_t type)
 		cnt++;
 	}while( temp!='#' );     
     CLRWDT();
-	soutdata(&net_2);
+	soutdata(net_2);
 	out_sbuf(0x0d);
 	out_sbuf(0x0a);
 
@@ -213,28 +214,28 @@ uint8_t TL_connection_open(uint8_t type)
 //---------------------------------------------------
 void TL_connection_close(void)
 {
-	uint8_t const TCP_close[]="AT#SH=1\r\n$";
+	uint8_t TCP_close[]="AT#SH=1\r\n$";
 
     CREN1 = 0;
 	delay5ms(200);
-	soutdata(&TCP_close);
+	soutdata(TCP_close);
 	delay5ms(200);
 }
 
 //---------------------------------------------------
 void TL_internet_close(void)
 {
-	uint8_t const NT_close[]="AT#SGACT=3,0\r\n$";
+	uint8_t NT_close[]="AT#SGACT=3,0\r\n$";
 
     CREN1 = 0;
 	delay5ms(200);
-	soutdata(&NT_close);
+	soutdata(NT_close);
 	delay5ms(200);
 }
 
 uint8_t TL_send_data_to_server(void)
 {
-    uint8_t const send[]="AT#SSENDEXT=1,$";
+    uint8_t send[]="AT#SSENDEXT=1,$";
     uint8_t buffer_p;
 	uint8_t cnt,temp,as;
     uint8_t tp_cnt;
@@ -243,7 +244,7 @@ uint8_t TL_send_data_to_server(void)
     if( encryption==0 )
         tp_cnt--;
     CREN1 = 0;
-    soutdata(&send);
+    soutdata(send);
     cnt = tp_cnt;
     // Convert to ASCII - 0x30 is 0
     out_sbuf((cnt/100)+0x30);
@@ -268,7 +269,7 @@ uint8_t TL_send_data_to_server(void)
     }while(++as!=0&&temp!='>');  
     CREN1 = 0;
     delay5ms(100);
-   // soutdata(&ass);
+   // soutdata(ass);
     cnt = 0;
     do{
         temp = rsp_buffer[cnt];
@@ -292,11 +293,12 @@ uint8_t TL_receive_data_from_server(void)
 //      +++123456
 //
 //      OK
-    uint8_t const SRECV[]="AT#SRECV=1,200\r\n$";
+    uint8_t SRECV[]="AT#SRECV=1,200\r\n$";
     uint8_t buffer_p,buffer[250];
 	uint8_t cnt,temp,type,err;
+    
     CREN1 = 0;
-    soutdata(&SRECV);
+    soutdata(SRECV);
     RCIE = 0;
     CREN1 = 1;
     cnt = 100;
@@ -334,7 +336,7 @@ uint8_t TL_receive_data_from_server(void)
                             type = 1;
                     }else
                     {
-                        temp = chk_data_type(&buffer,buffer_p);
+                        temp = chk_data_type(&buffer[0],buffer_p);
                         if( temp=='E' )
                             temp = 'R';
                         return(temp);

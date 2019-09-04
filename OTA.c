@@ -61,7 +61,7 @@ ota_resp_t wait_ota_status(uint16_t count)
                     if (strncmp(buffer, "CONNECT", 7) == 0)
                         resp = OTA_CONNECT;
                     // RED from server
-                    else if ( buffer[0]=='R'&&buffer[1]=='E'&&buffer[2]=='D' )
+                    if (strncmp(buffer, "RED", 3) == 0)
                         resp = OTA_RED;
                     // NO CARRIER
                     else if (strncmp(buffer, "NO CARRIER", 10) == 0)
@@ -148,7 +148,7 @@ uint8_t wait_connect_respond(uint16_t count)
                     buffer_p = 0;
                 }
         	}
-//            check_receive_overrun();
+            check_receive_overrun();
      	}while(TMR3IF==0);
         CLRWDT();
         TMR3IF = 0;
@@ -249,7 +249,7 @@ uint8_t encryption_data(uint8_t tp_cnt )
 
 uint8_t OTA_send_data_to_server(void)
 {
-    uint8_t const send[]="AT#SSENDEXT=1,$";
+    uint8_t send[]="AT#SSENDEXT=1,$";
     uint8_t buffer_p;
 	uint8_t cnt,temp,as;
     uint8_t tp_cnt;
@@ -269,7 +269,7 @@ uint8_t OTA_send_data_to_server(void)
     //tp_cnt = encryption_data(tp_cnt);
     
     CREN1 = 0;
-    soutdata(&send);
+    soutdata(send);
     cnt = tp_cnt;
     out_sbuf((cnt/100)+0x30);
     cnt %= 100;
@@ -293,7 +293,7 @@ uint8_t OTA_send_data_to_server(void)
     }while(++as!=0&&temp!='>');  
     CREN1 = 0;
     delay5ms(100);
-   // soutdata(&ass);
+   // soutdata(ass);
     cnt = 0;
     do{
         temp = rsp_buffer[cnt];
@@ -317,11 +317,11 @@ uint8_t OTA_receive_data_from_server(void)
 //      +++123456
 //
 //      OK
-    uint8_t const SRECV[]="AT#SRECV=1,200\r\n$";
+    uint8_t SRECV[]="AT#SRECV=1,200\r\n$";
     uint8_t buffer_p,buffer[250];
 	uint8_t cnt,temp,type,err;
     CREN1 = 0;
-    soutdata(&SRECV);
+    soutdata(SRECV);
     RCIE = 0;
     CREN1 = 1;
     cnt = 100;
@@ -392,9 +392,9 @@ uint8_t OTA_receive_data_from_server(void)
 //---------------------------------------------------
 uint8_t OTA_connection_open(uint8_t type)   //0: command mode 1:online mode
 {
-	uint8_t const netconnect[]="AT#SD=1,0,$";
-    uint8_t const net_2[]="\",0,0,1\r\n$"; 
-    uint8_t const net_3[]="\",0,0,0\r\n$";
+	uint8_t netconnect[]="AT#SD=1,0,$";
+    uint8_t net_2[]="\",0,0,1\r\n$"; 
+    uint8_t net_3[]="\",0,0,0\r\n$";
     //uint8_t const netconnect[]="AT#SD=1,0,2020,\"211.22.241.58\",0,0,1\r\n$";
     uint8_t buffer_p,buffer[32];
 	uint8_t cnt,temp;
@@ -414,7 +414,7 @@ uint8_t OTA_connection_open(uint8_t type)   //0: command mode 1:online mode
         return('E');
     CREN1 = 0;
     // AT#SD=1,0,2020,"198.17.112.128",0,0,1
-	soutdata(&netconnect);
+	soutdata(netconnect);
     //------ port ------
     if( ip_sel == 0)
     {
@@ -482,8 +482,9 @@ uint8_t OTA_connection_open(uint8_t type)   //0: command mode 1:online mode
 	}while( temp!='#' );     
     CLRWDT();
     if( type==0 )        
-        soutdata(&net_2);
-    else soutdata(&net_3);
+        soutdata(net_2);
+    else 
+        soutdata(net_3);
 	//Connect ok / fail
 	buffer_p = 0;
 	cnt = 200;
@@ -532,12 +533,12 @@ uint8_t check_OTA(void)
                     if( rsp=='C' )
                     {
                         // send to server - RFQ;
-                        soutdata("RFQ$");
+                        soutdata((uint8_t *) "RFQ$");
 
                         // Wait for RED from server
                         rsp = wait_connect_respond(1500);
                         // ESC
-//                         soutdata("+++$");
+//                         soutdata((uinit8_t *) "+++$");
 //                        delayseconds(3);
                         if( rsp=='E' )
                         {                        

@@ -63,8 +63,8 @@ uint8_t wait_AT_cmd_response()
         //UART1_init(19200);
         // mlin - setup modem baud rate
         ///// STEP 2. - +IPR to set modem baudrate to 19200 bps
-        soutdata("AT+IPR=115200\r\n$");
-        //soutdata("AT+IPR=19200\r\n$");
+        soutdata((uint8_t *) "AT+IPR=115200\r\n$");
+        //soutdata((uint8_t *) "AT+IPR=19200\r\n$");
         wait_ok_respond(40);
         //UART_init();
         delay5ms(20);
@@ -118,23 +118,23 @@ uint8_t wait_AT_cmd_response()
     TL_module_first_run();
     //--------------------------------
     delay5ms(100);
-    soutdata("AT+VER=$");
+    soutdata((uint8_t *) "AT+VER=$");
     
     // TODO: This should no functional at all???
     //      THIS IS FOR DEBUG PURPOSE.
     if( VER_SELECT==1 )
-        soutdata("Smoke HUB,$");
+        soutdata((uint8_t *) "Smoke HUB,$");
     else 
-        soutdata("Super HUB,$");
+        soutdata((uint8_t *)"Super HUB,$");
 	
     if( Module_type==EMS31 )    
-        soutdata("EMS31\r\n$");
+        soutdata((uint8_t *) "EMS31\r\n$");
     else if( Module_type==PLS8 )    
-        soutdata("PLS8\r\n$");
+        soutdata((uint8_t *) "PLS8\r\n$");
     else if( Module_type==LE910 )    
-        soutdata("LE910\r\n$");    
+        soutdata((uint8_t *) "LE910\r\n$");    
     else //if( Module_type==LE866 )    
-        soutdata("LE866\r\n$");    
+        soutdata((uint8_t *) "LE866\r\n$");    
     delayseconds(1);
 	
 	return 1;
@@ -208,7 +208,7 @@ uint8_t check_network_registration()
     //send_test_AT_commands();
     
     // mlin - why "AT\\Q0\r\n$"
-    soutdata("AT\\Q0\r\n$");
+    soutdata((uint8_t *) "AT\\Q0\r\n$");
     
 //    soutdata(AT+CMGS=\"5665776987\"\r\n$");
     
@@ -220,61 +220,61 @@ uint8_t check_network_registration()
 void send_test_AT_commands()
 {
     // TODO:
-    soutdata("AT+CMEE=2\r\n$");    
+    soutdata((uint8_t *) "AT+CMEE=2\r\n$");    
     delay5ms(20);
 
-    soutdata("AT#CCID\r\n$");    
+    soutdata((uint8_t *) "AT#CCID\r\n$");    
     delay5ms(20);
 
-    soutdata("CSQ\r\n$");    
+    soutdata((uint8_t *) "AT+CSQ\r\n$");    
     delay5ms(20);
     
-    soutdata("AT#MONI\r\n$");    
+    soutdata((uint8_t *) "AT#MONI\r\n$");    
     delay5ms(20);  
     
-    soutdata("AT+COPS?\r\n$");    
+    soutdata((uint8_t *) "AT+COPS?\r\n$");    
     delay5ms(20); 
     
-    soutdata("AT+CGREG?\r\n$");    
+    soutdata((uint8_t *) "AT+CGREG?\r\n$");    
     delay5ms(20); 
     
-    soutdata("AT+CEREG?\r\n$");    
+    soutdata((uint8_t *) "AT+CEREG?\r\n$");    
     delay5ms(20);
     
-    soutdata("AT+CGDCONT?\r\n$");    
+    soutdata((uint8_t *) "AT+CGDCONT?\r\n$");    
     delay5ms(20);   
     
-    soutdata("AT#SGACT=1,1\r\n$");    
+    soutdata((uint8_t *) "AT#SGACT=1,1\r\n$");    
     delay5ms(20);
     
-    soutdata("AT+CGSN\r\n$");    
+    soutdata((uint8_t *) "AT+CGSN\r\n$");    
     delay5ms(20);
     
-    soutdata("AT#SNUM=1,9566405896\r\n$");    
+    soutdata((uint8_t *) "AT#SNUM=1,9566405896\r\n$");    
     delay5ms(20);
     
-    soutdata("AT+CNUM\r\n$");    
+    soutdata((uint8_t *) "AT+CNUM\r\n$");    
     delay5ms(20); 
     
-    soutdata("AT+CNUM=?\r\n$");    
+    soutdata((uint8_t *) "AT+CNUM=?\r\n$");    
     delay5ms(20);          
     
-    soutdata("AT+CPIN?\r\n$");    
+    soutdata((uint8_t *) "AT+CPIN?\r\n$");    
     delay5ms(20);  
    
-    soutdata("AT+CGMR\r\n$");    
+    soutdata((uint8_t *) "AT+CGMR\r\n$");    
     delay5ms(20);
     
-    soutdata("AT+CIMI\r\n$");    
+    soutdata((uint8_t *) "AT+CIMI\r\n$");    
     delay5ms(20);
     
-    soutdata("ATI1\r\n$");    
+    soutdata((uint8_t *) "ATI1\r\n$");    
     delay5ms(20);
     
-    soutdata("ATI4\r\n$");    
+    soutdata((uint8_t *) "ATI4\r\n$");    
     delay5ms(20);    
     
-    soutdata("CSQ\r\n$");    
+    soutdata((uint8_t *) "AT+CSQ\r\n$");    
     delay5ms(20);    
 }
 
@@ -516,7 +516,7 @@ void out_sbuf(uint8_t tmp)
     TX1REG = tmp;
 }
 
-void soutdata(uint8_t *dat)
+void soutdata(uint8_t dat[])
 {
     uint8_t temp,cnt;
     cnt = 0;
@@ -591,13 +591,13 @@ uint8_t wait_ok_respond(uint16_t count)
 
 uint8_t check_module_run(void)
 {
-    const uint8_t at[]="AT\r\n$";
+    uint8_t at[]="AT\r\n$";
   	uint8_t temp,cnt;
 	uint8_t buffer[32];
 	uint8_t buf_cnt=0;
  
     CREN1 = 0;
-	soutdata(&at);
+	soutdata(at);
     T3CON = 0x71;
     TMR3H = 0x40;   //50ms
     TMR3L = 0;
@@ -631,8 +631,8 @@ uint8_t check_module_run(void)
 
 uint8_t check_module_version(uint8_t type)
 {
-    const uint8_t at4[]="ATI4\r\n$";
-    const uint8_t at3[]="ATI1\r\n$";
+    uint8_t at4[]="ATI4\r\n$";
+    uint8_t at3[]="ATI1\r\n$";
   	uint8_t temp,cnt;
 	uint8_t buffer[32];
 	uint8_t buf_cnt=0;
@@ -641,7 +641,7 @@ uint8_t check_module_version(uint8_t type)
 //    if( type%2==0 )
 //        soutdata(&at4);
 //    else soutdata(&at3);
-    soutdata(&at4);
+    soutdata(at4);
     T3CON = 0x71;
     TMR3H = 0x40;   //50ms
     TMR3L = 0;
@@ -703,15 +703,15 @@ uint8_t check_module_version(uint8_t type)
 
 uint8_t check_sim_card(void)
 {
-    const uint8_t cpin[]="AT+CPIN?\r\n$";
-    const uint8_t cpin_s[]="+CPIN: READY$";
+    uint8_t cpin[]="AT+CPIN?\r\n$";
+    uint8_t cpin_s[]="+CPIN: READY$";
   	uint8_t temp,cnt;
   	uint8_t receive=0;
 	uint8_t buffer[32];
 	uint8_t buf_cnt=0;
  
     CREN1 = 0;
-	soutdata(&cpin);
+	soutdata(cpin);
     T3CON = 0x71;
     TMR3H = 0x40;   //50ms
     TMR3L = 0;
@@ -771,18 +771,19 @@ uint8_t check_sim_card(void)
 
 uint8_t check_register(uint8_t type)
 {
-    const uint8_t creg[]="AT+CREG?\r\n$";
-  	const uint8_t creg_s[]="+CREG: $";
-    const uint8_t cereg[]="AT+CEREG?\r\n$";
-  	const uint8_t cereg_s[]="+CEREG: $";
+    uint8_t creg[]="AT+CREG?\r\n$";
+  	uint8_t creg_s[]="+CREG: $";
+    uint8_t cereg[]="AT+CEREG?\r\n$";
+  	uint8_t cereg_s[]="+CEREG: $";
   	uint8_t temp,cnt;
 	uint8_t buffer[32];
 	uint8_t buf_cnt=0;
 
     CREN1 = 0;
     if( type==0 )
-        soutdata(&creg);
-    else soutdata(&cereg);
+        soutdata(creg);
+    else 
+        soutdata(cereg);
     
     // TXCON: TIMER1/3/5 CONTROL REGISTER
     T3CON = 0x71;   // 0111 0001
@@ -864,7 +865,8 @@ uint8_t check_csq(void)
     uint8_t count,temp,temp1;
     uint8_t buffer_p,buffer[250];
     CREN1 = 0;
-  	soutdata(&csq);
+  	//soutdata(csq);
+    soutdata((uint8_t *) "AT+CSQ\r\n$");
   	count=20;
   	buffer_p=0;
     CREN1 = 1;
