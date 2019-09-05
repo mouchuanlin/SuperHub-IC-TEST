@@ -2,10 +2,6 @@
 // modem.c
 //
 
-#include <pic18f26k22.h>
-#include <xc.h>
-#include <string.h>
-
 #include "modem.h"
 #include "io.h"
 #include "led.h"
@@ -834,7 +830,7 @@ uint8_t check_register(uint8_t type)
                                 temp++;
                                 if ( creg_s[temp]== '$' )
                                 {
-                                    if( buffer[temp+2]=='1'|| buffer[temp+2]=='5' )
+                                    if( buffer[temp+2U]=='1'|| buffer[temp+2U]=='5' )
                                     {
                                         TMR3ON = 0;
                                         RC1IE = 1;
@@ -850,7 +846,7 @@ uint8_t check_register(uint8_t type)
                                 temp++;
                                 if ( cereg_s[temp]== '$' )
                                 {
-                                    if( buffer[temp+2]=='1'|| buffer[temp+2]=='5' )
+                                    if( buffer[temp+2U]=='1'|| buffer[temp+2U]=='5' )
                                     {
                                         TMR3ON = 0;
                                         RC1IE = 1;
@@ -906,9 +902,9 @@ uint8_t check_csq(void)
               			temp=buffer[6];
 			  			temp1=buffer[7];
 			  			if(temp1==',')			  			
-			    			temp=temp&0x0f;
+			    			temp = (uint8_t) (temp & 0x0f);
 			  			else			  			
-							temp=(temp&0x0f)*10+(temp1&0x0f);			  			
+							temp = (uint8_t)((temp & 0x0f))*10U + (uint8_t)(temp1&0x0f);			  			
 						signal_val = temp;
                         TMR3ON=0;
 			  			return(temp);

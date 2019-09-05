@@ -844,7 +844,7 @@ uint8_t respond_setting(uint8_t type,uint8_t off_set)
 			data_int += read_ee(0x01,0xF1);
         }else data_int = 0;
 		cnt = 0;
-		temp = data_int/10000;
+		temp = data_int/10000U;
 		if( temp!=0 )
 		{	
 			cnt = 1;
@@ -862,17 +862,17 @@ uint8_t respond_setting(uint8_t type,uint8_t off_set)
 		if( temp!=0||cnt==1 )
 		{
 			cnt = 1;
-			rsp_buffer[off_set++] = temp+0x30;
+			rsp_buffer[off_set++] = (uint8_t) (temp+0x30);
 		}
 		data_int %= 100;
 		temp = data_int/10;
 		if( temp!=0||cnt==1 )
 		{
 			cnt = 1;
-			rsp_buffer[off_set++] = temp+0x30;
+			rsp_buffer[off_set++] = (uint8_t) (temp+0x30);
 		}
 		temp = data_int%10;
-		rsp_buffer[off_set++] = temp+0x30;
+		rsp_buffer[off_set++] = (uint8_t) (temp+0x30);
 		rsp_buffer[off_set++] = ',';
 	}else if( (type==0x07)||(type==0x08)||(type==0x09)||(type==0x15)||(type==0x16) ) //07,08,09,15,16
 	{	
@@ -889,15 +889,15 @@ uint8_t respond_setting(uint8_t type,uint8_t off_set)
             addr = 0xBD; 
 		off_tp = off_set;
 		temp = read_ee(page,addr);
-		addr = temp/100;
+		addr = temp/100U;
 		if( addr!=0 )
-			rsp_buffer[off_set++] = addr+0x30;
+			rsp_buffer[off_set++] = (uint8_t) (addr+0x30);
 	  	temp %= 100;
-		addr = temp/10;
+		addr = temp/10U;
 		if( addr!=0 || (off_tp!=off_set) )
-			rsp_buffer[off_set++] = addr+0x30;
+			rsp_buffer[off_set++] = (uint8_t) (addr+0x30);
 	  	temp %= 10;
-		rsp_buffer[off_set++] = temp+0x30;
+		rsp_buffer[off_set++] = (uint8_t) (temp+0x30);
 		rsp_buffer[off_set++] = ',';
 	}else
 	{

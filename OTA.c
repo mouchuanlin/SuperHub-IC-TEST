@@ -2,11 +2,6 @@
 // OTA.c
 //
 
-
-#include <pic18f26k22.h>
-#include <xc.h>
-#include <string.h>
-
 #include "OTA.h"
 #include "io.h"
 #include "eeprom.h"
@@ -345,9 +340,10 @@ uint8_t OTA_receive_data_from_server(void)
                 #endif
 				if( ++buffer_p>=250 )				
                  buffer_p = 249;			
-		  		if( temp==0x0a&&buffer[buffer_p-2]==0x0d )	//Network opened
+		  		if( (temp==0x0a) && (buffer[buffer_p-2U]==0x0d) )	//Network opened
 				{
-                    if( buffer[0]=='E'&&buffer[1]=='R'&&buffer[2]=='R'&&buffer[3]=='O'&&buffer[4]=='R' )                     
+                    //if( buffer[0]=='E'&&buffer[1]=='R'&&buffer[2]=='R'&&buffer[3]=='O'&&buffer[4]=='R' )   
+                    if (strncmp(buffer, "ERROR", 5) == 0)
                     {
                         TMR3ON = 0;
                         CREN1 = 0;
@@ -428,38 +424,38 @@ uint8_t OTA_connection_open(uint8_t type)   //0: command mode 1:online mode
         addr = 0xB0;
     }
 
-	port = read_ee(page,addr)<<8;
+	port = (uint16_t) (read_ee(page,addr)<<8U);
 	port += read_ee(page,addr+1U);
 	cnt = 0;
 	temp = port/10000;
 	if( temp!=0 )
 	{	
 		cnt = 1;
-		out_sbuf( temp+0x30 );
+		out_sbuf( (uint8_t) (temp+0x30) );
 	}
 	port %= 10000;
 	temp = port/1000;
 	if( temp!=0||cnt==1 )
 	{
 		cnt = 1;
-		out_sbuf( temp+0x30 );
+		out_sbuf( (uint8_t) (temp+0x30) );
 	}
 	port %= 1000;
 	temp = port/100;
 	if( temp!=0||cnt==1 )
 	{
 		cnt = 1;
-		out_sbuf( temp+0x30 );
+		out_sbuf( (uint8_t) (temp+0x30) );
 	}
 	port %= 100;
 	temp = port/10;
 	if( temp!=0||cnt==1 )
 	{
 		cnt = 1;
-		out_sbuf( temp+0x30 );
+		out_sbuf( (uint8_t) (temp+0x30) );
 	}
 	temp = port%10;
-	out_sbuf( temp+0x30 );
+	out_sbuf( (uint8_t) (temp+0x30) );
     out_sbuf(',');
     out_sbuf('"');
     //------ IP ------    

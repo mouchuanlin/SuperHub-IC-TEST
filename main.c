@@ -2,9 +2,6 @@
 // main.c
 //
 
-#include <pic18f26k22.h>
-#include <xc.h>
-
 // Configuration, global variable and forward declaration.
 #include "config.h"
 #include "main.h"

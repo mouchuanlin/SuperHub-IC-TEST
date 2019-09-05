@@ -34,6 +34,8 @@ uint8_t set_n41_to_68(uint8_t);
 uint8_t back_door_function(uint8_t);
 uint8_t set_n98(void);
 
+extern void write_ee(uint8_t page, uint8_t addr, uint8_t data_p);
+
 /*****************************************************
  * VARIABLES
  ****************************************************/

@@ -2,9 +2,6 @@
 // uart.c
 //
 
-#include <pic18f26k22.h>
-#include <xc.h>
-
 #include "uart.h"
 #include "emc_library.h"
 #include "io.h"

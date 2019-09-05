@@ -2,9 +2,6 @@
 // timer.c
 //
 
-#include <pic18f26k22.h>
-#include <xc.h>
-
 #include "timer.h"
 #include "emc_library.h"
 #include "io.h"
@@ -398,7 +395,7 @@ void calculate_adc_time()
     // Use timer0 to calculate.
     //if( ++adc_count >= (18000*0.9888) )       //[3600*10]*100ms=3600sec=1hr            //0.979  -1.56
     // TODO: FOR TESTING ONLY
-    if( ++adc_count >= 300 )       //[3600*10]*100ms=3600sec=1hr            //0.979  -1.56
+    if( ++adc_count >= 200 )       //[3600*10]*100ms=3600sec=1hr            //0.979  -1.56
     {            
         chk_supervisory++;    //----add supervisory
         adc_count = 0;   
@@ -442,7 +439,7 @@ void calculate_adc_time()
 // Once not receive the data, then report device failure
 void response_low_batt()
 {
-    uint8_t cnt1,cnt2,temp;
+    uint8_t cnt1;
     
     // smoke hub battery
     for( cnt1=0;cnt1<16;cnt1++ )    //28
@@ -451,10 +448,10 @@ void response_low_batt()
         {
             // RF Battery
             if( device_id_table[cnt1][6]=='B' )                  
-                add_event(LOW_BATTERY_T,cnt1+3); 
+                add_event(LOW_BATTERY_T,cnt1+3U); 
             // RF periodical report
             if( device_id_table[cnt1][7]=='S' )                  
-                add_event(SUPERVISORY_T,cnt1+3);            
+                add_event(SUPERVISORY_T,cnt1+3U);            
         }
     }
     CLRWDT();

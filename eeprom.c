@@ -2,9 +2,6 @@
 // eeprom.c
 //
 
-#include <pic18f26k22.h>
-#include <xc.h>
-
 #include "eeprom.h"
 #include "io.h"
 

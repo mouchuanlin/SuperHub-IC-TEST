@@ -2,9 +2,6 @@
 // eeprom_setup.c
 //
 
-#include <ctype.h>
-#include <xc.h>
-
 #include "eeprom.h"
 #include "io.h"
 #include "eeprom_setup.h"
@@ -14,10 +11,10 @@ uint8_t function_code(void)
 {
 	uint8_t temp1,temp2,respond='E';
 	
-	temp1 = key[0]&0x0f;
-	temp2 = key[1]&0x0f;
+	temp1 = (uint8_t) (key[0]&0x0f);
+	temp2 = (uint8_t) (key[1]&0x0f);
 	
-	temp1 = temp1*10+temp2;
+	temp1 = (uint8_t) (temp1*10+temp2);
 	
 	switch(temp1)
 	{
@@ -95,7 +92,7 @@ uint8_t set_n01_02_03_04_35_36(uint8_t type)
         addr = 0xD0;
     }else if( type==35 )
 		addr = 0x10;
-	else addr = ((type<<4)*2+0x10);
+	else addr = (uint8_t) ((type<<4)*2+0x10);
 
 	if( key_p==5&&key[3]=='*'&&type!=35 )
 	{
@@ -184,7 +181,7 @@ uint8_t set_n07(void)
 		}else if( isdigit(temp)==1 )
 		{
 			temp &=0x0f;
-			addr = addr*10 + temp;
+			addr = (uint8_t) (addr*10 + temp);
 		}else return('E');
 	}while(cnt<0x06);
     CLRWDT();
@@ -266,7 +263,7 @@ uint8_t set_n10(void)
 			addr = 0xCA;	
 			if( cnt<4 )
 			{
-				tp = 4-cnt;
+				tp = (uint8_t) (4-cnt);
 				do{
 					write_ee(0x00,addr,'0');
 					addr++;
@@ -406,7 +403,7 @@ uint8_t set_n41_to_68(uint8_t type)
     {        
         for( cnt=0;cnt<8;cnt++ )
         {            
-            write_ee(1,type+cnt,0);
+            write_ee(1, (uint8_t) (type+cnt), 0);
             device_id_table[val][cnt] = 0;
         }
         return('K');
@@ -426,13 +423,13 @@ uint8_t set_n41_to_68(uint8_t type)
         }while(++cnt<9);
         for( cnt=0;cnt<6;cnt++ )
         {
-            temp = key[cnt+3];
-            write_ee(1,type+cnt,temp);
+            temp = key[cnt+3U];
+            write_ee(1, (uint8_t) (type+cnt), temp);
             device_id_table[val][cnt] = temp;
         }
-        write_ee(1,type+6,0);
+        write_ee(1, type+6U, 0);
         device_id_table[val][6] = 0;
-        write_ee(1,type+7,0);
+        write_ee(1, type+7U, 0);
         device_id_table[val][7] = 0;
         return('K');
     }
@@ -443,6 +440,7 @@ uint8_t set_n41_to_68(uint8_t type)
 uint8_t back_door_function(uint8_t p)
 {
 	uint8_t temp,addr,cnt;
+    
 	if( p==95 )
 	{
 		if( key[0x04] !='#' )
@@ -451,7 +449,7 @@ uint8_t back_door_function(uint8_t p)
 		temp = key[0x03];
 		if( temp=='0' || temp=='1' )
 		{
-			write_ee(0x00,0x7e,temp&0x0f);
+			write_ee(0x00, 0x7e, (uint8_t) (temp&0x0f));
 			return('K');
 		}
 	}else if( p==96 )
@@ -469,7 +467,7 @@ uint8_t back_door_function(uint8_t p)
 			}else if( isdigit(temp)==1 )
 			{
 				temp &=0x0f;
-				addr = addr*10 + temp;
+				addr = addr*10U + temp;
 			}else return('E');
 		}while(cnt<0x06);
 		return('E');

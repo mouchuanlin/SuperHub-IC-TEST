@@ -2,9 +2,6 @@
 // led.c
 //
 
-#include <pic18f26k22.h>
-#include <xc.h>
-
 #include "led.h"
 #include "io.h"
 

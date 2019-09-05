@@ -27,6 +27,7 @@ uint8_t chk_data_type(uint8_t *buffer, uint8_t buffer_p);
 
 extern void soutdata(const uint8_t *dat);
 extern void out_sbuf(uint8_t tmp);
+extern uint8_t read_ee(uint8_t page,uint8_t addr);
 
 /*****************************************************
  * VARIABLES

@@ -2,10 +2,6 @@
 // telit.c
 //
 
-
-#include <pic18f26k22.h>
-#include <xc.h>
-
 #include "io.h"
 #include "eeprom.h"
 #include "emc_library.h"

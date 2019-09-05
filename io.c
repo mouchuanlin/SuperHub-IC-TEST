@@ -2,11 +2,6 @@
 // io.c
 //
 
-
-
-#include <pic18f26k22.h>
-#include <xc.h>
-
 #include "io.h"
 
 void IO_init(void)
