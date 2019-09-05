@@ -156,9 +156,9 @@ void process_RF_data()
 	if( rx2_cnt>=7 )
 	{
 		cnt = 0;
-		if( (rx2_buf[rx2_cnt-7]=='$') && (rx2_buf[rx2_cnt-2]== CR) )                    
+		if( (rx2_buf[rx2_cnt-7U]=='$') && (rx2_buf[rx2_cnt-2U]== CR) )                    
 		{
-			for(zone=rx2_cnt-7;zone<rx2_cnt;zone++ )
+			for(zone=rx2_cnt-7U; zone<rx2_cnt; zone++ )
 			{
 				rx2_buf[cnt++] = rx2_buf[zone];
 			}
@@ -179,11 +179,11 @@ void process_RF_data()
         
 		temp = rx2_buf[4];
 
-		zone = check_ID(&id);       //respond zone number(3~30),error=0
+		zone = check_ID(id);       //respond zone number(3~30),error=0
 	   
 		if( zone!=0 )
 		{
-			device_id_table[zone-3][7] = 0;     //clear supervisory count
+			device_id_table[zone-3U][7] = 0;     //clear supervisory count
 			LED_RX_OUT = 0;                     // Yellow ON - active LOW
 		}
         // Real sensor device alarms.
@@ -195,7 +195,7 @@ void process_RF_data()
         {
             // Button 5-2/5-3 case.
 			if( (learning_mode==KEY_ADD_ID) && (zone==0) )
-				zone = add_ID(&id); 
+				zone = add_ID(id); 
             
             // TODO: Why del_ID() input zone instead of id???
             else if( (learning_mode==KEY_DEL_ID) && (zone!=0) )
@@ -221,7 +221,7 @@ void decode_device_id(uint8_t id[])
     rx2_cnt = 1;                                             
     do{
         // Convert from HEX to ASCII
-        temp = (rx2_buf[rx2_cnt]>>4)&0x0f;
+        temp = (uint8_t) ((rx2_buf[rx2_cnt] >> 4) & 0x0f);
         if( temp>=10 )
         {
             temp += 0x41;
@@ -230,7 +230,7 @@ void decode_device_id(uint8_t id[])
         
         id[(rx2_cnt-1)*2] = temp;
     //    out_sbuf2(temp);////
-        temp = rx2_buf[rx2_cnt]&0x0f;
+        temp = (uint8_t) (rx2_buf[rx2_cnt] & 0x0f);
         if( temp>=10 )
         {
             temp += 0x41;
@@ -305,18 +305,18 @@ void send_sensor_alarm(uint8_t zone, uint8_t id[])
          //Tamper open
 		if( ((rx2_buf[4]&0x02)!=0) )
 		{
-			if( device_id_table[zone-3][8]==0 )
+			if( device_id_table[zone-3U][8]==0 )
 			{
 				add_event(TAMPER_OPEN_T,zone);     
-				device_id_table[zone-3][8]=1; 
+				device_id_table[zone-3U][8]=1; 
 			}
 		}
         else    //Tamper close
 		{
-			if( device_id_table[zone-3][8]==1 )
+			if( device_id_table[zone-3U][8]==1 )
 			{
 				add_event(TAMPER_CLOSE_T,zone);     
-				device_id_table[zone-3][8]=0; 
+				device_id_table[zone-3U][8]=0; 
 			}
 		}
         //Low Battery

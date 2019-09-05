@@ -12,7 +12,7 @@ extern "C" {
 /*****************************************************
  * INCLUDES
  ****************************************************/    
-#include "stdint.h"  
+#include "inc.h"
     
 /*****************************************************
  * FUNCTION PROTOTYPES
@@ -30,11 +30,12 @@ void    get_access_code();
 void    check_receive_overrun();
 
 extern void     out_sbuf(uint8_t tmp);
-extern void     soutdata(uint8_t *dat);
+extern void     soutdata(const uint8_t *dat);
 extern uint8_t  wait_ok_respond(uint16_t);
 extern uint8_t  check_csq(void);
 extern void     reload_timer3_100ms();
 extern void     reload_timer3_50ms();
+extern uint8_t  read_ee(uint8_t page,uint8_t addr);
 
 /*****************************************************
  * VARIABLES

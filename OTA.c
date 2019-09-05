@@ -249,7 +249,7 @@ uint8_t wait_connect_respond(uint16_t count)
 
 uint8_t OTA_send_data_to_server(void)
 {
-    uint8_t send[]="AT#SSENDEXT=1,$";
+    const uint8_t send[]="AT#SSENDEXT=1,$";
     uint8_t buffer_p;
 	uint8_t cnt,temp,as;
     uint8_t tp_cnt;
@@ -271,10 +271,10 @@ uint8_t OTA_send_data_to_server(void)
     CREN1 = 0;
     soutdata(send);
     cnt = tp_cnt;
-    out_sbuf((cnt/100)+0x30);
-    cnt %= 100;
-    out_sbuf((cnt/10)+0x30);
-    out_sbuf((cnt%10)+0x30);
+    out_sbuf((cnt/100U)+0x30);
+    cnt %= 100U;
+    out_sbuf((cnt/10U)+0x30);
+    out_sbuf((cnt%10U)+0x30);
     out_sbuf('\r');
     //out_sbuf('\n');
     RCIE = 0;
@@ -317,7 +317,7 @@ uint8_t OTA_receive_data_from_server(void)
 //      +++123456
 //
 //      OK
-    uint8_t SRECV[]="AT#SRECV=1,200\r\n$";
+    const uint8_t SRECV[]="AT#SRECV=1,200\r\n$";
     uint8_t buffer_p,buffer[250];
 	uint8_t cnt,temp,type,err;
     CREN1 = 0;
@@ -392,9 +392,9 @@ uint8_t OTA_receive_data_from_server(void)
 //---------------------------------------------------
 uint8_t OTA_connection_open(uint8_t type)   //0: command mode 1:online mode
 {
-	uint8_t netconnect[]="AT#SD=1,0,$";
-    uint8_t net_2[]="\",0,0,1\r\n$"; 
-    uint8_t net_3[]="\",0,0,0\r\n$";
+	const uint8_t netconnect[]="AT#SD=1,0,$";
+    const uint8_t net_2[]="\",0,0,1\r\n$"; 
+    const uint8_t net_3[]="\",0,0,0\r\n$";
     //uint8_t const netconnect[]="AT#SD=1,0,2020,\"211.22.241.58\",0,0,1\r\n$";
     uint8_t buffer_p,buffer[32];
 	uint8_t cnt,temp;
@@ -429,7 +429,7 @@ uint8_t OTA_connection_open(uint8_t type)   //0: command mode 1:online mode
     }
 
 	port = read_ee(page,addr)<<8;
-	port += read_ee(page,addr+1);
+	port += read_ee(page,addr+1U);
 	cnt = 0;
 	temp = port/10000;
 	if( temp!=0 )

@@ -12,8 +12,7 @@ extern "C" {
 /*****************************************************
  * INCLUDES
  ****************************************************/
-#include "stdint.h"
-#include "stdbool.h"
+#include "inc.h"   
 
 #include "led.h"
     
@@ -21,6 +20,8 @@ extern "C" {
 /*****************************************************
  * FUNCTION PROTOTYPES
  ****************************************************/  
+uint8_t read_ee(uint8_t, uint8_t );
+void    write_ee(uint8_t page, uint8_t addr, uint8_t data_p);
 void    init_eeprom(void);
 void    load_default(void);
 //void    check_led_type(void);
@@ -30,8 +31,7 @@ uint8_t add_ID(uint8_t *ptr);
 uint8_t del_ID(uint8_t id);
 uint8_t send_trigger_to_RF(uint8_t type);
 void    write_EE_setting(uint8_t page, uint8_t addr, uint8_t const setting[]);
-uint8_t read_ee(uint8_t, uint8_t );
-void    write_ee(uint8_t page, uint16_t addr, uint16_t data_p);
+
 
 extern void     delay5ms(uint16_t);
 extern void     delayseconds(uint16_t secs);    

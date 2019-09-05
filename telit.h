@@ -12,7 +12,7 @@ extern "C" {
 /*****************************************************
  * INCLUDES
  ****************************************************/    
-#include "stdint.h"
+#include "inc.h"
 
 /*****************************************************
  * FUNCTION PROTOTYPES
@@ -30,6 +30,7 @@ uint8_t get_ip_addr(uint8_t type);
  * VARIABLES
  ****************************************************/
 extern uint8_t wait_ok_respond(uint16_t);
+extern void out_sbuf(uint8_t tmp);
 
 #ifdef	__cplusplus
 }

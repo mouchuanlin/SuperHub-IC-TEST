@@ -8,9 +8,8 @@
 /*****************************************************
  * INCLUDES
  ****************************************************/
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdlib.h>
+#include "inc.h"
+
 #include "state.h"
 #include "led.h"
 

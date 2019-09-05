@@ -8,8 +8,7 @@
 /*****************************************************
  * INCLUDES
  ****************************************************/
-#include "stdint.h"
-#include "stdbool.h"
+#include "inc.h"
 
 #include "state.h"
 
@@ -30,7 +29,7 @@ uint8_t start_sms();
 void    process_event_queue();
 uint8_t process_SMS_setup_state();
 void    out_sbuf(uint8_t tmp);
-void    soutdata(uint8_t *dat);
+void    soutdata(const uint8_t *dat);
 void    out_sbuf2(uint8_t);
 uint8_t wait_ok_respond(uint16_t);
 uint8_t check_module_version(uint8_t type);
@@ -45,7 +44,7 @@ extern void     delay5ms(uint16_t cnt);
 extern void     TL_module_first_run(void);
 extern void     check_led_type(void);
 extern uint8_t  read_ee(uint8_t page,uint8_t addr);
-extern void     write_ee(uint8_t page, uint16_t addr, uint16_t data_p);
+extern void     write_ee(uint8_t page, uint8_t addr, uint8_t data_p);
 extern void     set_sms_init(void);
 extern void     check_event(void);
 extern uint8_t  check_sms(void);

@@ -31,7 +31,7 @@ uint8_t save_stack_header(void)
 		{
 			stack_buffer[tp_cnt][0] = 'P';
 			stack_buffer[tp_cnt][1] = 1;				//dial type
-			temp = (read_ee(0x00,0x7b)<<4);				//line fault
+			temp = (uint8_t)(read_ee(0x00,0x7b)<<4U);				//line fault
 			/* new add 12/09 */
 			if( read_ee(0x01,0x20)==0x0c )				//retry count if line2 empty,line1 retry <5>
 				temp += RETRY_NUMBER1;	

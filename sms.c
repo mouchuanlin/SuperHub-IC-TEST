@@ -2,13 +2,6 @@
 // sms.c
 //
 
-
-#include <pic18f26k22.h>
-#include <string.h>
-#include <xc.h>
-#include <ctype.h>
-
-
 #include "io.h"
 #include "eeprom.h"
 #include "sms.h"
@@ -25,9 +18,9 @@ uint8_t x_cnt;
 
 void set_sms_init(void)
 {
-    uint8_t cmgf[] = "AT+CMGF=1\r\n$";
-    uint8_t cpms[] = "AT+CPMS=\"ME\",\"ME\",\"ME\"\r\n$";
-	uint8_t cnmi[] = "AT+CNMI=1,1\r\n$";
+    const uint8_t cmgf[] = "AT+CMGF=1\r\n$";
+    const uint8_t cpms[] = "AT+CPMS=\"ME\",\"ME\",\"ME\"\r\n$";
+	const uint8_t cnmi[] = "AT+CNMI=1,1\r\n$";
     //sms
     CREN1 = 0;
     soutdata(cmgf);
@@ -41,7 +34,7 @@ void set_sms_init(void)
 //---------------------------------------------------
 uint8_t check_sms(void)
 {
-  	uint8_t cmgl[]="AT+CMGL=\"ALL\"\r\n$";
+  	const uint8_t cmgl[]="AT+CMGL=\"ALL\"\r\n$";
   	uint8_t temp, a, b, c;
     uint8_t buffer[160];
     uint8_t buffer_p = 0;
@@ -135,7 +128,7 @@ void get_access_code()
             
 	// get access code from eeprom
     do{
-        access_code[temp] = read_ee(0x00,0xC0+temp);
+        access_code[temp] = read_ee(0x00, (uint8_t)(0xC0+temp));
     }while(++temp<7);       
 }
 
@@ -143,12 +136,13 @@ void get_access_code()
 uint8_t read_sms(uint8_t a,uint8_t b,uint8_t c)
 {
 	//+CMGR: "REC READ","+886937608095",,"11/08/26,15:51:59+32"
-	uint8_t const cmgr[]="AT+CMGR=$";
+	const uint8_t cmgr[]="AT+CMGR=$";
   	uint8_t temp,count,t_p;
   	uint8_t crt=0;
 	uint16_t sp_tp,in_tp;
 	uint8_t start_a,ct;
 	uint8_t enter_cnt=0;
+    
     CREN1 = 0;
 	memset( sms_buffer,0xff,sizeof(sms_buffer) );
 	memset( time,'0',sizeof(time) );
@@ -213,7 +207,7 @@ uint8_t read_sms(uint8_t a,uint8_t b,uint8_t c)
 					{
 						crt=5;
 						for( t_p=0;t_p<8;t_p++)
-							time[t_p] = time[t_p+1];
+							time[t_p] = time[t_p+1U];
 						time[8]='"';
 					}
 				}
@@ -234,7 +228,7 @@ uint8_t read_sms(uint8_t a,uint8_t b,uint8_t c)
 						else										
 							break;
 						
-			  			sms_buffer[sms_p-1] = 0xcc;
+			  			sms_buffer[sms_p-1U] = 0xcc;
 						
 			 	 		crt=check_remote();
 			  			if(crt=='K')				//setup function
@@ -263,7 +257,7 @@ uint8_t read_sms(uint8_t a,uint8_t b,uint8_t c)
 //---------------------------------------------------
 void delete_sms(uint8_t a,uint8_t b,uint8_t c)
 {
-  	uint8_t cmgd[]="AT+CMGD=$";
+  	const uint8_t cmgd[]="AT+CMGD=$";
   	uint8_t temp,count;
     CREN1 = 0;
   	soutdata(cmgd);
@@ -354,15 +348,15 @@ uint8_t remote_setting(void)
 	{
 		x_cnt++;
         // 20#
-		if( (sms_buffer[x_cnt]=='0')&&(sms_buffer[x_cnt+1]=='#') )
+		if( (sms_buffer[x_cnt]=='0') && (sms_buffer[x_cnt+1U]=='#') )
 		{
 			x_cnt += 2;
 			respond = 'X';
 			// 1111##20sensor# - query sensor info
-			if( (toupper(sms_buffer[x_cnt]) == 'S') && (toupper(sms_buffer[x_cnt+1]) == 'E') && 
-				(toupper(sms_buffer[x_cnt+2]) == 'N') && (toupper(sms_buffer[x_cnt+3]) == 'S') && 
-				(toupper(sms_buffer[x_cnt+4]) == 'O') && (toupper(sms_buffer[x_cnt+5]) == 'R') &&  
-                (sms_buffer[x_cnt+6]=='#')   )  //SEMSOR
+			if( (toupper(sms_buffer[x_cnt]) == 'S') && (toupper(sms_buffer[x_cnt+1U]) == 'E') && 
+				(toupper(sms_buffer[x_cnt+2U]) == 'N') && (toupper(sms_buffer[x_cnt+3U]) == 'S') && 
+				(toupper(sms_buffer[x_cnt+4U]) == 'O') && (toupper(sms_buffer[x_cnt+5U]) == 'R') &&  
+                (sms_buffer[x_cnt+6U]=='#')   )  //SEMSOR
             {
                 off_set = 0;
                 for( temp1=0;temp1<16;temp1++ )
@@ -387,14 +381,14 @@ uint8_t remote_setting(void)
                     }
                     for( temp2=0;temp2<6;temp2++)
                     {
-                        temp = read_ee(1,(temp1*8)+temp2);
+                        temp = read_ee(1,(temp1*8U)+temp2);
                         if( temp2==0&&temp==0 )
                             break;
                         rsp_buffer[off_set++] = temp;
                     }                    
                     rsp_buffer[off_set++] = ',';
                 }     
-                rsp_buffer[off_set-1] = 0x0d;
+                rsp_buffer[off_set-1U] = 0x0d;
             }/*else if(  (sms_buffer[x_cnt]=='S')||(sms_buffer[x_cnt]=='s')&&(sms_buffer[x_cnt+1]=='M')||(sms_buffer[x_cnt+1]=='m')&&(sms_buffer[x_cnt+2]=='O')||(sms_buffer[x_cnt+2]=='o')&&
                        (sms_buffer[x_cnt+3]=='K')||(sms_buffer[x_cnt+3]=='k')&&(sms_buffer[x_cnt+4]=='E')||(sms_buffer[x_cnt+4]=='e')&&(sms_buffer[x_cnt+5]=='#')   )  //SMOKE
             {        
@@ -420,7 +414,7 @@ uint8_t remote_setting(void)
 				if( toupper(sms_buffer[x_cnt]) == 'L' )
 				{
 					x_cnt++;
-					if( (toupper(sms_buffer[x_cnt]) == 'L') && (sms_buffer[x_cnt+1] == '#') )
+					if( (toupper(sms_buffer[x_cnt]) == 'L') && (sms_buffer[x_cnt+1U] == '#') )
 					{
 						rsp_buffer[0]='V';
 						rsp_buffer[1]='.';
@@ -433,13 +427,13 @@ uint8_t remote_setting(void)
 						off_set = 8;
 						temp= 1;
 						do{
-							temp1 = temp/10;
-							temp2 = temp%10;
-							temp1 = (temp1<<4)+temp2;
+							temp1 = temp/10U;
+							temp2 = temp%10U;
+							temp1 = (uint8_t)((temp1<<4U)+temp2);
 							if( (temp1>=0x1&&temp1<=0x12)||(temp1>=0x14&&temp1<=0x16)||((temp1>=0x31)&&(temp1<=0x37)) )
 								off_set = respond_setting(temp1,off_set);
 						}while(++temp<0x38);						
-						rsp_buffer[off_set-1]=0x0d;
+						rsp_buffer[off_set-1U]=0x0d;
 				 	}else respond='E';
 				}else respond='E';
 			}else
@@ -459,7 +453,7 @@ uint8_t remote_setting(void)
                         rsp_buffer[off_set++] = ' ';
 						break;
                     }
-					temp = ( (temp&0x0f)<<4 ) + (temp1&0x0f);
+					temp = (uint8_t) (((temp&0x0f)<<4U) + (temp1&0x0f));
 					temp1 = sms_buffer[x_cnt++];
 					if( temp1=='#' )
 					{
@@ -470,7 +464,7 @@ uint8_t remote_setting(void)
 					}else break;
 				}while(x_cnt<sms_p);			
 				if( off_set!=0x00 )
-					rsp_buffer[off_set-1]=0x0d;
+					rsp_buffer[off_set-1U]=0x0d;
 				respond = 'X';
 			}
 	  	}else x_cnt--;
@@ -487,7 +481,7 @@ uint8_t remote_setting(void)
 				key[key_p++] = temp;
 				if( temp==','||temp==0xcc )
 				{
-					key[key_p-1] = '#';
+					key[key_p-1U] = '#';
 					if( key_p<5 )
 						respond = 'E';
 					else if(key[2]=='#'||key[3]=='#' )
@@ -542,7 +536,7 @@ uint8_t remote_setting(void)
 void send_respond(uint8_t type)
 {
 	uint8_t temp;
-  	uint8_t const cmgs[]="AT+CMGS=\"$"; 
+  	const uint8_t const cmgs[]="AT+CMGS=\"$"; 
   	uint8_t a,b,c;
 	uint8_t page,addr,ad_tp;
 	uint8_t x_tp,x_vl,over_dp;
@@ -562,7 +556,7 @@ void send_respond(uint8_t type)
 				{
 					addr = 0;
 					if( a!=0 )
-						rsp_buffer[a-1] = '-';
+						rsp_buffer[a-1U] = '-';
 					do{
 						temp = read_ee(page,addr);
 						rsp_buffer[a] = temp;
@@ -574,7 +568,7 @@ void send_respond(uint8_t type)
 				   	else
 					{
 						a = ad_tp;
-						rsp_buffer[a-1] = 'N';
+						rsp_buffer[a-1U] = 'N';
 						a++;
 						break;
 					}
@@ -591,7 +585,7 @@ void send_respond(uint8_t type)
 				rsp_buffer[5] = 'g';
 				rsp_buffer[6] = 0x0d;
 		  	}
-		   	else rsp_buffer[a-1] = 0x0d;
+		   	else rsp_buffer[a-1U] = 0x0d;
 		}else page=8;
         CREN1 = 0;
 	  	soutdata(cmgs);
@@ -687,7 +681,7 @@ void send_respond(uint8_t type)
 /*void send_pdu_sms(uint8_t type)
 {
 	uint8_t temp;
-  	uint8_t code cmgs[]="AT+CMGS=$";
+  	const uint8_t code cmgs[]="AT+CMGS=$";
   	uint8_t a,b;
   	IEN0=0;
   	soutdata(cmgs);
@@ -765,6 +759,7 @@ uint8_t respond_setting(uint8_t type,uint8_t off_set)
 {
 	uint8_t addr,temp,off_tp,page,cnt;
 	uint16_t data_int;
+    
 	off_tp = off_set;
 	page = 0;
 	if( (type>=0x01&&type<=0x05)||(type==0x10)||(type==0x11)||(type==0x35)||(type==0x36) )			//01~05,10,11,35,36
@@ -793,7 +788,7 @@ uint8_t respond_setting(uint8_t type,uint8_t off_set)
         }
 		cnt = 0;
 		do{
-			temp = read_ee(page,addr+cnt);
+			temp = read_ee(page, (uint8_t) (addr+cnt));
 			if( temp=='#'||temp==0x0c )
 				break;
 		   	rsp_buffer[off_set++] = temp;
@@ -829,23 +824,23 @@ uint8_t respond_setting(uint8_t type,uint8_t off_set)
 	{
 		if( type==0x31 )
 		{
-			data_int = read_ee(0x00,0xB0)<<8;
+			data_int = (uint8_t) (read_ee(0x00,0xB0)<<8U);
 			data_int += read_ee(0x00,0xB1);
 		}else if( type==0x32)
 		{
-			data_int = read_ee(0x00,0xB2)<<8;
+			data_int = (uint8_t) (read_ee(0x00,0xB2)<<8U);
 			data_int += read_ee(0x00,0xB3);
 		}else if( type==0x33)
 		{
-			data_int = read_ee(0x00,0xB4)<<8;
+			data_int = (uint8_t) (read_ee(0x00,0xB4)<<8U);
 			data_int += read_ee(0x00,0xB5);
 		}else if( type==0x34 )
 		{
-			data_int = read_ee(0x00,0xB6)<<8;
+			data_int = (uint8_t) (read_ee(0x00,0xB6)<<8U);
 			data_int += read_ee(0x00,0xB7);
 		}else if( type==0x37 )
         {
-            data_int = read_ee(0x01,0xF0)<<8;
+            data_int = (uint8_t) (read_ee(0x01,0xF0)<<8U);
 			data_int += read_ee(0x01,0xF1);
         }else data_int = 0;
 		cnt = 0;
@@ -853,14 +848,14 @@ uint8_t respond_setting(uint8_t type,uint8_t off_set)
 		if( temp!=0 )
 		{	
 			cnt = 1;
-			rsp_buffer[off_set++] = temp+0x30;
+			rsp_buffer[off_set++] = (uint8_t) (temp+0x30);
 		}
 		data_int %= 10000;
 		temp = data_int/1000;
 		if( temp!=0||cnt==1 )
 		{
 			cnt = 1;
-			rsp_buffer[off_set++] = temp+0x30;
+			rsp_buffer[off_set++] = (uint8_t) (temp+0x30);
 		}
 		data_int %= 1000;
 		temp = data_int/100;

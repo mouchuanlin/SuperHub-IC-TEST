@@ -23,7 +23,7 @@ uint8_t read_ee(uint8_t page,uint8_t addr)
 	return(p_data);
 }
 
-void write_ee(uint8_t page, uint16_t addr, uint16_t data_p)
+void write_ee(uint8_t page, uint8_t addr, uint8_t data_p)
 {
     GIE = 0;
     EEADRH = page;
@@ -58,6 +58,8 @@ void write_ee(uint8_t page, uint16_t addr, uint16_t data_p)
 
 void init_eeprom()
 {   
+    uint16_t port1L, port2L, port3L, port4L;
+        
     //---------Check Version-----------
     // This make sure we only run first time.
     if((read_ee(EE_PAGE0,  VER_ADDR0) == VERSION[0]) && 
@@ -75,18 +77,31 @@ void init_eeprom()
     write_EE_setting(EE_PAGE0, IP3_ADDR, IP3);
     //---------IP4-----------
     write_EE_setting(EE_PAGE0, IP4_ADDR, IP4);
+    
     //---------PORT1---------
     write_ee(EE_PAGE0, PORT1_ADDR, (PORT1 >> 8));
-    write_ee(EE_PAGE0, (PORT1_ADDR+1), (PORT1 & 0x00ff));
+    port1L = PORT1 & 0x00ff;
+    //write_ee(EE_PAGE0, (PORT1_ADDR+1), (uint8_t)(PORT1 & 0x00ff));
+    write_ee(EE_PAGE0, (PORT1_ADDR+1), (uint8_t)port1L);
+    
     //---------PORT2---------
     write_ee(EE_PAGE0, PORT2_ADDR, (PORT2 >> 8));
-    write_ee(EE_PAGE0, (PORT2_ADDR+1), (PORT2 & 0x00ff));
+    port2L = PORT2 & 0x00ff;
+    //write_ee(EE_PAGE0, (PORT2_ADDR+1), (uint8_t)(PORT2 & 0x00ff));
+    write_ee(EE_PAGE0, (PORT2_ADDR+1), (uint8_t)port2L);
+    
     //---------PORT3---------
     write_ee(EE_PAGE0, PORT3_ADDR, (PORT3 >> 8));
-    write_ee(EE_PAGE0, (PORT3_ADDR+1),(PORT3 & 0x00ff));
+    port3L = PORT3 & 0x00ff;
+    //write_ee(EE_PAGE0, (PORT3_ADDR+1), (uint8_t)(PORT3 & 0x00ff));
+     write_ee(EE_PAGE0, (PORT3_ADDR+1), (uint8_t)port3L);
+     
     //---------PORT4---------
     write_ee(EE_PAGE0, PORT4_ADDR, (PORT4 >> 8));
-    write_ee(EE_PAGE0, (PORT4_ADDR+1), (PORT4 & 0x00ff));
+    port4L = PORT4 & 0x00ff;
+    //write_ee(EE_PAGE0, (PORT4_ADDR+1), (uint8_t)(PORT4 & 0x00ff));
+    write_ee(EE_PAGE0, (PORT4_ADDR+1), (uint8_t)port4L);
+    
     //---------ACCESS_CODE-----------
     write_EE_setting(EE_PAGE0, ACCESS_CODE_ADDR, ACCESS_CODE);
     //---------PROGRAM_ACK-----------
@@ -123,7 +138,9 @@ void init_eeprom()
     write_EE_setting(EE_PAGE1, IP_OTA_ADDR, IP_OTA); 
     //---------PORT OTA---------    		//37
     write_ee(EE_PAGE1, PORT_OTA_ADDR, (PORT_OTA >> 8));
-    write_ee(EE_PAGE1, (PORT_OTA_ADDR+1), (PORT_OTA & 0x00ff));
+    uint16_t otaport = PORT_OTA & 0x00ff;
+    //write_ee(EE_PAGE1, (PORT_OTA_ADDR+1), (uint8_t)(PORT_OTA & 0x00ff));
+    write_ee(EE_PAGE1, (PORT_OTA_ADDR+1), (uint8_t)otaport);
     
     //------------------------------
     write_ee(EE_PAGE0, VER_ADDR0, VERSION[0]);
@@ -147,7 +164,7 @@ void write_EE_setting(uint8_t page, uint8_t addr, uint8_t const setting[])
 
     do {
         temp = setting[cnt];
-        write_ee(page, addr+cnt, temp);
+        write_ee(page, (uint8_t) (addr+cnt), temp);
         cnt++;
     } while (temp != '#');    
 }
@@ -173,16 +190,16 @@ void load_device_id_table()
     uint8_t cnt1,cnt2,addr;
     for( cnt1=0;cnt1<28;cnt1++ )
     {
-        addr =cnt1*8;
+        addr =cnt1*8U;
         for( cnt2=0;cnt2<8;cnt2++ )
-            device_id_table[cnt1][cnt2] = read_ee(1,addr+cnt2 );
+            device_id_table[cnt1][cnt2] = read_ee(1, (uint8_t)(addr+cnt2) );
         
         device_id_table[cnt1][cnt2] = 0;
     }
     CLRWDT();
 }
 
-uint8_t check_ID(uint8_t *ptr)
+uint8_t check_ID(uint8_t ptr[])
 {
     uint8_t cnt1,cnt2,temp;
     for( cnt1=0;cnt1<16;cnt1++ ) //28
@@ -201,7 +218,7 @@ uint8_t check_ID(uint8_t *ptr)
         if( cnt2==6 )
         {
     //        out_sbuf2('S');
-            return(cnt1+3);   //respond Zone number 3~30
+            return(cnt1+3U);   //respond Zone number 3~30
         }
     }
     CLRWDT();
@@ -218,17 +235,17 @@ uint8_t add_ID(uint8_t *ptr)
         temp = device_id_table[cnt1][0];
         if( temp==0x00 )
         {            
-            addr =cnt1*8;
+            addr =cnt1*8U;
             for( cnt2=0;cnt2<6;cnt2++)
             {
                 temp = ptr[cnt2];
                 device_id_table[cnt1][cnt2]=temp;
-                write_ee(1,(addr+cnt2),temp);
+                write_ee(1,(uint8_t)(addr+cnt2),temp);
             }
             device_id_table[cnt1][6]=0;
-            write_ee(1,addr+6,0);
+            write_ee(1,addr+6U,0);
             device_id_table[cnt1][7]=0;
-            write_ee(1,addr+7,0);
+            write_ee(1,addr+7U,0);
             device_id_table[cnt1][8]=0;
             GIE = 1;
             return('K');
@@ -243,11 +260,11 @@ uint8_t del_ID(uint8_t id)
 {
     uint8_t addr,cnt1;
     id -=3;
-    addr =id*8;
+    addr =id*8U;
     for( cnt1=0;cnt1<8;cnt1++ )
     {
         device_id_table[id][cnt1] = 0x00;
-        write_ee(1,addr+cnt1,0x00);
+        write_ee(1, (uint8_t) (addr+cnt1), 0x00);
         return('K');
     }
     CLRWDT();

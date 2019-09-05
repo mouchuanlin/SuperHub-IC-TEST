@@ -2,22 +2,6 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="4">
         <file>
-            <url>uart.c</url>
-            <bookmark id="3">
-                <name/>
-                <line>202</line>
-                <key/>
-            </bookmark>
-        </file>
-        <file>
-            <url>OTA.c</url>
-            <bookmark id="4">
-                <name/>
-                <line>63</line>
-                <key/>
-            </bookmark>
-        </file>
-        <file>
             <url>Main.c</url>
             <bookmark id="1">
                 <name/>
@@ -33,12 +17,27 @@
                 <key/>
             </bookmark>
         </file>
+        <file>
+            <url>uart.c</url>
+            <bookmark id="3">
+                <name/>
+                <line>202</line>
+                <key/>
+            </bookmark>
+        </file>
+        <file>
+            <url>OTA.c</url>
+            <bookmark id="4">
+                <name/>
+                <line>63</line>
+                <key/>
+            </bookmark>
+        </file>
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/bitbucket/SuperHub-IC-TEST/modem.c</file>
-            <file>file:/D:/bitbucket/SuperHub-IC-TEST/telit.c</file>
-            <file>file:/D:/bitbucket/SuperHub-IC-TEST/modem.h</file>
+            <file>file:/D:/bitbucket/SuperHub-IC-TEST/inc.h</file>
+            <file>file:/D:/bitbucket/SuperHub-IC-TEST/main.h</file>
         </group>
     </open-files>
 </project-private>

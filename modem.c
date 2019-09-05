@@ -519,7 +519,7 @@ void out_sbuf(uint8_t tmp)
     TX1REG = tmp;
 }
 
-void soutdata(uint8_t dat[])
+void soutdata(const uint8_t dat[])
 {
     uint8_t temp,cnt;
     cnt = 0;
@@ -635,8 +635,8 @@ uint8_t check_module_run(void)
 
 uint8_t check_module_version(uint8_t type)
 {
-    uint8_t at4[]="ATI4\r\n$";
-    uint8_t at3[]="ATI1\r\n$";
+    const uint8_t at4[]="ATI4\r\n$";
+    const uint8_t at3[]="ATI1\r\n$";
   	uint8_t temp,cnt;
 	uint8_t buffer[32];
 	uint8_t buf_cnt=0;
@@ -720,8 +720,8 @@ uint8_t check_module_version(uint8_t type)
 
 uint8_t check_sim_card(void)
 {
-    uint8_t cpin[]="AT+CPIN?\r\n$";
-    uint8_t cpin_s[]="+CPIN: READY$";
+    const uint8_t cpin[]="AT+CPIN?\r\n$";
+    const uint8_t cpin_s[]="+CPIN: READY$";
   	uint8_t temp,cnt;
   	uint8_t receive=0;
 	uint8_t buffer[32];
@@ -788,10 +788,10 @@ uint8_t check_sim_card(void)
 
 uint8_t check_register(uint8_t type)
 {
-    uint8_t creg[]="AT+CREG?\r\n$";
-  	uint8_t creg_s[]="+CREG: $";
-    uint8_t cereg[]="AT+CEREG?\r\n$";
-  	uint8_t cereg_s[]="+CEREG: $";
+    const uint8_t creg[]="AT+CREG?\r\n$";
+  	const uint8_t creg_s[]="+CREG: $";
+    const uint8_t cereg[]="AT+CEREG?\r\n$";
+  	const uint8_t cereg_s[]="+CEREG: $";
   	uint8_t temp,cnt;
 	uint8_t buffer[32];
 	uint8_t buf_cnt=0;
@@ -878,7 +878,7 @@ uint8_t check_register(uint8_t type)
 //---------------------------------------------------
 uint8_t check_csq(void)
 {  	
-  	uint8_t const csq[]="AT+CSQ\r\n$";
+  	const uint8_t csq[]="AT+CSQ\r\n$";
     uint8_t count,temp,temp1;
     uint8_t buffer_p,buffer[250];
     CREN1 = 0;

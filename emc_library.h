@@ -11,9 +11,8 @@ extern "C" {
 
 /*****************************************************
  * INCLUDES
- ****************************************************/
-#include "stdint.h"
-  
+ ****************************************************/ 
+#include "inc.h"
     
 /*****************************************************
  * FUNCTION PROTOTYPES
@@ -26,7 +25,7 @@ uint8_t check_emc_stack(void);
 uint8_t chk_data_type(uint8_t *buffer, uint8_t buffer_p);
 
 
-extern void soutdata(uint8_t *dat);
+extern void soutdata(const uint8_t *dat);
 extern void out_sbuf(uint8_t tmp);
 
 /*****************************************************
