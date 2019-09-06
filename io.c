@@ -72,7 +72,7 @@ void ADC_init(void)
     VREFCON0 = 0b00100000;
 }
 
-void set_boot_sel_input()
+void set_boot_sel_input(void)
 {
     // BOOT_SEL - RA6
     BOOT_SEL_I = 1;

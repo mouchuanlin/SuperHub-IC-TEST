@@ -14,17 +14,17 @@
  * FUNCTION PROTOTYPES
  ****************************************************/
 void UART1_init(uint32_t baudrate);
-void UART2_init();
-void enable_UART();
-void disable_UART();
-void disable_UART1();
-void UART_init();
+void UART2_init(void);
+void enable_UART(void);
+void disable_UART(void);
+void disable_UART1(void);
+void UART_init(void);
 
-void UART1_ISR();
-void UART2_ISR();
-void process_RF_data();
+void UART1_ISR(void);
+void UART2_ISR(void);
+void process_RF_data(void);
 void decode_device_id(uint8_t id[]);
-void ACK_to_RF_receiver();
+void ACK_to_RF_receiver(void);
 void send_sensor_alarm(uint8_t zone, uint8_t id[]);
 
 extern void add_event(uint8_t event,uint8_t zone);

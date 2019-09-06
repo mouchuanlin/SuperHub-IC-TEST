@@ -280,7 +280,7 @@ void send_test_AT_commands()
 uint8_t start_send_alarm()
 {
 	uint8_t cnt,rsp,temp;
-    ota_resp_t ota_status = OTA_UNKNOW;
+    md_resp_t ota_status = OTA_UNKNOW;
 	
     if (ready_for_sending)
     {
@@ -333,8 +333,8 @@ uint8_t start_send_alarm()
                         respond_day = read_ee(EE_PAGE0, TESTING_FREQ_ADDR);
                         break;
                         
-                    case OTA_ERROR:
-                    case OTA_NO_CARRIER:
+                    case MD_ERROR:
+                    case MD_NO_CARRIER:
                     case OTA_UNKNOW:
                     default:
                         // Setup for next OTA in 24 hours
@@ -561,9 +561,9 @@ uint8_t wait_ok_respond(uint16_t count)
                     buffer_p = 19;
                 if (temp == LF)     // 0x0A, \n
                 {
-                    if (strncmp(buffer, "OK", 2) == 0)
+                    if (strncmp((const char *)buffer, (const char *)"OK", 2) == 0)
                         temp = 'K';
-                    else if (strncmp(buffer, "ERROR", 5) == 0)
+                    else if (strncmp((const char *)buffer, (const char *)"ERROR", 5) == 0)
                         temp = 'E';
                     
                     if(temp=='K'||temp=='E')
@@ -638,12 +638,12 @@ uint8_t check_module_version(uint8_t type)
 	uint8_t buf_cnt=0;
  
     CREN1 = 0;
-//    if( type%2==0 )
-//        soutdata(at4);
-//    else 
-//        soutdata(at3);
+    if( type%2==0 )
+        soutdata(at4);
+    else 
+        soutdata(at3);
     
-     soutdata(at4);
+    //soutdata(at4);
 
     T3CON = 0x71;
     TMR3H = 0x40;   //50ms
@@ -670,32 +670,27 @@ uint8_t check_module_version(uint8_t type)
                 
 				if( temp == LF )
 				{		  
-					//if( buffer[0]=='E'&&buffer[1]=='M'&&buffer[2]=='S'&&buffer[3]=='3'&&buffer[4]=='1' )
-                    if (strncmp(buffer, "EMS31", 5) == 0)
+                    if (strncmp((const char *)buffer, (const char *)"EMS31", 5) == 0)
 					{
                         Module_type = EMS31;
                         return('K');
                     }
-                    //else if( buffer[0]=='P'&&buffer[1]=='L'&&buffer[2]=='S'&&buffer[3]=='8' )
-                    else if (strncmp(buffer, "PLS8", 4) == 0)
+                    else if (strncmp((const char *)buffer, (const char *)"PLS8", 4) == 0)
 					{
                         Module_type = PLS8;
                         return('K');
                     }
-                    //else if( buffer[0]=='E'&&buffer[1]=='H'&&buffer[2]=='S'&&buffer[3]=='5' )
-                    else if (strncmp(buffer, "EHS5", 4) == 0)
+                    else if (strncmp((const char *)buffer, (const char *)"EHS5", 4) == 0)
 					{
                         Module_type = EHS5;
                         return('K');
                     }
-                    else if( (buffer[0]=='L'||buffer[0]=='U')&&buffer[1]=='E'&&buffer[2]=='9'&&buffer[3]=='1'&&buffer[4]=='0' )
-                    //else if ((strncmp(buffer, "LE910", 5) == 0) || (strncmp(buffer, "UE910", 5) == 0))
+                    else if ( (strncmp((const char *)buffer, (const char *)"LE910", 5) == 0) || (strncmp((const char *)buffer, (const char *)"UE910", 5) == 0) )
 					{
                         Module_type = LE910;
                         return('K');
                     }
-                    //else if( (buffer[0]=='L'||buffer[0]=='U')&&buffer[1]=='E'&&buffer[2]=='8'&&buffer[3]=='6'&&buffer[4]=='6' )
-                    else if ((strncmp(buffer, "LE866", 5) == 0) || (strncmp(buffer, "UE866", 5) == 0))
+                    else if ((strncmp((const char *)buffer, (const char *)"LE866", 5) == 0) || (strncmp((const char *)buffer, (const char *)"UE866", 5) == 0))
 					{
                         Module_type = LE866;
                         return('K');

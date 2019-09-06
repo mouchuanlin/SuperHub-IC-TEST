@@ -36,7 +36,7 @@ void    write_EE_setting(uint8_t page, uint8_t addr, uint8_t const setting[]);
 extern void     delay5ms(uint16_t);
 extern void     delayseconds(uint16_t secs);    
 extern void     add_event(uint8_t event,uint8_t zone);    
-extern void     check_ip_setting();
+extern void     check_ip_setting(void);
     
 /*****************************************************
  * VARIABLES

@@ -92,7 +92,8 @@ uint8_t TL_internet_init(void)
 		  		if( temp==0x0a )	//Network opened
 				{
                     // #SGACT: 10.133.224.83
-					if( buffer[0]=='#'&&buffer[1]=='S'&&buffer[2]=='G'&&buffer[3]=='A'&&buffer[4]=='C'&&buffer[5]=='T'&&buffer[6]==':' )
+					//if( buffer[0]=='#'&&buffer[1]=='S'&&buffer[2]=='G'&&buffer[3]=='A'&&buffer[4]=='C'&&buffer[5]=='T'&&buffer[6]==':' )
+                    if (strncmp((const char *)buffer, (const char *)"#SGACT:", 7) == 0)
                     {
                         TMR3ON = 0;
                         CREN1 = 0;

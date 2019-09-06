@@ -21,11 +21,11 @@
 2. PIC18 won't have to do anything after step (d) above.
  */ 
 
-ota_resp_t wait_ota_status(uint16_t count)
+md_resp_t wait_ota_status(uint16_t count)
 {
   	uint8_t temp;
     uint8_t buffer[20],buffer_p;
-    ota_resp_t resp = OTA_UNKNOW;
+    md_resp_t resp = OTA_UNKNOW;
     
     CREN1 = 0;
     RC1IE = 0;
@@ -53,19 +53,19 @@ ota_resp_t wait_ota_status(uint16_t count)
                 if( temp == LF )
                 {
                     // CONNECT response from modem due to online mode.
-                    if (strncmp(buffer, "CONNECT", 7) == 0)
+                    if (strncmp((const char *)buffer, (const char *)"CONNECT", 7) == 0)
                         resp = OTA_CONNECT;
                     // RED from server
-                    if (strncmp(buffer, "RED", 3) == 0)
+                    if (strncmp((const char *)buffer, (const char *)"RED", 3) == 0)
                         resp = OTA_RED;
                     // NO CARRIER
-                    else if (strncmp(buffer, "NO CARRIER", 10) == 0)
-                        resp = OTA_NO_CARRIER;  
+                    else if (strncmp((const char *)buffer, (const char *)"NO CARRIER", 10) == 0)
+                        resp = MD_NO_CARRIER;  
                     // ERROR
-                    else if (strncmp(buffer, "ERROR", 5) == 0)
-                        resp = OTA_ERROR;
+                    else if (strncmp((const char *)buffer, (const char *)"ERROR", 5) == 0)
+                        resp = MD_ERROR;
                     // OFA
-                    else if (strncmp(buffer, "OFA", 3) == 0)
+                    else if (strncmp((const char *)buffer, (const char *)"OFA", 3) == 0)
                         resp = OTA_OFA;
                     
                     if(resp != OTA_UNKNOW)
@@ -121,16 +121,16 @@ uint8_t wait_connect_respond(uint16_t count)
                 if( temp==0x0a )
                 {
                     // CONNECT response from modem due to online mode.
-                    if (strncmp(buffer, "CONNECT", 7) == 0)
+                    if (strncmp((const char *)buffer, (const char *)"CONNECT", 7) == 0)
                         temp = 'C';
                     // RED from server
-                    else if (strncmp(buffer, "RED", 3) == 0)
+                    else if (strncmp((const char *)buffer, (const char *)"RED", 3) == 0)
                         temp = 'R';
                     // NO CARRIER
-                    else if (strncmp(buffer, "NO CARRIER", 10) == 0)
+                    else if (strncmp((const char *)buffer, (const char *)"NO CARRIER", 10) == 0)
                         temp = 'E';  
                     // ERROR
-                    else if (strncmp(buffer, "ERROR", 5) == 0)
+                    else if (strncmp((const char *)buffer, (const char *)"ERROR", 5) == 0)
                     //else if( buffer[0]=='E'&&buffer[1]=='R'&&buffer[2]=='R'&&buffer[3]=='O'&&buffer[4]=='R' )
                         temp = 'E';  
                     if(temp=='C'|| temp=='R'||temp=='E')
@@ -343,7 +343,7 @@ uint8_t OTA_receive_data_from_server(void)
 		  		if( (temp==0x0a) && (buffer[buffer_p-2U]==0x0d) )	//Network opened
 				{
                     //if( buffer[0]=='E'&&buffer[1]=='R'&&buffer[2]=='R'&&buffer[3]=='O'&&buffer[4]=='R' )   
-                    if (strncmp(buffer, "ERROR", 5) == 0)
+                    if (strncmp((const char *)buffer, (const char *)"ERROR", 5) == 0)
                     {
                         TMR3ON = 0;
                         CREN1 = 0;

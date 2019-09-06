@@ -166,7 +166,8 @@ uint8_t set_n06_14(uint8_t type)
 //-----------------------------------//
 uint8_t set_n07(void)
 {
-	uint8_t cnt,temp,addr;
+	uint8_t cnt, temp, addr;
+    //volatile uint8_t temp;
 
 	cnt = 0x03;
 	addr = 0;
@@ -178,7 +179,7 @@ uint8_t set_n07(void)
 				return('E');
 			write_ee(0x00,0xC8,addr);
 			return('K');
-		}else if( isdigit(temp)==1 )
+		}else if(isdigit(temp))
 		{
 			temp &=0x0f;
 			addr = (uint8_t) (addr*10 + temp);
@@ -204,7 +205,7 @@ uint8_t set_n08(void)
 				return('E');
 			write_ee(0x00,0xC9,addr);
 			return('K');
-		}else if( isdigit(temp)==1 )
+		}else if( isdigit(temp))
 		{
 			temp &= 0x0f;
 			addr = addr*10 + temp;
@@ -236,7 +237,7 @@ uint8_t set_n09_15_16(uint8_t type)
                 write_ee(0x00,0xBD,addr);
             else return('E');
 			return('K');
-		}else if( isdigit(temp)==1 )
+		}else if( isdigit(temp))
 		{
 			temp &= 0x0f;
 			addr = addr*10 + temp;
@@ -275,7 +276,7 @@ uint8_t set_n10(void)
 				write_ee(0x00,addr,temp);
 			}while(++addr<0xD0);
 			return('K');
-		}else if( isdigit(temp)==0 )
+		}else if( !isdigit(temp) )
 			return('E');
 	}while(cnt<0x0a);
     CLRWDT();
@@ -303,7 +304,7 @@ uint8_t set_n11(void)
 				addr++;
 			}while(temp!='#');
 			return('K');
-		}else if( isdigit(temp)==0 )
+		}else if( !isdigit(temp) )
 			return('E');
 	}while(cnt<0x08);
     CLRWDT();
@@ -381,7 +382,7 @@ uint8_t set_n31_32_33_34_37(uint8_t type)
 				write_ee(0x01,0xF1,(addr&0x00ff));
 			}
 			return('K');
-		}else if( isdigit(temp)==1 )
+		}else if( isdigit(temp) )
 		{
 			temp &= 0x0f;
 			addr = addr*10 + temp;
@@ -464,7 +465,7 @@ uint8_t back_door_function(uint8_t p)
 					return('E');
 				write_ee(0x00,0x7f,addr);
 				return('K');
-			}else if( isdigit(temp)==1 )
+			}else if( isdigit(temp) )
 			{
 				temp &=0x0f;
 				addr = addr*10U + temp;
@@ -490,7 +491,7 @@ uint8_t back_door_function(uint8_t p)
 			temp = key[cnt++];
 			if( temp!='#' )
 			{
-				if( isdigit(temp)==0 )
+				if( !isdigit(temp) )
 					return('E');
 			}
 		}while(temp!='#'&&cnt<0x12);

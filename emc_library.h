@@ -17,7 +17,7 @@ extern "C" {
 /*****************************************************
  * FUNCTION PROTOTYPES
  ****************************************************/  
-bit     alarm_out(uint8_t type,uint8_t zone_ext)@0xA000;
+bool    alarm_out(uint8_t type,uint8_t zone_ext);
 void    add_event(uint8_t event, uint8_t zone);
 void    check_event(void);
 void    load_emc_number(void);

@@ -16,35 +16,33 @@
 /*****************************************************
  * FUNCTION PROTOTYPES
  ****************************************************/
-void 	init_system();
-void    int_init();
-void 	init_stack_buffer();
-void 	init_global_variables();
-uint8_t get_hub_type();
+void 	init_system(void);
+void    int_init(void);
+void 	init_stack_buffer(void);
+void 	init_global_variables(void);
+uint8_t get_hub_type(void);
 void 	buzzer_on(uint8_t count);
-void    smokehub_ISR();
-void    superhub_ISR();
-void    sms_menu();
-void    prepare_to_sleep();
+void    smokehub_ISR(void);
+void    superhub_ISR(void);
+void    sms_menu(void);
+void    prepare_to_sleep(void);
 
-extern void start_modem();
-extern void restart_modem();
-extern void poweroff_modem();
-extern void check_state();
-extern void init_eeprom();
-extern void load_device_id_table();
-extern void UART_init();
-extern void UART1_ISR();
-extern void UART2_ISR();
-extern void start_timer0();
-extern void TMR0_ISR();
+extern void start_modem(void);
+extern void restart_modem(void);
+extern void poweroff_modem(void);
+extern void check_state(void);
+extern void init_eeprom(void);
+extern void load_device_id_table(void);
+extern void UART_init(void);
+extern void UART1_ISR(void);
+extern void UART2_ISR(void);
+extern void start_timer0(void);
+extern void TMR0_ISR(void);
 extern void disable_UART(void);
-extern  void disable_UART1();
-extern void check_RF_device();
+extern  void disable_UART1(void);
+extern void check_RF_device(void);
 extern void add_event(uint8_t event, uint8_t zone);
-extern void calculate_adc_time();
-
-//extern void check_OTA_status();
+extern void calculate_adc_time(void);
 
 /*****************************************************
  * VARIABLES
@@ -95,11 +93,11 @@ bool        inButtonMenu = false;
 uint8_t     buttonPressCount = 0;
 uint8_t     tmr3_cnt = 0;
 //bool        g_op_state = false;
-bit         listen_sms_state = 0;  
+bool         listen_sms_state = 0;  
 uint16_t 	exit_learn = 0;
 
 
-bit         ADC_time = 0;
+bool         ADC_time = 0;
 
 
 //

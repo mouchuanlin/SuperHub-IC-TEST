@@ -111,7 +111,7 @@ uint8_t check_sms(void)
 	return 0;
 }
 
-void check_receive_overrun()
+void check_receive_overrun(void)
 {
 	// Receive Overrun Error - clearing the CREN bit to clear the error.
 	if (OERR1 == 1)
@@ -443,7 +443,7 @@ uint8_t remote_setting(void)
 				do{
 					temp = sms_buffer[x_cnt++];
 					temp1 = sms_buffer[x_cnt++];
-					if( ( isdigit(temp) )==0 || ( isdigit(temp1) )==0 )
+					if( !isdigit(temp) || !isdigit(temp1) )
                     {
                         rsp_buffer[off_set++] = 'E';
                         rsp_buffer[off_set++] = 'r';
@@ -536,7 +536,7 @@ uint8_t remote_setting(void)
 void send_respond(uint8_t type)
 {
 	uint8_t temp;
-  	const uint8_t const cmgs[]="AT+CMGS=\"$"; 
+  	const uint8_t cmgs[]="AT+CMGS=\"$"; 
   	uint8_t a,b,c;
 	uint8_t page,addr,ad_tp;
 	uint8_t x_tp,x_vl,over_dp;
@@ -809,7 +809,7 @@ uint8_t respond_setting(uint8_t type,uint8_t off_set)
         else temp = '1';
         rsp_buffer[off_set++] = temp;
 		rsp_buffer[off_set++] = ',';	
-	}else if( (type==0x12) )//||(type==0x13) )		//12,13
+	}else if( type==0x12 )      //||(type==0x13) )		//12,13
 	{
         page = 0x00;
         if( type==0x12 )

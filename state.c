@@ -51,7 +51,10 @@ void check_state()
         case SUPERVISORY:
             break;
         case ADC:
-            break;            
+            break;           
+        case OPERATIONAL:
+        case OTA_BOOT:
+            break;
     }
 }
 

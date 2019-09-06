@@ -15,19 +15,19 @@
 /*****************************************************
  * FUNCTION PROTOTYPES
  ****************************************************/
-void 	powerup_modem();
-void    start_modem();
-bool    modem_config_ok();
-void    restart_modem();
-void    poweroff_modem();
-uint8_t wait_AT_cmd_response();
-uint8_t check_SIM_state();
-uint8_t check_network_registration();
-bool    check_apn_status();
-uint8_t start_send_alarm();
-uint8_t start_sms();
-void    process_event_queue();
-uint8_t process_SMS_setup_state();
+void 	powerup_modem(void);
+void    start_modem(void);
+bool    modem_config_ok(void);
+void    restart_modem(void);
+void    poweroff_modem(void);
+uint8_t wait_AT_cmd_response(void);
+uint8_t check_SIM_state(void);
+uint8_t check_network_registration(void);
+bool    check_apn_status(void);
+uint8_t start_send_alarm(void);
+uint8_t start_sms(void);
+void    process_event_queue(void);
+uint8_t process_SMS_setup_state(void);
 void    out_sbuf(uint8_t tmp);
 void    soutdata(const uint8_t *dat);
 void    out_sbuf2(uint8_t);
@@ -37,7 +37,7 @@ uint8_t check_module_run(void);
 uint8_t check_sim_card(void);
 uint8_t check_register(uint8_t);
 uint8_t check_csq(void);
-void    send_test_AT_commands();
+void    send_test_AT_commands(void);
 
 
 extern void     delay5ms(uint16_t cnt);
@@ -49,10 +49,10 @@ extern void     set_sms_init(void);
 extern void     check_event(void);
 extern uint8_t  check_sms(void);
 extern uint8_t  check_emc_stack(void);
-extern void     check_state();
+extern void     check_state(void);
 extern uint8_t  check_OTA(void);
-extern void     check_nework();
-extern void     check_receive_overrun();
+extern void     check_nework(void);
+extern void     check_receive_overrun(void);
 
 /*****************************************************
  * VARIABLES
@@ -71,7 +71,7 @@ extern uint8_t  buttonPressCount;
 extern uint8_t  tmr3_cnt;
 extern state_t  myState;
 extern uint8_t  OTA_flag;
-extern bit      listen_sms_state;  
+extern bool      listen_sms_state;  
     
 
 #endif	/* MODEM_H */

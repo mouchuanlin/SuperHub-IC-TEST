@@ -181,7 +181,7 @@ void load_emc_number(void)
 	enc_cnt = cnt2;
 }
 
-bit alarm_out(uint8_t type,uint8_t zone_ext)@0xA000
+bool alarm_out(uint8_t type,uint8_t zone_ext)
 {
 	uint8_t tp_cnt,mm_cnt,cnt,temp;
     uint8_t *sp;
@@ -447,8 +447,7 @@ send_start:
                         do{                            
                             delayseconds(5);
                             rsp = TL_receive_data_from_server();         
-                            delay5ms(200);
-                            delay5ms(200);
+                            delayseconds(2);
                             //------------------------
                             #ifdef DEBUG
                             soutdata((uinit8_t *) "AT+U=$");

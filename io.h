@@ -19,8 +19,8 @@ extern "C" {
  ****************************************************/  
 void ADC_init(void);
 void IO_init(void);    
-void set_boot_sel_input();
-void set_boot_sel_output();
+void set_boot_sel_input(void);
+void set_boot_sel_output(void);
     
 /*****************************************************
  * VARIABLES
@@ -200,7 +200,7 @@ void set_boot_sel_output();
 uint8_t const VERSION[]="2040";
 
 //--------------------       
-bit HL_freq = 0;
+bool HL_freq = 0;
 //-------------------- 
 uint8_t const encryption_code[16]={ 0x6c,0x31,0x6e,0x79,0x52,0x7f,0x26,0x6f,
                                     0x34,0x19,0x41,0x1b,0x54,0x3a,0x64,0x1f };

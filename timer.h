@@ -15,30 +15,30 @@
 /*****************************************************
  * FUNCTION PROTOTYPES
  ****************************************************/
-void start_timer0();
-void reload_timer0();
-void enable_tmr3();
-void disable_tmr3();
-void reload_timer3_2s();
-void reload_timer3_5s();
-void reload_timer3_100ms();
-void timer0_init();
+void start_timer0(void);
+void reload_timer0(void);
+void enable_tmr3(void);
+void disable_tmr3(void);
+void reload_timer3_2s(void);
+void reload_timer3_5s(void);
+void reload_timer3_100ms(void);
+void timer0_init(void);
 
-void reload_timer3_50ms();
+void reload_timer3_50ms(void);
 
-void TMR0_ISR();
-void TMR3_ISR();
+void TMR0_ISR(void);
+void TMR3_ISR(void);
 
 void delayseconds(uint16_t secs);
 void delay5ms(uint16_t cnt);
-void process_sms_menu();
-void exit_learning_mode();
-void calculate_adc_time();
-void response_low_batt();
-void handle_smoke_hub();
+void process_sms_menu(void);
+void exit_learning_mode(void);
+void calculate_adc_time(void);
+void response_low_batt(void);
+void handle_smoke_hub(void);
 
 extern void add_event(uint8_t event,uint8_t zone);
-extern void process_button_push();
+extern void process_button_push(void);
 
 /*****************************************************
  * VARIABLES

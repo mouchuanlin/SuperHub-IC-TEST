@@ -4,17 +4,16 @@
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/make-project/1">
             <name>SuperHub-IC-TEST</name>
-            <creation-uuid>31252b69-cff9-491e-8dff-5d4f630cbcf5</creation-uuid>
+            <creation-uuid>58e3dd4c-d67b-45a7-a9bd-354c99eb678a</creation-uuid>
             <make-project-type>0</make-project-type>
             <c-extensions>c</c-extensions>
             <cpp-extensions/>
             <header-extensions>h</header-extensions>
             <asminc-extensions/>
-            <sourceEncoding>Big5</sourceEncoding>
+            <sourceEncoding>ISO-8859-1</sourceEncoding>
             <make-dep-projects/>
             <sourceRootList>
                 <sourceRootElem>.</sourceRootElem>
-                <sourceRootElem>../../../../ISW7102.2-10-PassthruAndSleep/ISW7102.2-10-PassthruAndSleep</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>

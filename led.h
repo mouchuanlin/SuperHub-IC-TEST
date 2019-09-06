@@ -29,7 +29,7 @@ typedef enum LED_STATES {
 } led_states_t;
 
 void update_led_state(led_states_t new_state);
-void control_leds();
+void control_leds(void);
 
 // Global variables - defined in main.c
 extern uint8_t 		gled_tmr0_tick, bled_tmr0_tick;

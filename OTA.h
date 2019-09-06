@@ -12,34 +12,34 @@
 
 /*****************************************************
  * VARIABLES
- ****************************************************/
+ ****************************************************/    
 // Event definitions    
-typedef enum ota_resp {
-    OTA_ERROR,
-    OTA_NO_CARRIER,
+typedef enum md_resp {
+    MD_OK,
+    MD_ERROR,
+    MD_NO_CARRIER,
+            
     OTA_BOOT_SEL,
     OTA_RED,
     OTA_CONNECT,
     OTA_OFA,
     OTA_UNKNOW,
             
-    MD_OK,
-    MD_ERROR
-} ota_resp_t;
+} md_resp_t;
 
 /*****************************************************
  * FUNCTION PROTOTYPES
  ****************************************************/
-uint8_t get_ota_ip_addr();
-uint8_t get_ip1_addr();
-ota_resp_t wait_ota_status(uint16_t count);
+uint8_t get_ota_ip_addr(void);
+uint8_t get_ip1_addr(void);
+md_resp_t wait_ota_status(uint16_t count);
 
 extern void delayseconds(uint16_t secs);
-extern void poweroff_modem();
-extern void set_boot_sel_input();
-extern void set_boot_sel_output();
-extern void reload_timer3_50ms();
-extern void check_receive_overrun();
+extern void poweroff_modem(void);
+extern void set_boot_sel_input(void);
+extern void set_boot_sel_output(void);
+extern void reload_timer3_50ms(void);
+extern void check_receive_overrun(void);
 
 
 #endif	/* OTA_H */

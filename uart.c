@@ -6,7 +6,7 @@
 #include "emc_library.h"
 #include "io.h"
 
-void UART_init()
+void UART_init(void)
 {
     enable_UART();
             
@@ -142,7 +142,7 @@ void UART2_ISR()
     }        	       	
 }
 
-void process_RF_data()
+void process_RF_data(void)
 {
 	uint8_t temp;
     uint8_t zone,cnt;
@@ -238,7 +238,7 @@ void decode_device_id(uint8_t id[])
     }while(++rx2_cnt<4);     
 }
 
-void ACK_to_RF_receiver()
+void ACK_to_RF_receiver(void)
 {
     for( uint8_t i=0; i<7; i++)
         out_sbuf2(rx2_buf[i]);    
