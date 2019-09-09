@@ -443,7 +443,7 @@ uint8_t remote_setting(void)
 				do{
 					temp = sms_buffer[x_cnt++];
 					temp1 = sms_buffer[x_cnt++];
-					if( !isdigit(temp) || !isdigit(temp1) )
+					if( !is_digit(temp) || !is_digit(temp1) )
                     {
                         rsp_buffer[off_set++] = 'E';
                         rsp_buffer[off_set++] = 'r';

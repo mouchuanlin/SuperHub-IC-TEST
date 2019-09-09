@@ -2,9 +2,10 @@
 // eeprom_setup.c
 //
 
+#include "eeprom_setup.h"
 #include "eeprom.h"
 #include "io.h"
-#include "eeprom_setup.h"
+
 
 //-----------------------------------//
 uint8_t function_code(void)
@@ -56,6 +57,8 @@ uint8_t function_code(void)
 		case(34):
         case(37):   respond = set_n31_32_33_34_37(temp1);
 					break;
+                  
+        // TODO; comment this out since there is a compiler warning and we are no longer use back door at all.
 		case(95):	//back_door = 1;	
 		case(96):
 		case(97):
@@ -167,19 +170,19 @@ uint8_t set_n06_14(uint8_t type)
 uint8_t set_n07(void)
 {
 	uint8_t cnt, temp, addr;
-    //volatile uint8_t temp;
 
 	cnt = 0x03;
 	addr = 0;
 	do{
 		temp = key[cnt++];
+        
 		if( temp=='#' )
 		{
 			if( cnt==0x04 || addr>30 )
 				return('E');
 			write_ee(0x00,0xC8,addr);
 			return('K');
-		}else if(isdigit(temp))
+		}else if(is_digit(temp))
 		{
 			temp &=0x0f;
 			addr = (uint8_t) (addr*10 + temp);
@@ -205,7 +208,7 @@ uint8_t set_n08(void)
 				return('E');
 			write_ee(0x00,0xC9,addr);
 			return('K');
-		}else if( isdigit(temp))
+		}else if( is_digit(temp) )
 		{
 			temp &= 0x0f;
 			addr = addr*10 + temp;
@@ -237,7 +240,7 @@ uint8_t set_n09_15_16(uint8_t type)
                 write_ee(0x00,0xBD,addr);
             else return('E');
 			return('K');
-		}else if( isdigit(temp))
+		}else if( is_digit(temp))
 		{
 			temp &= 0x0f;
 			addr = addr*10 + temp;
@@ -276,7 +279,7 @@ uint8_t set_n10(void)
 				write_ee(0x00,addr,temp);
 			}while(++addr<0xD0);
 			return('K');
-		}else if( !isdigit(temp) )
+		}else if( !is_digit(temp) )
 			return('E');
 	}while(cnt<0x0a);
     CLRWDT();
@@ -304,7 +307,7 @@ uint8_t set_n11(void)
 				addr++;
 			}while(temp!='#');
 			return('K');
-		}else if( !isdigit(temp) )
+		}else if( !is_digit(temp) )
 			return('E');
 	}while(cnt<0x08);
     CLRWDT();
@@ -382,7 +385,7 @@ uint8_t set_n31_32_33_34_37(uint8_t type)
 				write_ee(0x01,0xF1,(addr&0x00ff));
 			}
 			return('K');
-		}else if( isdigit(temp) )
+		}else if( is_digit(temp) )
 		{
 			temp &= 0x0f;
 			addr = addr*10 + temp;
@@ -465,7 +468,7 @@ uint8_t back_door_function(uint8_t p)
 					return('E');
 				write_ee(0x00,0x7f,addr);
 				return('K');
-			}else if( isdigit(temp) )
+			}else if( is_digit(temp) )
 			{
 				temp &=0x0f;
 				addr = addr*10U + temp;
@@ -491,7 +494,7 @@ uint8_t back_door_function(uint8_t p)
 			temp = key[cnt++];
 			if( temp!='#' )
 			{
-				if( !isdigit(temp) )
+				if( !is_digit(temp) )
 					return('E');
 			}
 		}while(temp!='#'&&cnt<0x12);
@@ -521,4 +524,12 @@ uint8_t set_n98(void)
 		return('K');
 	}
 	else return('E');
+}
+
+bool is_digit(uint8_t digit)
+{
+    if ((digit >= 0x30) && (digit <= 0x39))
+        return true;
+    else
+        return false;
 }

@@ -36,6 +36,7 @@ extern uint8_t  check_csq(void);
 extern void     reload_timer3_100ms(void);
 extern void     reload_timer3_50ms(void);
 extern uint8_t  read_ee(uint8_t page,uint8_t addr);
+extern bool     is_digit(uint8_t digit);
 
 /*****************************************************
  * VARIABLES
