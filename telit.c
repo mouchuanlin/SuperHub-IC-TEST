@@ -123,11 +123,10 @@ uint8_t TL_connection_open(uint8_t type)
 	uint8_t cnt,temp;
 	uint16_t port;
     
-    // Get IP1/2/3/4 depends on type value.
-    get_ip_addr(type);
-    
-    if( temp=='#' )
+    // Check IP address EEPROM. If # then there is no IP address has been stored.
+    if(!is_ip_exists(type))
         return('E');
+    
     CREN1 = 0;
     // AT#SD=1,0,2021,"72.197.171.234",0,0,1
 	soutdata(netconnect);
@@ -350,10 +349,11 @@ uint8_t TL_receive_data_from_server(void)
     return('E');
 }
 
-uint8_t get_ip_addr(uint8_t type)
+bool is_ip_exists(uint8_t type)
 {
     uint8_t temp;
     
+    // Check IP address EEPROM. If # then there is no IP address has been stored.
     if( type==0x01 )
         temp = read_ee(EE_PAGE0, IP1_ADDR);
     else if( type==0x02 )
@@ -363,5 +363,8 @@ uint8_t get_ip_addr(uint8_t type)
     else 
         temp = read_ee(EE_PAGE0, IP4_ADDR);    
     
-    return temp;
+    if( temp=='#' )
+        return false;
+    else
+        return true;
 }

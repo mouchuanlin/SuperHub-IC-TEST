@@ -24,7 +24,7 @@ void    TL_connection_close(void);
 void    TL_internet_close(void);
 uint8_t TL_send_data_to_server(void);
 uint8_t TL_receive_data_from_server(void);
-uint8_t get_ip_addr(uint8_t type);
+bool is_ip_exists(uint8_t type);
 
 /*****************************************************
  * VARIABLES
