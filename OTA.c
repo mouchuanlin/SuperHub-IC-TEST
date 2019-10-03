@@ -41,7 +41,17 @@ md_resp_t wait_ota_status(uint16_t count)
      	do{
             // b. PIC16 strobes BOOT_SEL = 0 for 500us, then BOOT_SEL = 1;
             if (BOOT_SEL_I == 0)
+            {
+                soutdata((uint8_t *) "OTA_BOOT_SEL\r\n$");    
+                
+                TL_connection_close();
+                delayseconds(1);
+                TL_internet_close();
+
+                poweroff_modem();
+                
                 return OTA_BOOT_SEL;
+            }
             
         	if( RC1IF==1)
         	{	   
@@ -78,7 +88,7 @@ md_resp_t wait_ota_status(uint16_t count)
                     buffer_p = 0;
                 }
         	}
-            check_receive_overrun();
+            //check_receive_overrun();
      	} while(TMR3IF==0);
         
         CLRWDT();
@@ -501,7 +511,7 @@ uint8_t check_OTA(void)
         rsp = TL_internet_init();
         if( rsp=='K' )
         {
-            // Connect to OTA server IP
+            // Connect to OTA server IP - AT#SD command mode
             rsp = OTA_connection_open(0x00);
             if( rsp=='K' )
             {
@@ -521,16 +531,21 @@ uint8_t check_OTA(void)
                     TL_connection_close();
                     delayseconds(1);
                     
-                    // AT#SD=1,0,2021,"72.197.171.234",0,0,0
+                    // AT#SD=1,0,2021,"72.197.171.234",0,0,0 - AT#SD online mode
                     // Waiting CONNECT from modem
                     rsp = OTA_connection_open(0x01);
+                    // TODO: AT#SD command mode
+                    //rsp = OTA_connection_open(0x00);
                     delayseconds(1);
                     //delay5ms(50);
                     if( rsp=='C' )
+                    //if( rsp=='K' )
                     {
                         // send to server - RFQ;
-                        soutdata((uint8_t *) "RFQ$");
-
+                        //soutdata((uint8_t *) "RFQ$");
+                        out_sbuf('R');
+                        out_sbuf('F');
+                        out_sbuf('Q');
                         // Wait for RED from server
                         rsp = wait_connect_respond(1500);
                         // ESC

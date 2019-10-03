@@ -110,7 +110,10 @@ extern void     check_ip_setting(void);
     uint8_t const IP2[]="#";                    //02#
     uint8_t const IP3[]="#";                    //03#
     uint8_t const IP4[]="#";                    //04#
-    uint8_t const IP_OTA[]="72.197.171.234#";   //36#
+    // Server in John's home office
+    //uint8_t const IP_OTA[]="72.197.171.234#";   //36#
+    // Server in Instant Care office
+    uint8_t const IP_OTA[]="12.12.201.84#";   //36#
     uint16_t const PORT1 = 2020;                //31#   
     uint16_t const PORT2 = 2020;                //32#   
     uint16_t const PORT3 = 2020;                //33#   

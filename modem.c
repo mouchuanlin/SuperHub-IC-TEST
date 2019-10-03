@@ -67,6 +67,7 @@ uint8_t wait_AT_cmd_response()
         delay5ms(20);
         // AT
         cnt = check_module_run();
+//        cnt = 'K';
         if( cnt!='K' )
         {
             //delayseconds(3);
@@ -214,7 +215,7 @@ uint8_t check_network_registration()
 	return true;    
 }
 
-/*
+
 void send_test_AT_commands()
 {
     // TODO:
@@ -232,6 +233,9 @@ void send_test_AT_commands()
     
     soutdata((uint8_t *) "AT+COPS?\r\n$");    
     delay5ms(20); 
+    
+    soutdata((uint8_t *) "AT+CREG?\r\n$");    
+    delay5ms(20);     
     
     soutdata((uint8_t *) "AT+CGREG?\r\n$");    
     delay5ms(20); 
@@ -275,7 +279,7 @@ void send_test_AT_commands()
     soutdata((uint8_t *) "AT+CSQ\r\n$");    
     delay5ms(20);    
 }
-*/
+
 
 uint8_t start_send_alarm()
 {
@@ -322,6 +326,7 @@ uint8_t start_send_alarm()
                 switch (ota_status)
                 {
                     case OTA_BOOT_SEL:
+                        soutdata((uint8_t *) "set_boot_sel_output\r\n$");    
                         // d. PIC18 strobes BOOT_SEL = 0 for 500us, then BOOT_SEL = 1;
                         // Tell OTA PIC18 is ready for FW update.
                         set_boot_sel_output();
@@ -331,6 +336,10 @@ uint8_t start_send_alarm()
 
                         myState = OTA_BOOT;
                         respond_day = read_ee(EE_PAGE0, TESTING_FREQ_ADDR);
+                        
+                        while (1)
+                            ;
+                        
                         break;
                         
                     case MD_ERROR:
@@ -562,6 +571,7 @@ uint8_t wait_ok_respond(uint16_t count)
                 if (temp == LF)     // 0x0A, \n
                 {
                     if (strncmp((const char *)buffer, (const char *)"OK", 2) == 0)
+                    //if( buffer[0]=='O'&&buffer[1]=='K' )
                         temp = 'K';
                     else if (strncmp((const char *)buffer, (const char *)"ERROR", 5) == 0)
                         temp = 'E';
@@ -619,7 +629,7 @@ uint8_t check_module_run(void)
                     return('K');
 			}
             
-            check_receive_overrun();
+            //check_receive_overrun();
 		}while(TMR3IF==0 );
         CLRWDT();
 		TMR3IF = 0;

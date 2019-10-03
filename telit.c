@@ -55,6 +55,7 @@ uint8_t TL_internet_init(void)
    	delay5ms(100);
     
     // AT+CGDCONT=3,"IP","c2.korem2m.com"
+    // AT+CGDCONT=3,"IP","11583.mcs"
 	soutdata(cgdcont);
 	cnt = 0x10;
 	do{
