@@ -4,6 +4,9 @@
 
 #include "eeprom.h"
 #include "io.h"
+#include "timer.h"
+#include "led.h"
+
 
 uint8_t read_ee(uint8_t page,uint8_t addr)
 {

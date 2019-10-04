@@ -8,6 +8,10 @@
 #include "uart.h"
 #include "eeprom.h"
 #include "OTA.h"
+#include "timer.h"
+#include "telit.h"
+#include "emc_library.h"
+#include "sms.h"
 
 bool modem_config_ok()
 {			

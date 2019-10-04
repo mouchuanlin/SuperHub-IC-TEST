@@ -7,6 +7,11 @@
 #include "eeprom.h"
 #include "emc_library.h"
 #include "telit.h"
+#include "timer.h"
+#include "modem.h"
+#include "sms.h"
+
+extern uint8_t rsp_buffer[250];
 
 // OTA operation -
 /*

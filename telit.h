@@ -29,8 +29,7 @@ bool is_ip_exists(uint8_t type);
 /*****************************************************
  * VARIABLES
  ****************************************************/
-extern uint8_t wait_ok_respond(uint16_t);
-extern void out_sbuf(uint8_t tmp);
+
 
 #ifdef	__cplusplus
 }

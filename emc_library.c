@@ -6,6 +6,8 @@
 #include "io.h"
 #include "eeprom.h"
 #include "telit.h"
+#include "timer.h"
+#include "led.h"
 
 void update_mmcnt(void)
 {

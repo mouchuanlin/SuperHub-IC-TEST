@@ -29,14 +29,14 @@ uint8_t respond_setting(uint8_t,uint8_t);
 void    get_access_code(void);
 void    check_receive_overrun(void);
 
-extern void     out_sbuf(uint8_t tmp);
-extern void     soutdata(const uint8_t *dat);
-extern uint8_t  wait_ok_respond(uint16_t);
-extern uint8_t  check_csq(void);
-extern void     reload_timer3_100ms(void);
-extern void     reload_timer3_50ms(void);
-extern uint8_t  read_ee(uint8_t page,uint8_t addr);
-extern bool     is_digit(uint8_t digit);
+//extern void     out_sbuf(uint8_t tmp);
+//extern void     soutdata(const uint8_t *dat);
+//extern uint8_t  wait_ok_respond(uint16_t);
+//extern uint8_t  check_csq(void);
+//extern void     reload_timer3_100ms(void);
+//extern void     reload_timer3_50ms(void);
+//extern uint8_t  read_ee(uint8_t page,uint8_t addr);
+//extern bool     is_digit(uint8_t digit);
 
 /*****************************************************
  * VARIABLES

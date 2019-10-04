@@ -36,8 +36,6 @@ uint8_t set_n98(void);
 
 bool is_digit(uint8_t digit);
 
-extern void write_ee(uint8_t page, uint8_t addr, uint8_t data_p);
-
 /*****************************************************
  * VARIABLES
  ****************************************************/

@@ -3,12 +3,17 @@
 //
 
 // Configuration, global variable and forward declaration.
-#include "config.h"
 #include "main.h"
 
 #include "io.h"
 #include "timer.h"
 #include "emc_library.h"
+#include "modem.h"
+#include "config.h"
+#include "eeprom.h"
+#include "uart.h"
+#include "state.h"
+#include "led.h"
 
 //
 // main

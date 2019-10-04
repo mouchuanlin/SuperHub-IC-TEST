@@ -6,6 +6,8 @@
 #include "eeprom.h"
 #include "sms.h"
 #include "eeprom_setup.h"
+#include "modem.h"
+#include "timer.h"
 
 uint8_t sms_p,sms_buffer[160]; 
 uint8_t time[9];

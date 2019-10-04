@@ -20,6 +20,8 @@ extern "C" {
 #include <string.h>
 #include <ctype.h>
     
+#include "config.h"
+    
 
 #ifdef	__cplusplus
 }

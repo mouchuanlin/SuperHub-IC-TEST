@@ -55,20 +55,21 @@ void 	process_ADC(void);
 void 	process_RF_interrupt(void);
 void 	process_supervisory(void);
 uint8_t check_supervisory(void);
-void check_alarm_tamper(void);
+void    check_alarm_tamper(void);
+void    check_RF_device(void);
 
-extern void process_event_queue(void);
-extern void delayseconds(uint16_t secs);
-
-extern void start_modem(void);
-extern void restart_modem(void);
-extern void poweroff_modem(void);
-extern void delay5ms(uint16_t cnt);
-extern void add_event(uint8_t event,uint8_t zone);
-
-extern void UART2_init(void);
-extern void control_leds(void);
-extern void check_RF_device(void);
+//extern void process_event_queue(void);
+//extern void delayseconds(uint16_t secs);
+//
+//extern void start_modem(void);
+//extern void restart_modem(void);
+//extern void poweroff_modem(void);
+//extern void delay5ms(uint16_t cnt);
+//extern void add_event(uint8_t event,uint8_t zone);
+//
+//extern void UART2_init(void);
+//extern void control_leds(void);
+//extern void check_RF_device(void);
 
 
 #endif	/* STATE_H */

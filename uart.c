@@ -5,6 +5,8 @@
 #include "uart.h"
 #include "emc_library.h"
 #include "io.h"
+#include "eeprom.h"
+#include "modem.h"
 
 void UART_init(void)
 {

@@ -27,13 +27,6 @@ void decode_device_id(uint8_t id[]);
 void ACK_to_RF_receiver(void);
 void send_sensor_alarm(uint8_t zone, uint8_t id[]);
 
-extern void add_event(uint8_t event,uint8_t zone);
-extern void out_sbuf2(uint8_t tmp);
-extern uint8_t check_ID(uint8_t *ptr);
-extern uint8_t add_ID(uint8_t *ptr);
-
-extern uint8_t del_ID(uint8_t id);
-
 /*****************************************************
  * VARIABLES
  ****************************************************/

@@ -5,6 +5,9 @@
 #include "state.h"
 #include "emc_library.h"
 #include "io.h"
+#include "modem.h"
+#include "timer.h"
+#include "uart.h"
 
 extern state_t myState;
 

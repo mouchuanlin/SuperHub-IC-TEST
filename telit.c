@@ -6,6 +6,8 @@
 #include "eeprom.h"
 #include "emc_library.h"
 #include "telit.h"
+#include "modem.h"
+#include "timer.h"
 
 
 void TL_module_first_run(void)

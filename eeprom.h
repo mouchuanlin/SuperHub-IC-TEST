@@ -13,9 +13,7 @@ extern "C" {
  * INCLUDES
  ****************************************************/
 #include "inc.h"   
-
-#include "led.h"
-    
+   
     
 /*****************************************************
  * FUNCTION PROTOTYPES
@@ -31,12 +29,7 @@ uint8_t add_ID(uint8_t *ptr);
 uint8_t del_ID(uint8_t id);
 uint8_t send_trigger_to_RF(uint8_t type);
 void    write_EE_setting(uint8_t page, uint8_t addr, uint8_t const setting[]);
-
-
-extern void     delay5ms(uint16_t);
-extern void     delayseconds(uint16_t secs);    
-extern void     add_event(uint8_t event,uint8_t zone);    
-extern void     check_ip_setting(void);
+void    check_ip_setting(void);
     
 /*****************************************************
  * VARIABLES

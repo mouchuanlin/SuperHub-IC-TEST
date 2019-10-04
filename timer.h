@@ -37,9 +37,6 @@ void calculate_adc_time(void);
 void response_low_batt(void);
 void handle_smoke_hub(void);
 
-extern void add_event(uint8_t event,uint8_t zone);
-extern void process_button_push(void);
-
 /*****************************************************
  * VARIABLES
  ****************************************************/
@@ -69,15 +66,12 @@ extern uint8_t      Smoke_respond;
 extern uint8_t      error_count;
 extern uint16_t 	error_time_detect;
 
-
-
 // This variable used to turn off LED2/3. Only ON for 1 second.
 uint8_t     led_count = 0;
 uint16_t 	adc_count = 0;
 uint8_t 	Respond_T_Hour = 0;
 uint8_t 	Respond_T_Day = 0;
 uint8_t 	OTA_flag = 0;
-
 
 #endif	/* TIMER_H */
 

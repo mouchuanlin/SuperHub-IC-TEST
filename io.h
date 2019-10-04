@@ -194,6 +194,7 @@ void set_boot_sel_output(void);
 // Hub type - smoke hub or super hub
 #define SMOKE_HUB       0
 #define SUPER_HUB       1
+
 //--------------------
 //uint8_t const VERSION[]="1011";
 // For OTA testing 
@@ -239,6 +240,8 @@ uint8_t power_status=0;
 uint8_t chk_supervisory = 0;
 
 uint8_t Module_type = EMS31;
+
+
 
 
 #ifdef	__cplusplus

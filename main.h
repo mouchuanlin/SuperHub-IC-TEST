@@ -9,7 +9,6 @@
  * INCLUDES
  ****************************************************/
 #include "inc.h"
-
 #include "state.h"
 #include "led.h"
 
@@ -26,23 +25,6 @@ void    smokehub_ISR(void);
 void    superhub_ISR(void);
 void    sms_menu(void);
 void    prepare_to_sleep(void);
-
-extern void start_modem(void);
-extern void restart_modem(void);
-extern void poweroff_modem(void);
-extern void check_state(void);
-extern void init_eeprom(void);
-extern void load_device_id_table(void);
-extern void UART_init(void);
-extern void UART1_ISR(void);
-extern void UART2_ISR(void);
-extern void start_timer0(void);
-extern void TMR0_ISR(void);
-extern void disable_UART(void);
-extern  void disable_UART1(void);
-extern void check_RF_device(void);
-extern void add_event(uint8_t event, uint8_t zone);
-extern void calculate_adc_time(void);
 
 /*****************************************************
  * VARIABLES
