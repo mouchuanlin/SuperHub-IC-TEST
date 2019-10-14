@@ -31,6 +31,17 @@ int main(int argc, char** argv)
     // Programming default configuration in EE.
     init_eeprom();
     
+    
+//    // TODO: FOR DEBUGGING ONLY
+//    poweroff_modem();
+//    
+    
+    
+//    // TODO: FOR DEBUGGING ONLY
+//    MD_RESET = 1;       
+//    while (1)
+//        ;
+    
     // Powerup modem, send AT command to init modem.
     start_modem();
     
