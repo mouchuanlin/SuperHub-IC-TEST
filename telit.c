@@ -62,7 +62,7 @@ uint8_t TL_internet_init(void)
 	cnt = 0x10;
 	do{
         // APN - 35# - "c2.korem2m.com"
-		temp = read_ee(0x00,cnt);
+		temp = read_ee(EE_PAGE0, cnt);
 		if( temp!='#' )
 			out_sbuf(temp);
 		cnt++;
@@ -145,8 +145,8 @@ uint8_t TL_connection_open(uint8_t type)
 	else 
         cnt = 0xB6;
 
-	port = (uint16_t) (read_ee(0,cnt)<<8U);
-	port += read_ee(0,cnt+1U);
+	port = (uint16_t) (read_ee(EE_PAGE0, cnt)<<8U);
+	port += read_ee(EE_PAGE0, cnt+1U);
     
 
 	cnt = 0;
@@ -191,7 +191,7 @@ uint8_t TL_connection_open(uint8_t type)
 		cnt = 0x70;
 	else cnt = 0x90;
 	do{
-		temp = read_ee(0,cnt);
+		temp = read_ee(EE_PAGE0, cnt);
 		if( temp!='#' )
 			out_sbuf(temp);
 		cnt++;

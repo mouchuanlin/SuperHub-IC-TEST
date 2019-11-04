@@ -2,13 +2,15 @@
 // eeprom.c
 //
 
+#include <string.h>
 #include "eeprom.h"
 #include "io.h"
 #include "timer.h"
 #include "led.h"
+#include "modem.h"
+#include "eeprom_setup.h"
 
-
-uint8_t read_ee(uint8_t page,uint8_t addr)
+uint8_t read_ee(uint8_t page, uint8_t addr)
 {
     uint8_t p_data;
     GIE = 0;
@@ -147,7 +149,26 @@ void init_eeprom()
     write_ee(EE_PAGE0, VER_ADDR1, VERSION[1]);
     write_ee(EE_PAGE0, VER_ADDR2, VERSION[2]);
     
+    // TODO: FOR DEBUGGING ONLY
+    ////////////////////////////////
+    write_test_device_id();
+    ////////////////////////////////
+
+    
     load_default();
+}
+
+void write_test_device_id()
+{
+    key_p = 10;
+
+    strncpy((char *)key, (const char *)"41#627275#", 10);
+    set_n41_to_68(41);
+    strncpy((char *)key, (const char *)"42#892C31#", 10);
+    set_n41_to_68(42);
+    strncpy((char *)key, (const char *)"43#333435#", 10);
+    set_n41_to_68(43);
+    key_p = 0;    
 }
 
 void load_default(void)
@@ -188,6 +209,7 @@ void check_ip_setting()
 void load_device_id_table()
 {
     uint8_t cnt1,cnt2,addr;
+	
     for( cnt1=0;cnt1<28;cnt1++ )
     {
         addr =cnt1*8U;
@@ -199,26 +221,28 @@ void load_device_id_table()
     CLRWDT();
 }
 
-uint8_t check_ID(uint8_t ptr[])
+uint8_t get_zone_number(uint8_t device_id[])
 {
-    uint8_t cnt1,cnt2,temp;
-    for( cnt1=0;cnt1<16;cnt1++ ) //28
+    uint8_t row , column, temp;
+    
+    // Check if input ID match to any entry in device_id_table.
+    for( row = 0; row < ID_TABLE_ROW; row++ )
     {
-        for( cnt2=0;cnt2<6;cnt2++ )
+        for( column = 0; column < ID_LEN; column++ )
         {
-            temp = device_id_table[cnt1][cnt2];
-            if( temp != ptr[cnt2] )
+            temp = device_id_table[row][column];
+            if( temp != device_id[column] )
             {
-         //       out_sbuf2(ptr[cnt2]);
+                //out_sbuf2(ptr[cnt2]);
                 break;             
-            }
-            
+            }            
         }
-      //  out_sbuf2(',');
-        if( cnt2==6 )
+        //out_sbuf2(',');
+        if( column == ID_LEN)
         {
-    //        out_sbuf2('S');
-            return(cnt1+3U);   //respond Zone number 3~30
+            //ut_sbuf2('S');
+            // TODO: Why zone# is the cntl+3???
+            return(row+3U);   //respond Zone number 3~30
         }
     }
     CLRWDT();

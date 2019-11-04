@@ -26,6 +26,11 @@ void    superhub_ISR(void);
 void    sms_menu(void);
 void    prepare_to_sleep(void);
 
+void    RF_input_test(void);
+void    test_flood_sensor_1(void);
+void    test_flood_sensor(void);
+void    test_smoke_sensor(void);
+
 /*****************************************************
  * VARIABLES
  ****************************************************/

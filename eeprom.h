@@ -18,18 +18,19 @@ extern "C" {
 /*****************************************************
  * FUNCTION PROTOTYPES
  ****************************************************/  
-uint8_t read_ee(uint8_t, uint8_t );
+uint8_t read_ee(uint8_t page,uint8_t addr);
 void    write_ee(uint8_t page, uint8_t addr, uint8_t data_p);
 void    init_eeprom(void);
 void    load_default(void);
 //void    check_led_type(void);
 void    load_device_id_table(void);
-uint8_t check_ID(uint8_t *ptr);
+uint8_t get_zone_number(uint8_t *device_id);
 uint8_t add_ID(uint8_t *ptr);
 uint8_t del_ID(uint8_t id);
 uint8_t send_trigger_to_RF(uint8_t type);
 void    write_EE_setting(uint8_t page, uint8_t addr, uint8_t const setting[]);
 void    check_ip_setting(void);
+void    write_test_device_id(void);
     
 /*****************************************************
  * VARIABLES
@@ -47,7 +48,7 @@ void    check_ip_setting(void);
 // TODO: Check Spec    
 #define FIRST_RUN_CHECK                     0xF0        // EEPROM address corresp. to this value    
     
-// EEPROM Addresses for each parameter 
+// EE_PAGE0 EEPROM Addresses for each parameter 
 #define APN_ADDR                            0x10
 #define IP1_ADDR                            0x30
 #define IP2_ADDR                            0x50
@@ -71,6 +72,9 @@ void    check_ip_setting(void);
 #define RETRY_TIMES_ADDR                    0xBD
 #define ENCRYPTION_ADDR                     0xE0
 
+// TODO: What's this for?
+#define MM_COUNT_ADDR                       0x0F
+
 #define VER_ADDR0                           0x00
 #define VER_ADDR1                           0x01
 #define VER_ADDR2                           0x02   
@@ -84,8 +88,8 @@ void    check_ip_setting(void);
     //uint8_t const IP1[]="198.17.112.128#";    //01#
     uint8_t const IP1[]="106.104.30.120#";
 #else
-    uint8_t const APN[]="c2.korem2m.com#";           //35# Kore
-    //uint8_t const APN[]="11583.mcs#";           //35# Telit
+    //uint8_t const APN[]="c2.korem2m.com#";           //35# Kore
+    uint8_t const APN[]="11583.mcs#";           //35# Telit
     uint8_t const IP1[]="198.17.112.128#";      //01#
 #endif
 #ifdef DEBUG
@@ -131,6 +135,43 @@ void    check_ip_setting(void);
 #endif
     uint8_t const ENCRYPTION = 1;               //95#    
 
+
+#define EEPROM_LEN  16
+//typedef struct eeprom_map
+//{
+//    uint8_t const IP1[EEPROM_LEN];      //01#
+//    uint8_t const IP2[EEPROM_LEN];                    //02#
+//    uint8_t const IP3[EEPROM_LEN];                    //03#
+//    uint8_t const IP4[EEPROM_LEN];                    //04#    
+//    uint8_t const ACCESS_CODE[];        //05#
+//    
+//    uint8_t const PROGRAM_ACK=;             //06#
+//    uint8_t const TEST_FREQ;                 //07#
+//    uint8_t const SERVER_ACK_TIME;           //08#
+//    uint8_t const SMS_WAIT_TIME;           //09#
+//    //uint8_t const SMS_WAIT_TIME = 3;            //09#    
+//    uint8_t const UNIT_ACCNT[];         //10#
+//    
+//    uint8_t const LINE_CARD[];          //11#
+//    uint8_t const ZONE1;                    //12#
+// //   uint8_t const ZONE2=20;                   //13#
+//    uint8_t const TP_PIN = 0;                     //14#
+//    uint8_t const CYCLE = 3;                    //15#
+//    
+//    uint8_t const RETRY = 30;                   //16#  
+//    
+//    uint16_t const PORT1 = 2020;                //31#   
+//    uint16_t const PORT2 = 2020;                //32#   
+//    uint16_t const PORT3 = 2020;                //33#   
+//    uint16_t const PORT4 = 2020;                //34#   
+//    uint8_t const APN[];      //35# Kore
+//    //uint8_t const APN[]="11583.mcs#";         //35# Telit
+//    
+//    // Server in Instant Care office
+//    uint8_t const IP_OTA[];   //36#
+//    uint16_t const PORT_OTA;             //37#      
+//
+//} eeprom_map_t;
     
     
 extern bool ready_for_sending;    

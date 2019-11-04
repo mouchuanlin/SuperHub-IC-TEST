@@ -124,13 +124,13 @@ void check_receive_overrun(void)
 	}	
 }
 
-void get_access_code()
+void get_access_code(void)
 {
     uint8_t temp = 0;
             
 	// get access code from eeprom
     do{
-        access_code[temp] = read_ee(0x00, (uint8_t)(0xC0+temp));
+        access_code[temp] = read_ee(EE_PAGE0, (uint8_t)(0xC0+temp));
     }while(++temp<7);       
 }
 
@@ -826,24 +826,24 @@ uint8_t respond_setting(uint8_t type,uint8_t off_set)
 	{
 		if( type==0x31 )
 		{
-			data_int = (uint8_t) (read_ee(0x00,0xB0)<<8U);
-			data_int += read_ee(0x00,0xB1);
+			data_int = (uint8_t) (read_ee(EE_PAGE0,0xB0)<<8U);
+			data_int += read_ee(EE_PAGE0,0xB1);
 		}else if( type==0x32)
 		{
-			data_int = (uint8_t) (read_ee(0x00,0xB2)<<8U);
-			data_int += read_ee(0x00,0xB3);
+			data_int = (uint8_t) (read_ee(EE_PAGE0,0xB2)<<8U);
+			data_int += read_ee(EE_PAGE0,0xB3);
 		}else if( type==0x33)
 		{
-			data_int = (uint8_t) (read_ee(0x00,0xB4)<<8U);
-			data_int += read_ee(0x00,0xB5);
+			data_int = (uint8_t) (read_ee(EE_PAGE0,0xB4)<<8U);
+			data_int += read_ee(EE_PAGE0,0xB5);
 		}else if( type==0x34 )
 		{
-			data_int = (uint8_t) (read_ee(0x00,0xB6)<<8U);
-			data_int += read_ee(0x00,0xB7);
+			data_int = (uint8_t) (read_ee(EE_PAGE0,0xB6)<<8U);
+			data_int += read_ee(EE_PAGE0,0xB7);
 		}else if( type==0x37 )
         {
-            data_int = (uint8_t) (read_ee(0x01,0xF0)<<8U);
-			data_int += read_ee(0x01,0xF1);
+            data_int = (uint8_t) (read_ee(EE_PAGE1,0xF0)<<8U);
+			data_int += read_ee(EE_PAGE1,0xF1);
         }else data_int = 0;
 		cnt = 0;
 		temp = data_int/10000U;

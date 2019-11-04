@@ -74,7 +74,7 @@ uint8_t function_code(void)
 					break;
 		default:	if( temp1>=41&&temp1<=56 )//68 )
                     {
-						// sensor device ID - 41 - 56
+						// sensor device ID - 41 - 68
                         respond = set_n41_to_68(temp1);                        
                     }else
                         return('E');
@@ -99,7 +99,7 @@ uint8_t set_n01_02_03_04_35_36(uint8_t type)
 
 	if( key_p==5&&key[3]=='*'&&type!=35 )
 	{
-		write_ee(0x00,addr,'#');
+		write_ee(EE_PAGE0,addr,'#');
 		return('K');
 	}
 
@@ -141,7 +141,7 @@ uint8_t set_n05(void)
     addr = 0xC0;
 	do{
 		temp = key[cnt++];
- 	    write_ee(0x00,addr,temp);
+ 	    write_ee(EE_PAGE0,addr,temp);
 		addr++;
 	}while(temp!='#');
     CLRWDT();
@@ -159,8 +159,8 @@ uint8_t set_n06_14(uint8_t type)
             addr = 0xC7;
         else addr = 0xBB;
         if( temp=='1' )
-            write_ee(0x00,addr,0x01);
-        else write_ee(0x00,addr,0x00);
+            write_ee(EE_PAGE0,addr,0x01);
+        else write_ee(EE_PAGE0,addr,0x00);
 		return('K');
 	}
 	return('E');
@@ -180,7 +180,7 @@ uint8_t set_n07(void)
 		{
 			if( cnt==0x04 || addr>30 )
 				return('E');
-			write_ee(0x00,0xC8,addr);
+			write_ee(EE_PAGE0,0xC8,addr);
 			return('K');
 		}else if(is_digit(temp))
 		{
@@ -206,7 +206,7 @@ uint8_t set_n08(void)
 		{
 			if( cnt==0x04 || addr>180 )
 				return('E');
-			write_ee(0x00,0xC9,addr);
+			write_ee(EE_PAGE0,0xC9,addr);
 			return('K');
 		}else if( is_digit(temp) )
 		{
@@ -233,11 +233,11 @@ uint8_t set_n09_15_16(uint8_t type)
 			if( cnt==0x00 || addr>100 )
 				return('E');
             if( type==9 )
-                write_ee(0x00,0xB8,addr);
+                write_ee(EE_PAGE0,0xB8,addr);
             else if( type==15 )     //17/11/08
-                write_ee(0x00,0xBC,addr);
+                write_ee(EE_PAGE0,0xBC,addr);
             else if( type==16 )     //17/11/08
-                write_ee(0x00,0xBD,addr);
+                write_ee(EE_PAGE0,0xBD,addr);
             else return('E');
 			return('K');
 		}else if( is_digit(temp))
@@ -269,14 +269,14 @@ uint8_t set_n10(void)
 			{
 				tp = (uint8_t) (4-cnt);
 				do{
-					write_ee(0x00,addr,'0');
+					write_ee(EE_PAGE0,addr,'0');
 					addr++;
 				}while(--tp!=0);
 			}
 			cnt = 0x03;
 			do{
 				temp = key[cnt++];
-				write_ee(0x00,addr,temp);
+				write_ee(EE_PAGE0,addr,temp);
 			}while(++addr<0xD0);
 			return('K');
 		}else if( !is_digit(temp) )
@@ -303,7 +303,7 @@ uint8_t set_n11(void)
 			cnt = 0x03;
 			do{
 				temp = key[cnt++];
-				write_ee(0x00,addr,temp);
+				write_ee(EE_PAGE0,addr,temp);
 				addr++;
 			}while(temp!='#');
 			return('K');
@@ -324,7 +324,7 @@ uint8_t set_n12_13(uint8_t type)
         return('E');
     if( key[4]!='#' )
         return('E');
-    write_ee(0x00,0xB9,key[3]);  
+    write_ee(EE_PAGE0,0xB9,key[3]);  
 	return('K');
 }
 
@@ -365,24 +365,28 @@ uint8_t set_n31_32_33_34_37(uint8_t type)
 			}	
 			if( type==31 )
 			{
-				write_ee(0x00,0xB0,(addr>>8));
-				write_ee(0x00,0xB1,(addr&0x00ff));
+                // PORT1_ADDR
+				write_ee(EE_PAGE0, 0xB0, (addr>>8));
+				write_ee(EE_PAGE0, 0xB1, (addr&0x00ff));
 			}else if( type==32 )
 			{
-				write_ee(0x00,0xB2,(addr>>8));
-				write_ee(0x00,0xB3,(addr&0x00ff));
+                // PORT2_ADDR
+				write_ee(EE_PAGE0, 0xB2, (addr>>8));
+				write_ee(EE_PAGE0, 0xB3, (addr&0x00ff));
 			}else if( type==33 )
 			{
-				write_ee(0x00,0xB4,(addr>>8));
-				write_ee(0x00,0xB5,(addr&0x00ff));
+                // PORT3_ADDR
+				write_ee(EE_PAGE0, 0xB4, (addr>>8));
+				write_ee(EE_PAGE0, 0xB5, (addr&0x00ff));
 			}else if( type==34)
 			{
-				write_ee(0x00,0xB6,(addr>>8));
-				write_ee(0x00,0xB7,(addr&0x00ff));
+                // PORT4_ADDR
+				write_ee(EE_PAGE0, 0xB6, (addr>>8));
+				write_ee(EE_PAGE0, 0xB7, (addr&0x00ff));
 			}else if( type==37)
 			{
-				write_ee(0x01,0xF0,(addr>>8));
-				write_ee(0x01,0xF1,(addr&0x00ff));
+				write_ee(EE_PAGE1, 0xF0, (addr>>8));
+				write_ee(EE_PAGE1, 0xF1, (addr&0x00ff));
 			}
 			return('K');
 		}else if( is_digit(temp) )
@@ -399,6 +403,9 @@ uint8_t set_n31_32_33_34_37(uint8_t type)
 uint8_t set_n41_to_68(uint8_t type)
 {
     uint8_t cnt,temp,val;
+    
+    // The parameter type is the EEPROM ID#. It starts from 41 while we want save to array[0]
+    // RF slave device ID store in EEPROM Page 1 address 0 - 8 bytes for each device.
     cnt = 0x03;
     type -= 41;
     val = type;
@@ -407,16 +414,19 @@ uint8_t set_n41_to_68(uint8_t type)
     {        
         for( cnt=0;cnt<8;cnt++ )
         {            
-            write_ee(1, (uint8_t) (type+cnt), 0);
+            write_ee(EE_PAGE1, (uint8_t) (type+cnt), 0);
             device_id_table[val][cnt] = 0;
         }
         return('K');
     }
+    // Only if the whole string is 10 byte and the last byte is #
+    // Ex: 41#892C31#
     if( key_p==10&&key[9]=='#')
     {                
         cnt = 3;
         do{
             temp = key[cnt];
+             // ID can ONLY be number (0-9) or letter (A-Z or a-z)
             if( (temp>='0'&&temp<='9')||(temp>='A'&&temp<='F') )
             {
                 NOP();
@@ -425,15 +435,23 @@ uint8_t set_n41_to_68(uint8_t type)
                 key[cnt] -= 0x20;
             }else return('E');            
         }while(++cnt<9);
+        
+        // Write ID to EEPROM and device_id_table
+        //  Ex : device_id_table[0] = "892C31"
         for( cnt=0;cnt<6;cnt++ )
         {
+            // ID starts from byte 3 - Ex 892C31
             temp = key[cnt+3U];
-            write_ee(1, (uint8_t) (type+cnt), temp);
+            write_ee(EE_PAGE1, (uint8_t) (type+cnt), temp);
             device_id_table[val][cnt] = temp;
         }
-        write_ee(1, type+6U, 0);
+        
+        // TODO: Why write to [6]???
+        write_ee(EE_PAGE1, type+6U, 0);
         device_id_table[val][6] = 0;
-        write_ee(1, type+7U, 0);
+        
+        // TODO: Why write to [7]???
+        write_ee(EE_PAGE1, type+7U, 0);
         device_id_table[val][7] = 0;
         return('K');
     }
@@ -453,7 +471,7 @@ uint8_t back_door_function(uint8_t p)
 		temp = key[0x03];
 		if( temp=='0' || temp=='1' )
 		{
-			write_ee(0x00, 0x7e, (uint8_t) (temp&0x0f));
+			write_ee(EE_PAGE0, 0x7e, (uint8_t) (temp&0x0f));
 			return('K');
 		}
 	}else if( p==96 )
@@ -466,7 +484,7 @@ uint8_t back_door_function(uint8_t p)
 			{
 				if( cnt==0x04 || addr>30 )
 					return('E');
-				write_ee(0x00,0x7f,addr);
+				write_ee(EE_PAGE0,0x7f,addr);
 				return('K');
 			}else if( is_digit(temp) )
 			{
@@ -484,7 +502,7 @@ uint8_t back_door_function(uint8_t p)
 		{
 			if( key[3]=='*' )
 			{
-				write_ee(0x00,0xb0,0x0c);
+				write_ee(EE_PAGE0,0xb0,0x0c);
 				return('K');
 			}
 			else return('E');
@@ -506,7 +524,7 @@ uint8_t back_door_function(uint8_t p)
 		addr = 0xb0;
 		do{
 			temp = key[cnt++];
-			write_ee(0x00,addr,temp);
+			write_ee(EE_PAGE0,addr,temp);
 			addr++;
 		}while(temp!='#');
 		return('K');
@@ -519,7 +537,7 @@ uint8_t set_n98(void)
 {
 	if( key[3]=='*'&&key[4]=='*'&&key[5]=='#' )
 	{
-        write_ee(0x00,0x00,0x00);
+        write_ee(EE_PAGE0,0x00,0x00);
 		init_eeprom();
 		return('K');
 	}

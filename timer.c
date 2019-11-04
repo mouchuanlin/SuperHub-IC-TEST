@@ -8,7 +8,7 @@
 #include "led.h"
 
 // TMR0 used for LED control and learn button process. 100 ms per tick.
-void TMR0_ISR()
+void TMR0_ISR(void)
 {
     // TMR0 Overflow Interrupt Flag bit          
     if (TMR0IF)
@@ -46,7 +46,7 @@ void TMR0_ISR()
     }	
 }
 
-//void TMR3_ISR()
+//void TMR3_ISR(void)
 //{
 //	if (TMR3IF)
 //    //if (buttonPressCount != 0)
@@ -60,7 +60,7 @@ void TMR0_ISR()
 //    }    
 //}
 
-void handle_smoke_hub()
+void handle_smoke_hub(void)
 {
 	if( hub_type == SMOKE_HUB )
 	{
@@ -209,7 +209,7 @@ void delayseconds(uint16_t secs)
     }
 }
 
-//void timer0_init()
+//void timer0_init(void)
 //{
 //    // T0CON: TIMER0 CONTROL REGISTER
 //    // 0x87 = b1000 0111 - Enable Timer0, 16 bit timer, 1:256 prescale value.
@@ -223,7 +223,7 @@ void delayseconds(uint16_t secs)
 //}
 
 // Timer0 used to control LEDs.
-void start_timer0()
+void start_timer0(void)
 {
     // T0CON: TIMER0 CONTROL REGISTER
     /* t0con = 0x87: enable timer0, use as 16-bit counter, transition on
@@ -242,7 +242,7 @@ void start_timer0()
     INTCONbits.GIE = 1;
 }
 
-void reload_timer0()
+void reload_timer0(void)
 {
     TMR0IF = 0;
     TMR0IE = 1;
@@ -313,14 +313,14 @@ void reload_timer3_50ms(void)
     TMR3L = 0;    
 }
 
-void exit_learning_mode()
+void exit_learning_mode(void)
 {
     if( ++exit_learn>=600 )     //600*100ms=60Sec
         learning_mode = KEY_NONE;
 }
 
 /*
-void process_sms_menu()
+void process_sms_menu(void)
 {
     tmr3_cnt++;
     TMR3IF = 0;
@@ -390,7 +390,7 @@ void process_sms_menu()
 }
 */
 
-void calculate_adc_time()
+void calculate_adc_time(void)
 {
     // Use timer0 to calculate.
     if( ++adc_count >= (18000*0.9888) )       //[3600*10]*100ms=3600sec=1hr            //0.979  -1.56
@@ -439,7 +439,7 @@ void calculate_adc_time()
 
 // Check one per 24 hours
 // Once not receive the data, then report device failure
-void response_low_batt()
+void response_low_batt(void)
 {
     uint8_t cnt1;
     

@@ -36,7 +36,7 @@ void UART1_init(uint32_t baudrate)
 }
 
 //---------------------------------------------------
-void UART2_init()
+void UART2_init(void)
 {   
     TX2STA = 0x26;       //00100110
     RC2STA = 0x90;       //10010000
@@ -100,7 +100,7 @@ void enable_UART(void)
 }
 
 // UART1 (to OTA/modem) ISR
-void UART1_ISR()
+void UART1_ISR(void)
 {
     uint8_t temp;
         
@@ -117,7 +117,7 @@ void UART1_ISR()
 }
 
 // UART2 (to RF receiver) ISR
-void UART2_ISR()
+void UART2_ISR(void)
 {
 	uint8_t temp;
 	
@@ -146,7 +146,7 @@ void UART2_ISR()
 
 void process_RF_data(void)
 {
-	uint8_t temp;
+	//uint8_t temp;
     uint8_t zone,cnt;
     uint8_t id[6];
 		
@@ -176,9 +176,11 @@ void process_RF_data(void)
 		// Decode 6 bytes device ID
         decode_device_id(id);
         
-		temp = rx2_buf[4];
+        // TODO: don't need this???
+		//temp = rx2_buf[4];
 
-		zone = check_ID(id);       //respond zone number(3~30),error=0
+        // Get zone# from device_id_table
+		zone = get_zone_number(id);       //respond zone number(3~30),error=0
 	   
 		if( zone!=0 )
 		{
@@ -213,7 +215,6 @@ void process_RF_data(void)
 void decode_device_id(uint8_t id[])
 {
     uint8_t temp;
-    uint8_t zone,cnt;
         
 	// 7 bytes RF data in HEX - $ + 3byte ID + 1byte status + <CR> + <LF>
     // Convert 3 bytes ID from HEX to ASCII

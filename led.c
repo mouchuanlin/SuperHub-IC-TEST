@@ -13,7 +13,7 @@ void update_led_state(led_states_t new_state)
     led_state = new_state;
 }
 
-void control_leds()
+void control_leds(void)
 {
     // TODO: timer0 is setup to 100 ms per tick. Will need to re-verify the code.
     // 	each tick 100 ms = 0.1 second

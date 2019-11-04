@@ -79,7 +79,7 @@ void set_boot_sel_input(void)
     BOOT_SEL_TRIS = INPUT;
 }
 
-void set_boot_sel_output()
+void set_boot_sel_output(void)
 {
     // BOOT_SEL - RA6
     BOOT_SEL_O = 1;

@@ -31,19 +31,18 @@ int main(int argc, char** argv)
     // Programming default configuration in EE.
     init_eeprom();
     
-    
-//    // TODO: FOR DEBUGGING ONLY
-//    poweroff_modem();
-//    
-    
-    
-//    // TODO: FOR DEBUGGING ONLY
-//    MD_RESET = 1;       
-//    while (1)
-//        ;
-    
+      
     // Powerup modem, send AT command to init modem.
     start_modem();
+    
+    
+    // TODO: FOR DEBUGGING ONLY
+    ////////////////////////////////
+    RF_input_test();
+    //process_event_queue();
+    ////////////////////////////////    
+    
+    
     
     // Turn off modem/UART before going to infinite loop.
     prepare_to_sleep();
@@ -90,7 +89,7 @@ int main(int argc, char** argv)
     return (EXIT_SUCCESS);   
 }
 
-void init_system()
+void init_system(void)
 {
     // REGISTER 2-1: OSCCON: OSCILLATOR CONTROL REGISTER
     OSCCON = HIGH_FREQ_OSCCON;  // 8MHz
@@ -117,7 +116,7 @@ void init_system()
     update_led_state(OFF);
 }
 
-void int_init()
+void int_init(void)
 {
     // INTEDG0: External Interrupt 0/1/2 Edge Select bit - rising edge.
     INTEDG0 = 1;
@@ -147,7 +146,7 @@ void int_init()
     GIE = 1; 
 }
 
-//void init_stack_buffer()
+//void init_stack_buffer(void)
 //{    
 //	uint8_t cnt,rsp,temp;
 //    
@@ -160,7 +159,7 @@ void int_init()
 //    }
 //}
 
-void init_global_variables()
+void init_global_variables(void)
 {
     // Global variable init
     test_count = 0;
@@ -275,7 +274,7 @@ void __interrupt(low_priority) low_isr(void)
 
 }
 
-void smokehub_ISR()
+void smokehub_ISR(void)
 {
     uint8_t temp;
 	
@@ -315,7 +314,7 @@ void smokehub_ISR()
     }
 }
 
-void superhub_ISR()
+void superhub_ISR(void)
 {
 	if (hub_type == SUPER_HUB)
     {
@@ -343,7 +342,7 @@ void superhub_ISR()
     }
 }
 
-void check_button()
+void check_button(void)
 {
 	if (test_count != 0)
 	{
@@ -386,7 +385,7 @@ void check_button()
 	}
 }
 
-void sms_menu()
+void sms_menu(void)
 {
     // learn_btn 5-1 - SMS setup
     switch (test_count)
@@ -432,10 +431,59 @@ void sms_menu()
     }
 }
 
-void prepare_to_sleep()
+void prepare_to_sleep(void)
 {
     //disable_UART1();
     poweroff_modem();
     update_led_state(OFF);
 }
 
+void RF_input_test(void)
+{
+    test_flood_sensor();
+}
+
+void test_flood_sensor_1(void)
+{
+    // 7 bytes RF data in HEX - $ + 3byte ID + 1byte status + <CR> + <LF>
+    rx2_cnt = 7;
+    rx2_buf[0] = '$';
+    rx2_buf[1] = 0x33;
+    rx2_buf[2] = 0x34;
+    rx2_buf[3] = 0x35;
+    rx2_buf[4] = 1;
+    rx2_buf[5] = CR;
+    rx2_buf[6] = LF;    
+    
+    process_RF_data();
+}
+
+void test_flood_sensor(void)
+{
+    // 7 bytes RF data in HEX - $ + 3byte ID + 1byte status + <CR> + <LF>
+    rx2_cnt = 7;
+    rx2_buf[0] = '$';
+    rx2_buf[1] = 0x62;
+    rx2_buf[2] = 0x72;
+    rx2_buf[3] = 0x75;
+    rx2_buf[4] = 1;
+    rx2_buf[5] = CR;
+    rx2_buf[6] = LF;    
+    
+    process_RF_data();
+}
+
+void test_smoke_sensor(void)
+{
+    // 7 bytes RF data in HEX - $ + 3byte ID + 1byte status + <CR> + <LF>
+    rx2_cnt = 7;
+    rx2_buf[0] = '$';
+    rx2_buf[1] = 0x89;
+    rx2_buf[2] = 0x2C;
+    rx2_buf[3] = 0x31;
+    rx2_buf[4] = 1;    
+    rx2_buf[5] = CR;
+    rx2_buf[6] = LF; 
+    
+    process_RF_data();
+}

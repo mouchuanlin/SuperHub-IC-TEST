@@ -142,8 +142,6 @@ void set_boot_sel_output(void);
 #define END_MM_COUNT 0xA0
 #define RETRY_NUMBER1 	(5-1)
 #define RETRY_NUMBER2 	(3-1)    
-#define BUFFER_STACK    6
-#define LOG_MAX_T   220   
     
    
 //--------------------   
@@ -207,6 +205,9 @@ uint8_t const encryption_code[16]={ 0x6c,0x31,0x6e,0x79,0x52,0x7f,0x26,0x6f,
                                     0x34,0x19,0x41,0x1b,0x54,0x3a,0x64,0x1f };
     
 //--------------------
+#define BUFFER_STACK    6
+#define LOG_MAX_T       220   
+
 uint8_t encryption = 0;
 uint8_t rsp_buffer[250];
 uint8_t enc_cnt;
@@ -223,7 +224,10 @@ uint8_t debug_buffer[250];
 #endif
 uint8_t debug_p;
 uint8_t signal_val;
-uint8_t key_p,key[100];
+
+// Pointer and array to store SMS message
+uint8_t key_p, key[100];
+
 uint8_t back_door;
 uint8_t respond_day = 0;
 uint16_t retry_count = 0;
@@ -233,8 +237,12 @@ uint16_t ADC_data = 0;
 
 uint8_t RF_wait_count = 0;
 
-// RF slave device ID table
-uint8_t device_id_table[28][9];
+// RF slave device ID table. ID from 41 - 68
+#define ID_TABLE_ROW        28
+#define ID_TABLE_COLUM      9       // TODO: We are using only 6 bytes ID for now. Shoulb be able change to 6
+#define ID_LEN              6
+uint8_t device_id_table[ID_TABLE_ROW][ID_TABLE_COLUM];
+
 uint8_t learning_mode = 0;
 uint8_t power_status=0;
 uint8_t chk_supervisory = 0;

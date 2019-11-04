@@ -11,7 +11,7 @@
 
 extern state_t myState;
 
-void check_state()
+void check_state(void)
 {
     check_RF_device();
     process_ADC();
@@ -76,7 +76,7 @@ bool process_restart()
 	return false;
 }
 
-void check_alarm_tamper()
+void check_alarm_tamper(void)
 {
     // TAMPER_PIN == 1 - close
     if( tamper_status!=0&&TAMPER_PIN==1  )
@@ -95,7 +95,7 @@ void check_alarm_tamper()
 //
  // Primary loop that controls add_sensor 
 //
-void add_sensor()
+void add_sensor(void)
 {
     
 }
@@ -103,12 +103,12 @@ void add_sensor()
 //
 // Primary loop that controls delete sensor
 //
-void delete_sensor()
+void delete_sensor(void)
 {
 
 }
 
-void process_supervisory()
+void process_supervisory(void)
 {
 	if( chk_supervisory>=2 )       //2 hour
 	{
@@ -139,7 +139,7 @@ uint8_t check_supervisory()
     return(0);   
 }
 
-void process_ADC()
+void process_ADC(void)
 {
 	unsigned cnt;
 	
@@ -196,7 +196,7 @@ void process_ADC()
 //	}
 //}
 
-void check_RF_device()
+void check_RF_device(void)
 {
     // RF interrupt
     if( WIFI_INT==1&&RF_wait_count==0 )

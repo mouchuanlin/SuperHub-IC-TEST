@@ -207,7 +207,7 @@ uint8_t check_network_registration()
     check_ip_setting();
     
     // TODO: Send TEST AT commands. 
-    //send_test_AT_commands();
+//    send_test_AT_commands();
     
     // mlin - why "AT\\Q0\r\n$"
     soutdata((uint8_t *) "AT\\Q0\r\n$");
@@ -220,8 +220,9 @@ uint8_t check_network_registration()
 }
 
 
-void send_test_AT_commands()
+void send_test_AT_commands(void)
 {
+    
     // TODO:
     soutdata((uint8_t *) "AT+CMEE=2\r\n$");    
     delay5ms(20);
@@ -246,7 +247,18 @@ void send_test_AT_commands()
     
     soutdata((uint8_t *) "AT+CEREG?\r\n$");    
     delay5ms(20);
+	
+	// Core SIM
+	//soutdata("AT+CGDCONT=1,\"IP\",\"11583.mcs\",\"0.0.0.0\",0,0\r\n$");
+	//soutdata("AT+CGDCONT=3,\"IP\",\"11583.mcs\",\"0.0.0.0\",0,0\r\n$")	
+	// delay5ms(20);
     
+	// Telit SIM
+//	soutdata("AT+CGDCONT=1,\"IP\",\"11583.mcs\",\"0.0.0.0\",0,0\r\n$");
+//	delay5ms(100);
+//	soutdata("AT+CGDCONT=3,\"IP\",\"11583.mcs\",\"0.0.0.0\",0,0\r\n$");
+//	delay5ms(20);
+
     soutdata((uint8_t *) "AT+CGDCONT?\r\n$");    
     delay5ms(20);   
     
@@ -256,8 +268,8 @@ void send_test_AT_commands()
     soutdata((uint8_t *) "AT+CGSN\r\n$");    
     delay5ms(20);
     
-    soutdata((uint8_t *) "AT#SNUM=1,9566405896\r\n$");    
-    delay5ms(20);
+//    soutdata((uint8_t *) "AT#SNUM=1,9566405896\r\n$");    
+//    delay5ms(20);
     
     soutdata((uint8_t *) "AT+CNUM\r\n$");    
     delay5ms(20); 
@@ -371,7 +383,7 @@ uint8_t start_sms()
     // This bit indicating if we are in button 5-1 or not.
     if( listen_sms_state==1 )    
     {
-        sms_time = read_ee(0x00,SMS_WAIT_TIME_ADDR);   //wait SMS time
+        sms_time = read_ee(EE_PAGE0, SMS_WAIT_TIME_ADDR);   //wait SMS time
         set_sms_init();    
         do{
             cnt = 12;
@@ -437,7 +449,7 @@ bool check_apn_status()
         return false; 
 }
 
-void powerup_modem()
+void powerup_modem(void)
 {
     MD_POWER = POWER_ON;
     
@@ -457,7 +469,7 @@ void powerup_modem()
     MD_START = 0;    
 }
 
-void start_modem()
+void start_modem(void)
 {
 //    CLRWDT();
 //    MD_POWER = POWER_ON;
@@ -469,6 +481,12 @@ void start_modem()
     enable_UART();    
     powerup_modem();
     
+    // AT&F Reset AT Command Settings to Factory Default Values
+    reset_at_command_default();
+            
+    // TODO: FOR DEBUGGING ONLY
+    send_test_AT_commands();
+   
     while (!modem_config_ok())
         restart_modem();
     
@@ -480,7 +498,13 @@ void start_modem()
     //md_started = true;
 }
 
-void restart_modem()
+void reset_at_command_default()
+{
+    soutdata((uint8_t *) "AT&F\r\n$");    
+    delay5ms(20);
+}
+
+void restart_modem(void)
 {
     CLRWDT();
     //MD_POWER = POWER_OFF;
@@ -491,12 +515,12 @@ void restart_modem()
     powerup_modem();
 }
 
-void poweroff_modem()
+void poweroff_modem(void)
 {
     MD_POWER = POWER_OFF;
 }
 
-void process_event_queue()
+void process_event_queue(void)
 {
 	// Event queue is not empty
 	if (event_count_f != event_count_l)    

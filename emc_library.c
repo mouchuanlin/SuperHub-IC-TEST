@@ -12,11 +12,12 @@
 void update_mmcnt(void)
 {
 	uint8_t mm_cnt;
-	mm_cnt = read_ee(0,0x0f);
+	mm_cnt = read_ee(EE_PAGE0, MM_COUNT_ADDR);
 
 	if( ++mm_cnt>=END_MM_COUNT )
 		mm_cnt = START_MM_COUNT;
-	write_ee(0x00,0x0f,mm_cnt);
+    
+	write_ee(EE_PAGE0, MM_COUNT_ADDR, mm_cnt);
 }
 
 uint8_t save_stack_header(void)
@@ -29,15 +30,22 @@ uint8_t save_stack_header(void)
 		{
 			stack_buffer[tp_cnt][0] = 'P';
 			stack_buffer[tp_cnt][1] = 1;				//dial type
-			temp = (uint8_t)(read_ee(0x00,0x7b)<<4U);				//line fault
+            
+            // TODO: What's EEPROM 0x7b for???
+			temp = (uint8_t)(read_ee(EE_PAGE0,0x7b)<<4U);				//line fault
+            
 			/* new add 12/09 */
-			if( read_ee(0x01,0x20)==0x0c )				//retry count if line2 empty,line1 retry <5>
+            //  // TODO: What's this for???
+			if( read_ee(0x01,0x20)==0x0C )				//retry count if line2 empty,line1 retry <5>
 				temp += RETRY_NUMBER1;	
 			else temp += RETRY_NUMBER2;	
+            
 			/*---------------*/
 			stack_buffer[tp_cnt][2] = temp;
 
-			temp = read_ee(0x00,0x59);
+            // TODO: What's EEPROM 0x59 for???
+			temp = read_ee(EE_PAGE0, 0x59);
+            
 			stack_buffer[tp_cnt][3] = temp;			 	//ack time
 			stack_buffer[tp_cnt][4] = temp;				//ack count
             stack_buffer[tp_cnt][5] = 3;                // reboot times
@@ -59,10 +67,15 @@ uint8_t save_stack_header(void)
 	return(tp_cnt);
 }
 
-uint8_t stack_data_header(uint8_t tp_cnt,uint8_t mm_cnt,uint8_t cnt)
+
+uint8_t stack_data_header(uint8_t tp_cnt,uint8_t mm_cnt, uint8_t cnt)
 {
-	uint8_t cnt2,temp;
-	const uint8_t hex[17]="0123456789ABCDEF";
+    // This function store data into stack_buffer[tp_cnt].
+    //                             0    1    2    3    4    5    6    7        20   21    22   23   24   25   26   27   28   29   30 
+    //  Ex: stack_buffer[0][] = 0x50 0x01 0xF2 0xFF 0xFF 0x03 0x03 0x00 .... 0x30 0x30 0x037 0x35 0x34 0x38 0x2C 0x34 0x30 0x30 0x37
+    //                             P                                                       (7548)                  (4007)
+	uint8_t 		addr, temp;
+	const uint8_t 	hex[17]="0123456789ABCDEF";
     
 	//temp = (mm_cnt/10)+0x30;			//MM
 	temp = hex[(uint8_t)(mm_cnt>>4U)];
@@ -70,20 +83,30 @@ uint8_t stack_data_header(uint8_t tp_cnt,uint8_t mm_cnt,uint8_t cnt)
 	//temp = (mm_cnt%10)+0x30;
 	temp = hex[((uint8_t) (mm_cnt&0x0f))];
 	stack_buffer[tp_cnt][cnt++] = temp;
-	cnt2 = 0xD0;						//L
-	do{
-		temp = read_ee(0x00,cnt2);
+    
+    // Read Line Card (ex. 7548) from EEPROM one byte each time and store in stack_buffer
+    //  Max 7 bytes (account no + #)
+	addr = LINE_CARD_ADDR;	
+	do {
+		temp = read_ee(EE_PAGE0, addr);
+		
 		if( temp!='#'&& temp!=0x0c)
 			stack_buffer[tp_cnt][cnt++] = temp;
-		else temp='#';
-	}while( ++cnt2<0xD5&&temp!='#' );
-	stack_buffer[tp_cnt][cnt++] = ',';					//,
-	cnt2 = 0xCA;								//unit accnt
-	do{	
-		temp = read_ee(0x00,cnt2);		
+		else 
+			temp='#';
+	} while( (++addr < 0xD5) && (temp != '#') );
+	
+	stack_buffer[tp_cnt][cnt++] = ',';
+    
+    // Read Unit Account (ex. 4007) from EEPROM one byte each time and store in stack_buffer
+    //  Max 7 bytes (account no + #)
+	addr = UNIT_ACCT_ADDR;
+	do { 	
+		temp = read_ee(EE_PAGE0, addr);		
 		if( temp!='#' )
 			stack_buffer[tp_cnt][cnt++] = temp;
-	}while( ++cnt2<0xD0&&temp!='#' );
+	} while ( (++addr < 0xD0) && (temp != '#') );
+    
     CLRWDT();
 	return(cnt);
 }
@@ -197,7 +220,8 @@ bool alarm_out(uint8_t type,uint8_t zone_ext)
         return 0;
     else
         sp = alarm_string[type];
-	 
+	
+    // Looking for the buffer first char is 'P'???
     for( cnt=0;cnt<BUFFER_STACK;cnt++ )
     {
         if( stack_buffer[cnt][0]=='P')
@@ -232,8 +256,11 @@ bool alarm_out(uint8_t type,uint8_t zone_ext)
             }
         }       
     }
-    mm_cnt = read_ee(0,0x0f);
+    
+    // TODO: What's this for???
+    mm_cnt = read_ee(EE_PAGE0, MM_COUNT_ADDR);
     tp_cnt = save_stack_header();
+    
     if( type==TEST_PIN_T||type==TEST_CYCLE_S   )
     {
         stack_buffer[tp_cnt][0] = 'T';
@@ -245,14 +272,27 @@ bool alarm_out(uint8_t type,uint8_t zone_ext)
         stack_buffer[tp_cnt][1] = 1; //usb line1~4
         //MML,ACCT18,E60200002
         cnt = 20;
-        cnt = stack_data_header(tp_cnt,mm_cnt,cnt);
+        cnt = stack_data_header(tp_cnt, mm_cnt, cnt);
         mm_cnt = 0;
+        
+        
+
+		// This function store data into stack_buffer[tp_cnt].
+		//                             0    1    2    3    4    5    6    7        20   21    22   23   24   25   26   27   28   29   30 
+		//  Ex: stack_buffer[0][] = 0x50 0x01 0xF2 0xFF 0xFF 0x03 0x03 0x00 .... 0x30 0x30 0x037 0x35 0x34 0x38 0x2C 0x34 0x30 0x30 0x37
+		//                             P                                                       (7548)                  (4007)
+        // Added alarm_string to stack_buffer - Ex. "18,115400$"
+        //  stack_buffer[31]~[40] = "18,115400$"
         do{
             temp = sp[mm_cnt++];
             stack_buffer[tp_cnt][cnt++] = temp;
         }while(temp!='$');
 #ifndef DEBUG
-        stack_buffer[tp_cnt][cnt-1U] = read_ee(0x00, 0xB9);        
+        // stack_buffer[0][40] = ZONE1 from EEPROM
+        // stack_buffer[0][41] = zone
+        // stack_buffer[0][42] = zone
+        // stack_buffer[0][43] = CR
+        stack_buffer[tp_cnt][cnt-1U] = read_ee(EE_PAGE0, ZONE1_ADDR);        
         stack_buffer[tp_cnt][cnt++] = (zone_ext/10U)+0x30;
         stack_buffer[tp_cnt][cnt++] = (zone_ext%10U)+0x30;
 #else
@@ -261,8 +301,12 @@ bool alarm_out(uint8_t type,uint8_t zone_ext)
         stack_buffer[tp_cnt][cnt++] = (zone/10)+0x30;
         stack_buffer[tp_cnt][cnt++] = (zone%10)+0x30;
 #endif
-        stack_buffer[tp_cnt][cnt++] = 0x0d; 
-    }else return(0);            
+        // Carriage return
+        stack_buffer[tp_cnt][cnt++] = CR; 
+    }
+    else 
+        return(0);   
+    
 	return(1);
 }
 
@@ -391,10 +435,11 @@ uint8_t chk_data_type(uint8_t *buffer,uint8_t buffer_p)
 uint8_t check_emc_stack(void)
 {
     uint8_t temp,cnt,rsp,loop,count;
+    
 #ifdef DEBUG
     uint8_t const ascii[]="0123456789ABCDEF";
 #endif
-    encryption = read_ee(0x00,0xE0);
+    encryption = read_ee(EE_PAGE0, ENCRYPTION_ADDR);
     
 send_start:
     //lock_buffer = 0;
@@ -436,7 +481,7 @@ send_start:
             if(  stack_buffer[0][0]=='T' )
                 loop = 1;
             else
-                loop = read_ee(0x00,0xBC);
+                loop = read_ee(EE_PAGE0,0xBC);
             do{
                 CREN1 = 0;
                 rsp = TL_connection_open(cnt);
@@ -445,7 +490,7 @@ send_start:
                     rsp = TL_send_data_to_server();     
                     if( rsp=='K' )     
                     {
-                        count = read_ee(0x00,0xC9);
+                        count = read_ee(EE_PAGE0,0xC9);
                         do{                            
                             delayseconds(5);
                             rsp = TL_receive_data_from_server();         
@@ -498,7 +543,7 @@ send_start:
             #endif
             retry_count = 0;
             goto send_start;            
-        }else retry_count = read_ee(0x00,0xBD)*600U;
+        }else retry_count = read_ee(EE_PAGE0,0xBD)*600U;
         stack_buffer[0][5]--;
         if( stack_buffer[0][5]==0 )
         {
