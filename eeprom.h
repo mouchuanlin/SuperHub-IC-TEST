@@ -48,39 +48,42 @@ void    write_test_device_id(void);
 // TODO: Check Spec    
 #define FIRST_RUN_CHECK                     0xF0        // EEPROM address corresp. to this value    
     
-// EE_PAGE0 EEPROM Addresses for each parameter 
-#define APN_ADDR                            0x10
-#define IP1_ADDR                            0x30
-#define IP2_ADDR                            0x50
-#define IP3_ADDR                            0x70
-#define IP4_ADDR                            0x90
-#define PORT1_ADDR                          0xB0
-#define PORT2_ADDR                          0xB2
-#define PORT3_ADDR                          0xB4
-#define PORT4_ADDR                          0xB6
-#define SMS_WAIT_TIME_ADDR                  0xB8
-#define ACCESS_CODE_ADDR                    0xC0
-#define PROGRAM_ACK_ADDR                    0xC7
-#define TESTING_FREQ_ADDR                   0xC8
-#define SERVER_ACK_TIME_ADDR                0xC9
-#define UNIT_ACCT_ADDR                      0xCA
-#define LINE_CARD_ADDR                      0xD0
-#define ZONE1_ADDR                          0xB9
-#define ZONE2_ADDR                          0xBA
-#define TP_PIN_ADDR                         0xBB
-#define CYCLE_ADDR                          0xBC
-#define RETRY_TIMES_ADDR                    0xBD
-#define ENCRYPTION_ADDR                     0xE0
-
-// TODO: What's this for?
-#define MM_COUNT_ADDR                       0x0F
-
+// Page 0 EEPROM Map
 #define VER_ADDR0                           0x00
 #define VER_ADDR1                           0x01
 #define VER_ADDR2                           0x02   
-    
-#define IP_OTA_ADDR                         0xD0
-#define PORT_OTA_ADDR                       0xF0
+#define MM_COUNT_ADDR                       0x0F
+
+#define APN_ADDR                            0x10    // 35#
+#define IP1_ADDR                            0x30    // 01# 
+#define IP2_ADDR                            0x50    // 02# 
+#define IP3_ADDR                            0x70    // 03# 
+#define IP4_ADDR                            0x90    // 04# 
+
+#define PORT1_ADDR                          0xB0    // 31#
+#define PORT2_ADDR                          0xB2    // 32#
+#define PORT3_ADDR                          0xB4    // 33#
+#define PORT4_ADDR                          0xB6    // 34#
+#define SMS_WAIT_TIME_ADDR                  0xB8    // 09#
+#define ZONE1_ADDR                          0xB9    // 12#
+#define ZONE2_ADDR                          0xBA    // 13#
+#define TP_PIN_ADDR                         0xBB    // 14#
+#define CYCLE_ADDR                          0xBC    // 15#
+#define RETRY_TIMES_ADDR                    0xBD    // 16#
+
+#define ACCESS_CODE_ADDR                    0xC0    // 05#
+#define PROGRAM_ACK_ADDR                    0xC7    // 06#
+#define TESTING_FREQ_ADDR                   0xC8    // 07#
+#define SERVER_ACK_TIME_ADDR                0xC9    // 08#
+#define UNIT_ACCT_ADDR                      0xCA    // 10#
+
+#define LINE_CARD_ADDR                      0xD0    // 11#
+#define ENCRYPTION_ADDR                     0xE0    // 95#
+
+
+// Page 1 EEPROM Map
+#define IP_OTA_ADDR                         0xD0    // 36#
+#define PORT_OTA_ADDR                       0xF0    // 37#
     
     
 #ifdef DEBUG
@@ -136,42 +139,63 @@ void    write_test_device_id(void);
     uint8_t const ENCRYPTION = 1;               //95#    
 
 
-#define EEPROM_LEN  16
-//typedef struct eeprom_map
-//{
-//    uint8_t const IP1[EEPROM_LEN];      //01#
-//    uint8_t const IP2[EEPROM_LEN];                    //02#
-//    uint8_t const IP3[EEPROM_LEN];                    //03#
-//    uint8_t const IP4[EEPROM_LEN];                    //04#    
-//    uint8_t const ACCESS_CODE[];        //05#
-//    
-//    uint8_t const PROGRAM_ACK=;             //06#
-//    uint8_t const TEST_FREQ;                 //07#
-//    uint8_t const SERVER_ACK_TIME;           //08#
-//    uint8_t const SMS_WAIT_TIME;           //09#
-//    //uint8_t const SMS_WAIT_TIME = 3;            //09#    
-//    uint8_t const UNIT_ACCNT[];         //10#
-//    
-//    uint8_t const LINE_CARD[];          //11#
-//    uint8_t const ZONE1;                    //12#
-// //   uint8_t const ZONE2=20;                   //13#
-//    uint8_t const TP_PIN = 0;                     //14#
-//    uint8_t const CYCLE = 3;                    //15#
-//    
-//    uint8_t const RETRY = 30;                   //16#  
-//    
-//    uint16_t const PORT1 = 2020;                //31#   
-//    uint16_t const PORT2 = 2020;                //32#   
-//    uint16_t const PORT3 = 2020;                //33#   
-//    uint16_t const PORT4 = 2020;                //34#   
-//    uint8_t const APN[];      //35# Kore
-//    //uint8_t const APN[]="11583.mcs#";         //35# Telit
-//    
-//    // Server in Instant Care office
-//    uint8_t const IP_OTA[];   //36#
-//    uint16_t const PORT_OTA;             //37#      
-//
-//} eeprom_map_t;
+
+typedef struct regSetting
+{
+    uint8_t addr;
+    uint8_t data;
+
+} registerSetting_t;
+
+
+// const registerSetting_t preferredSettings[]= 
+// {
+  // {CC1120_IOCFG3,            0xB0}
+  
+/*  
+    // Write registers to radio
+    for( i = 0; i < (sizeof(preferredSettings)/sizeof(registerSetting_t)); i++) 
+    {
+        writeByte = preferredSettings[i].data;
+        cc1120SpiWriteReg(preferredSettings[i].addr, &writeByte, 1);
+    }  
+*/	
+
+typedef struct eeprom_map
+{
+    uint8_t *IP1;      			//01#
+    uint8_t *IP2;               //02#
+    uint8_t *IP3;               //03#
+    uint8_t *IP4;               //04#    
+    uint8_t ACCESS_CODE;        //05#
+    
+    uint8_t PROGRAM_ACK;		//06#
+    uint8_t TEST_FREQ;			//07#
+    uint8_t SERVER_ACK_TIME;	//08#
+    uint8_t SMS_WAIT_TIME;		//09#
+    //uint8_t const SMS_WAIT_TIME = 3;            //09#    
+    uint8_t *UNIT_ACCNT;         //10#
+    
+    uint8_t *LINE_CARD;			//11#
+    uint8_t ZONE1;				//12#
+ //   uint8_t const ZONE2=20;                   //13#
+    uint8_t TP_PIN;				//14#
+    uint8_t CYCLE;				//15#
+    
+    uint8_t RETRY;				//16#  
+    
+    uint16_t PORT1;				//31#   
+    uint16_t PORT2;				//32#   
+    uint16_t PORT3;				//33#   
+    uint16_t PORT4;				//34#   
+    uint8_t *APN;				//35# Kore
+    //uint8_t const APN[]="11583.mcs#";         //35# Telit
+    
+    // Server in Instant Care office
+    uint8_t *IP_OTA;            //36#
+    uint16_t *PORT_OTA;         //37#      
+
+} eeprom_map_t;
     
     
 extern bool ready_for_sending;    

@@ -85,7 +85,7 @@ uint8_t stack_data_header(uint8_t tp_cnt,uint8_t mm_cnt, uint8_t cnt)
 	stack_buffer[tp_cnt][cnt++] = temp;
     
     // Read Line Card (ex. 7548) from EEPROM one byte each time and store in stack_buffer
-    //  Max 7 bytes (account no + #)
+    //  Max 6 bytes (account no + #)
 	addr = LINE_CARD_ADDR;	
 	do {
 		temp = read_ee(EE_PAGE0, addr);
@@ -99,7 +99,7 @@ uint8_t stack_data_header(uint8_t tp_cnt,uint8_t mm_cnt, uint8_t cnt)
 	stack_buffer[tp_cnt][cnt++] = ',';
     
     // Read Unit Account (ex. 4007) from EEPROM one byte each time and store in stack_buffer
-    //  Max 7 bytes (account no + #)
+    //  Max 5 bytes (line card + #)
 	addr = UNIT_ACCT_ADDR;
 	do { 	
 		temp = read_ee(EE_PAGE0, addr);		
