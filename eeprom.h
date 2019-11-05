@@ -13,6 +13,7 @@ extern "C" {
  * INCLUDES
  ****************************************************/
 #include "inc.h"   
+#include "io.h"   
    
     
 /*****************************************************
@@ -140,13 +141,58 @@ void    write_test_device_id(void);
 
 
 
-typedef struct regSetting
+typedef struct eeprom_setting1
 {
+    uint8_t page;
+    uint8_t addr;
+    uint8_t *data;
+} eepromSetting1_t;
+
+eepromSetting1_t eeprom_1[] = 
+{
+    EE_PAGE0, IP1_ADDR,         (uint8_t *)"198.17.112.128#",
+    EE_PAGE0, IP2_ADDR,         (uint8_t *)"#",
+    EE_PAGE0, IP3_ADDR,         (uint8_t *)"#",
+    EE_PAGE0, IP4_ADDR,         (uint8_t *)"#",
+    EE_PAGE1, IP_OTA_ADDR,      (uint8_t *)"72.197.171.234#",
+    
+    //EE_PAGE0, APN_ADDR,         (uint8_t *)"c2.korem2m.com#", // Kore
+    EE_PAGE0, APN_ADDR,         (uint8_t *)"11583.mcs#",        // Telit
+    
+    EE_PAGE0, ACCESS_CODE_ADDR, (uint8_t *)"1111#",
+    EE_PAGE0, UNIT_ACCT_ADDR,   (uint8_t *)"4007#",
+    EE_PAGE0, LINE_CARD_ADDR,   (uint8_t *)"7548#",
+};
+
+typedef struct eeprom_setting2
+{
+    uint8_t page;
+    uint8_t addr;
+    uint16_t data;
+} eepromSetting2_t;
+
+eepromSetting2_t eeprom_2[] = 
+{
+    EE_PAGE0, PORT1_ADDR,   2020,
+    EE_PAGE0, PORT2_ADDR,   2020,
+    EE_PAGE0, PORT3_ADDR,   2020,
+    EE_PAGE0, PORT4_ADDR,   2020,
+    EE_PAGE1, PORT_OTA_ADDR, 2021,
+};
+
+typedef struct eeprom_setting3
+{
+    uint8_t page;
     uint8_t addr;
     uint8_t data;
+} eepromSetting3_t;
 
-} registerSetting_t;
-
+eepromSetting3_t eeprom_3[] = 
+{
+//    EE_PAGE0, VER_ADDR0, VERSION[0],
+//    EE_PAGE0, VER_ADDR1, VERSION[1],
+//    EE_PAGE0, VER_ADDR2, VERSION[2],
+};
 
 // const registerSetting_t preferredSettings[]= 
 // {
@@ -167,7 +213,7 @@ typedef struct eeprom_map
     uint8_t *IP2;               //02#
     uint8_t *IP3;               //03#
     uint8_t *IP4;               //04#    
-    uint8_t ACCESS_CODE;        //05#
+    uint8_t *ACCESS_CODE;        //05#
     
     uint8_t PROGRAM_ACK;		//06#
     uint8_t TEST_FREQ;			//07#
@@ -183,7 +229,6 @@ typedef struct eeprom_map
     uint8_t CYCLE;				//15#
     
     uint8_t RETRY;				//16#  
-    
     uint16_t PORT1;				//31#   
     uint16_t PORT2;				//32#   
     uint16_t PORT3;				//33#   
@@ -193,7 +238,7 @@ typedef struct eeprom_map
     
     // Server in Instant Care office
     uint8_t *IP_OTA;            //36#
-    uint16_t *PORT_OTA;         //37#      
+    uint16_t PORT_OTA;         //37#      
 
 } eeprom_map_t;
     

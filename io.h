@@ -206,7 +206,8 @@ uint8_t const encryption_code[16]={ 0x6c,0x31,0x6e,0x79,0x52,0x7f,0x26,0x6f,
     
 //--------------------
 #define BUFFER_STACK    6
-#define LOG_MAX_T       220   
+//#define LOG_MAX_T       220
+#define LOG_MAX_T       50
 
 uint8_t encryption = 0;
 uint8_t rsp_buffer[250];
