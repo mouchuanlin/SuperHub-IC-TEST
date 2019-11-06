@@ -15,12 +15,17 @@
 #include "state.h"
 #include "led.h"
 
+
+uint8_t test_eeprom[256];
+    
 //
 // main
 //
 int main(int argc, char** argv) 
 {   	
     uint8_t WDT_count;
+    
+    uint16_t junk, i;
     
     // System init - IO, timer, ADC, UART, interrupt
     init_system();
@@ -31,7 +36,28 @@ int main(int argc, char** argv)
     // Programming default configuration in EE.
     init_eeprom();
     
-      
+    // TODO: FOR TESTING ONLY    
+    ///////////////////////////////////////////////////
+    for (i = 0; i < 256; i++)
+        test_eeprom[i] = read_ee(EE_PAGE0, i);
+
+    read_eeprom(EE_PAGE0, 0x00, test_eeprom, 256);
+    
+    for (i = 0; i < 256; i++)
+        test_eeprom[i] = 0xFF;
+    
+//    for (i = 0; i < 256; i++)
+//        write_ee(EE_PAGE0, i, 0);
+    
+    //write_eeprom(EE_PAGE0, 0x00, test_eeprom, 256);
+    
+    read_eeprom(EE_PAGE0, 0x00, test_eeprom, 256);
+    
+    read_eeprom(EE_PAGE0, 0x00, page0_eeprom.data, 256);
+    
+    ///////////////////////////////////////////////////    
+
+    
     // Powerup modem, send AT command to init modem.
     start_modem();
     

@@ -32,6 +32,8 @@ uint8_t send_trigger_to_RF(uint8_t type);
 void    write_EE_setting(uint8_t page, uint8_t addr, uint8_t const setting[]);
 void    check_ip_setting(void);
 void    write_test_device_id(void);
+uint8_t *read_eeprom(uint8_t page, uint8_t addr, uint8_t *ptr, uint16_t len);
+void    write_eeprom(uint8_t page, uint8_t addr, uint8_t *data_p, uint16_t len);
     
 /*****************************************************
  * VARIABLES
@@ -53,6 +55,7 @@ void    write_test_device_id(void);
 #define VER_ADDR0                           0x00
 #define VER_ADDR1                           0x01
 #define VER_ADDR2                           0x02   
+#define VER_ADDR3                           0x03
 #define MM_COUNT_ADDR                       0x0F
 
 #define APN_ADDR                            0x10    // 35#
@@ -207,44 +210,107 @@ eepromSetting3_t eeprom_3[] =
     }  
 */	
 
-typedef struct eeprom_map
+// Page 0 EEPROM Map - 256 bytes
+typedef struct pg0_eeprom_struct
 {
-    uint8_t *IP1;      			//01#
-    uint8_t *IP2;               //02#
-    uint8_t *IP3;               //03#
-    uint8_t *IP4;               //04#    
-    uint8_t *ACCESS_CODE;        //05#
+    // 0x00 - 0x0F
+    uint8_t VERSION[4]; 
+    uint8_t reserved1[11];
+    uint8_t MM_Count;
     
-    uint8_t PROGRAM_ACK;		//06#
-    uint8_t TEST_FREQ;			//07#
-    uint8_t SERVER_ACK_TIME;	//08#
-    uint8_t SMS_WAIT_TIME;		//09#
-    //uint8_t const SMS_WAIT_TIME = 3;            //09#    
-    uint8_t *UNIT_ACCNT;         //10#
+    // 0x10
+    uint8_t APN[16];			//35#
+    // 0x20 
+    uint8_t reserved2[16];    
+    // 0x30
+    uint8_t IP1[16];			//01#
+    // 0x40
+    uint8_t reserved3[16];        
+    // 0x50
+    uint8_t IP2[16];			//02#
+    // 0x60
+    uint8_t reserved4[16];        
+    // 0x70
+    uint8_t IP3[16];            //03#
+    // 0x80
+    uint8_t reserved5[16];  
+    // 0x90
+    uint8_t IP4[16];            //04#    
     
-    uint8_t *LINE_CARD;			//11#
-    uint8_t ZONE1;				//12#
- //   uint8_t const ZONE2=20;                   //13#
-    uint8_t TP_PIN;				//14#
-    uint8_t CYCLE;				//15#
+    // 0xA0
+    uint8_t reserved6[16];
     
-    uint8_t RETRY;				//16#  
+    // 0xB0 - 0xBF
     uint16_t PORT1;				//31#   
     uint16_t PORT2;				//32#   
     uint16_t PORT3;				//33#   
     uint16_t PORT4;				//34#   
-    uint8_t *APN;				//35# Kore
-    //uint8_t const APN[]="11583.mcs#";         //35# Telit
+    uint8_t SMS_WAIT_TIME;		//09#	
+	uint8_t ZONE1;				//12#
+	uint8_t ZONE2;				//12#
+    uint8_t TP_PIN;				//14#
+    uint8_t CYCLE;				//15#
+    uint8_t RETRY;				//16#  	
+	uint8_t reserved7[2];
+	
+    // 0xC0 - 0xCF
+    uint8_t ACCESS_CODE[7];		//05#
+    uint8_t PROGRAM_ACK;		//06#
+    uint8_t TEST_FREQ;			//07#
+    uint8_t SERVER_ACK_TIME;	//08#
+    uint8_t UNIT_ACCNT[6];		//10#
+	
+	// 0xD0 - 0xDF
+    uint8_t LINE_CARD[5];		//11#
+	uint8_t reserved8[11];
     
-    // Server in Instant Care office
-    uint8_t *IP_OTA;            //36#
-    uint16_t PORT_OTA;         //37#      
+    // 0xE0
+    uint8_t ENCRYPTION;			//95#    
+    // 0xE1 - 0xFF
+	uint8_t reserved9[31];
+	
+} pg0_eeprom_map_t;
 
-} eeprom_map_t;
+// Page 1 EEPROM Map - 256 bytes
+typedef struct pg1_eeprom_struct
+{
+    // 0x00 - 0x0F
+    uint8_t device_id[16][8];
+ 
+    // 0x80 - 0xCF
+    uint8_t reserved1[80];    
     
+    // 0xD0 - 0xDF
+    uint8_t IP_OTA;            //36#
+    
+    // 0xE0 - 0xEF
+    uint8_t reserved2[16];
+        
+    // 0xF0 - 0xFF
+    uint16_t PORT_OTA;         //37#      
+    uint8_t reserved3[15];
+    
+} pg1_eeprom_map_t;
+    
+
+#define EE_PAGE_SIZE    256
+union pg0_eeprom {
+    uint8_t             data[EE_PAGE_SIZE];
+    pg0_eeprom_map_t    pg0_eeprom_map;
+} page0_eeprom;
+
+
+union pg1_eeprom {
+    uint8_t             data[EE_PAGE_SIZE];    
+    pg1_eeprom_map_t    pg1_eeprom_map;
+} page1_eeprom;
     
 extern bool ready_for_sending;    
     
+
+
+
+
 #ifdef	__cplusplus
 }
 #endif

@@ -38,7 +38,7 @@ uint8_t check_sim_card(void);
 uint8_t check_register(uint8_t);
 uint8_t check_csq(void);
 void    send_test_AT_commands(void);
-void    reset_at_command_default();
+void    reset_at_command_default(void);
 
 
 //extern void     delay5ms(uint16_t cnt);

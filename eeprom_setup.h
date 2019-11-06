@@ -30,7 +30,7 @@ uint8_t set_n11(void);
 uint8_t set_n12_13(uint8_t);
 uint8_t set_n14(void);
 uint8_t set_n31_32_33_34_37(uint8_t);
-uint8_t set_n41_to_68(uint8_t);
+uint8_t set_n41_to_56(uint8_t);
 uint8_t back_door_function(uint8_t);
 uint8_t set_n98(void);
 

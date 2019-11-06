@@ -75,7 +75,7 @@ uint8_t function_code(void)
 		default:	if( temp1>=41&&temp1<=56 )//68 )
                     {
 						// sensor device ID - 41 - 68
-                        respond = set_n41_to_68(temp1);                        
+                        respond = set_n41_to_56(temp1);                        
                     }else
                         return('E');
 	}
@@ -399,8 +399,8 @@ uint8_t set_n31_32_33_34_37(uint8_t type)
 	return('E');
 }
 
-//-----------------------------------//
-uint8_t set_n41_to_68(uint8_t type)
+// RF device ID from 41~56 - totally 16 entries.
+uint8_t set_n41_to_56(uint8_t type)
 {
     uint8_t cnt,temp,val;
     

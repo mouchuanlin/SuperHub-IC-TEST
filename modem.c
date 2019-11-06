@@ -498,7 +498,7 @@ void start_modem(void)
     //md_started = true;
 }
 
-void reset_at_command_default()
+void reset_at_command_default(void)
 {
     soutdata((uint8_t *) "AT&F\r\n$");    
     delay5ms(20);

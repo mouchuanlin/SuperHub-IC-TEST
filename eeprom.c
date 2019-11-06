@@ -1,5 +1,5 @@
 //
-// eeprom.c
+// file: eeprom.c
 //
 
 #include <string.h>
@@ -10,9 +10,32 @@
 #include "modem.h"
 #include "eeprom_setup.h"
 
+uint8_t *read_eeprom(uint8_t page, uint8_t addr, uint8_t *ptr, uint16_t len)
+{
+    uint8_t p_data;
+    
+    GIE = 0;
+    EEADRH = page;
+    
+    while (len--)
+    {
+        EEADR = addr++;  
+        CFGS = 0;
+        EEPGD = 0;
+        RD = 1;        
+        p_data = EEDATA;      
+        *ptr++ = p_data;
+    }
+    GIE = 1;
+    CLRWDT();
+    
+	return(ptr-len);
+}
+
 uint8_t read_ee(uint8_t page, uint8_t addr)
 {
     uint8_t p_data;
+    
     GIE = 0;
     EEADRH = page;
     EEADR = addr;
@@ -22,7 +45,46 @@ uint8_t read_ee(uint8_t page, uint8_t addr)
     p_data = EEDATA;
     GIE = 1;
     CLRWDT();
+    
 	return(p_data);
+}
+
+void write_eeprom(uint8_t page, uint8_t addr, uint8_t *data_p, uint16_t len)
+{
+    uint8_t temp;
+    
+    GIE = 0;
+    EEADRH = page;
+//    EEADR = addr;
+//	//EEDATA = data_p;
+//	CFGS = 0;
+//	EEPGD = 0;
+//	WREN = 1;
+//	GIE = 0;
+//    // Write 55h to EECON2. Write 0AAh to EECON2.
+//	EECON2 = 0x55;
+//	EECON2 = 0xaa;
+//	WR = 1;
+//	GIE = 1;
+//	WREN = 0;
+    
+    while(len--)
+    {
+        EEADR = addr++;
+        temp = *data_p++;
+        EEDATA = temp;
+        
+        EECON2 = 0x55;
+        EECON2 = 0xaa;
+        WR = 1;
+        GIE = 1;
+        WREN = 0;
+           
+        while (WR == 1)
+            ;
+    }
+    CLRWDT();
+    GIE = 1;
 }
 
 void write_ee(uint8_t page, uint8_t addr, uint8_t data_p)
@@ -66,7 +128,8 @@ void init_eeprom()
     // This make sure we only run first time.
     if((read_ee(EE_PAGE0,  VER_ADDR0) == VERSION[0]) && 
 		(read_ee(EE_PAGE0, VER_ADDR1) == VERSION[1]) && 
-		(read_ee(EE_PAGE0, VER_ADDR2) == VERSION[2]))
+        (read_ee(EE_PAGE0, VER_ADDR2) == VERSION[2]) &&
+		(read_ee(EE_PAGE0, VER_ADDR2) == VERSION[3]))
         return;
 
     //---------APN-----------
@@ -148,6 +211,9 @@ void init_eeprom()
     write_ee(EE_PAGE0, VER_ADDR0, VERSION[0]);
     write_ee(EE_PAGE0, VER_ADDR1, VERSION[1]);
     write_ee(EE_PAGE0, VER_ADDR2, VERSION[2]);
+    write_ee(EE_PAGE0, VER_ADDR3, VERSION[3]);
+    
+    //write_eeprom(EE_PAGE0, VER_ADDR0, "1234", 4);
     
     // TODO: FOR DEBUGGING ONLY
     ////////////////////////////////
@@ -163,11 +229,11 @@ void write_test_device_id()
     key_p = 10;
 
     strncpy((char *)key, (const char *)"41#627275#", 10);
-    set_n41_to_68(41);
+    set_n41_to_56(41);
     strncpy((char *)key, (const char *)"42#892C31#", 10);
-    set_n41_to_68(42);
+    set_n41_to_56(42);
     strncpy((char *)key, (const char *)"43#333435#", 10);
-    set_n41_to_68(43);
+    set_n41_to_56(43);
     key_p = 0;    
 }
 
