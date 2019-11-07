@@ -30,6 +30,7 @@ int main(int argc, char** argv)
     // Programming default configuration in EE.
     //init_eeprom();
     init_pic18_eeprom();
+    update_page_info();
     
     // TODO: FOR page0_eeprom/page1_eeprom TESTING ONLY    
     ////////////////////////////////////////////////////////////////////////////////////    
@@ -535,3 +536,10 @@ void test_smoke_sensor(void)
 //    read_eeprom(EE_PAGE0, EE_START_ADDR, test_eeprom, EE_PAGE_SIZE);
 //    
 //}
+
+void update_page_info()
+{
+    // Read back from EEPROM
+    read_eeprom(EE_PAGE0, EE_START_ADDR, page0_eeprom.data, EE_PAGE_SIZE);  
+    read_eeprom(EE_PAGE1, EE_START_ADDR, page1_eeprom.data, EE_PAGE_SIZE);      
+}

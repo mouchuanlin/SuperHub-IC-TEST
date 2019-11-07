@@ -541,7 +541,7 @@ uint8_t set_n98(void)
 	if( key[3]=='*'&&key[4]=='*'&&key[5]=='#' )
 	{
         write_ee(EE_PAGE0,0x00,0x00);
-		init_eeprom();
+		init_pic18_eeprom();
 		return('K');
 	}
 	else return('E');

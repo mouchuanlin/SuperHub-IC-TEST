@@ -134,24 +134,26 @@ void write_ee(uint8_t page, uint8_t addr, uint8_t data_p)
 // TODO: for some reason, FIRST_RUN doesn't work. Keep here for further investigation.
 bool is_first_run()
 {   
-    return (read_ee(EE_PAGE0, FIRST_RUN_ADDR) != FIRST_RUN) ? true : false;
+    // TODO: for some reason, FIRST_RUN doesn't work. Keep here for further investigation.
+    //return (read_ee(EE_PAGE0, FIRST_RUN_ADDR) != FIRST_RUN) ? true : false;
+    
+    // This make sure we only run first time.
+    if((read_ee(EE_PAGE0,  VER_ADDR0) == VERSION[0]) && 
+		(read_ee(EE_PAGE0, VER_ADDR1) == VERSION[1]) && 
+        (read_ee(EE_PAGE0, VER_ADDR2) == VERSION[2]) &&
+		(read_ee(EE_PAGE0, VER_ADDR2) == VERSION[3]))
+        return false;
+    
+    return true;
+    
 }
 
 void init_pic18_eeprom(void)
 {           
     uint16_t i;
     
-    //---------Check Version-----------
-    // This make sure we only run first time.
-    if((read_ee(EE_PAGE0,  VER_ADDR0) == VERSION[0]) && 
-		(read_ee(EE_PAGE0, VER_ADDR1) == VERSION[1]) && 
-        (read_ee(EE_PAGE0, VER_ADDR2) == VERSION[2]) &&
-		(read_ee(EE_PAGE0, VER_ADDR2) == VERSION[3]))
+    if (!is_first_run())
         return;
-    
-    // TODO: for some reason, FIRST_RUN doesn't work. Keep here for further investigation.
-//    if (!is_first_run())
-//        return;
     
 	// Init to 0x00
 	set_eeprom_value(EE_PAGE0, EE_START_ADDR, 0x00, EE_PAGE_SIZE);
@@ -204,119 +206,9 @@ void init_pic18_eeprom(void)
     // TODO: FOR DEBUGGING ONLY
     ////////////////////////////////
     write_test_device_id();
-    ////////////////////////////////
-    
-    
-    // Read back from EEPROM
-    read_eeprom(EE_PAGE0, EE_START_ADDR, page0_eeprom.data, EE_PAGE_SIZE);  
-    read_eeprom(EE_PAGE1, EE_START_ADDR, page1_eeprom.data, EE_PAGE_SIZE);    
+    ////////////////////////////////  
     
     load_default();
-}
-
-
-void init_eeprom(void)
-{   
-    uint16_t port1L, port2L, port3L, port4L;
-        
-    //---------Check Version-----------
-    // This make sure we only run first time.
-    if((read_ee(EE_PAGE0,  VER_ADDR0) == VERSION[0]) && 
-		(read_ee(EE_PAGE0, VER_ADDR1) == VERSION[1]) && 
-        (read_ee(EE_PAGE0, VER_ADDR2) == VERSION[2]) &&
-		(read_ee(EE_PAGE0, VER_ADDR2) == VERSION[3]))
-        return;
-
-    //---------APN-----------
-    write_EE_setting(EE_PAGE0, APN_ADDR, APN);
-    //---------IP1-----------
-    write_EE_setting(EE_PAGE0, IP1_ADDR, IP1);
-    //---------IP2-----------
-    write_EE_setting(EE_PAGE0, IP2_ADDR, IP2);
-    //---------IP3-----------
-    write_EE_setting(EE_PAGE0, IP3_ADDR, IP3);
-    //---------IP4-----------
-    write_EE_setting(EE_PAGE0, IP4_ADDR, IP4);
-    
-    //---------PORT1---------
-    write_ee(EE_PAGE0, PORT1_ADDR, (PORT1 >> 8));
-    port1L = PORT1 & 0x00ff;
-    //write_ee(EE_PAGE0, (PORT1_ADDR+1), (uint8_t)(PORT1 & 0x00ff));
-    write_ee(EE_PAGE0, (PORT1_ADDR+1), (uint8_t)port1L);
-    
-    //---------PORT2---------
-    write_ee(EE_PAGE0, PORT2_ADDR, (PORT2 >> 8));
-    port2L = PORT2 & 0x00ff;
-    //write_ee(EE_PAGE0, (PORT2_ADDR+1), (uint8_t)(PORT2 & 0x00ff));
-    write_ee(EE_PAGE0, (PORT2_ADDR+1), (uint8_t)port2L);
-    
-    //---------PORT3---------
-    write_ee(EE_PAGE0, PORT3_ADDR, (PORT3 >> 8));
-    port3L = PORT3 & 0x00ff;
-    //write_ee(EE_PAGE0, (PORT3_ADDR+1), (uint8_t)(PORT3 & 0x00ff));
-     write_ee(EE_PAGE0, (PORT3_ADDR+1), (uint8_t)port3L);
-     
-    //---------PORT4---------
-    write_ee(EE_PAGE0, PORT4_ADDR, (PORT4 >> 8));
-    port4L = PORT4 & 0x00ff;
-    //write_ee(EE_PAGE0, (PORT4_ADDR+1), (uint8_t)(PORT4 & 0x00ff));
-    write_ee(EE_PAGE0, (PORT4_ADDR+1), (uint8_t)port4L);
-    
-    //---------ACCESS_CODE-----------
-    write_EE_setting(EE_PAGE0, ACCESS_CODE_ADDR, ACCESS_CODE);
-    //---------PROGRAM_ACK-----------
-    write_ee(EE_PAGE0, PROGRAM_ACK_ADDR, PROGRAM_ACK);                //06#
-    //---------TEST_FREQ-----------
-    write_ee(EE_PAGE0, TESTING_FREQ_ADDR, TEST_FREQ);                  //07#
-    //---------SERVER_ACK_TIME-----------
-    write_ee(EE_PAGE0, SERVER_ACK_TIME_ADDR, SERVER_ACK_TIME);         //08#
-    //---------SMS_WAIT_TIME-----------
-    write_ee(EE_PAGE0, SMS_WAIT_TIME_ADDR, SMS_WAIT_TIME);             //09#
-    //---------UNIT_ACCNT-----------
-    write_EE_setting(EE_PAGE0, UNIT_ACCT_ADDR, UNIT_ACCNT);
-    //---------LINE_CARD-----------                   
-    write_EE_setting(EE_PAGE0, LINE_CARD_ADDR, LINE_CARD);    
-    //-----------ZONE---------------                
-    write_ee(EE_PAGE0, ZONE1_ADDR, ZONE1);				//12#
- //   write_ee(0,0xBA,ZONE2);       					//13#
-    write_ee(EE_PAGE0, TP_PIN_ADDR, TP_PIN);            //14#
-    write_ee(EE_PAGE0, CYCLE_ADDR, CYCLE);              //15#
-    write_ee(EE_PAGE0, RETRY_TIMES_ADDR, RETRY);        //16# 
-    //---------ENCRYPTION-----------
-    write_ee(EE_PAGE0, ENCRYPTION_ADDR, ENCRYPTION);    //95#
-        
-	// MM Count
-    write_ee(EE_PAGE0, MM_COUNT_ADDR, 0x00);
-    
-    // Device ID - 41#~56#
-    for(uint8_t i = 0; i <(16*8); i++ )      		//28
-        write_ee(EE_PAGE1, i, 0);    
-    
-    load_device_id_table();
-    
-    //---------IP OTA---------      		//36
-    write_EE_setting(EE_PAGE1, IP_OTA_ADDR, IP_OTA); 
-    //---------PORT OTA---------    		//37
-    write_ee(EE_PAGE1, PORT_OTA_ADDR, (PORT_OTA >> 8));
-    uint16_t otaport = PORT_OTA & 0x00ff;
-    //write_ee(EE_PAGE1, (PORT_OTA_ADDR+1), (uint8_t)(PORT_OTA & 0x00ff));
-    write_ee(EE_PAGE1, (PORT_OTA_ADDR+1), (uint8_t)otaport);
-    
-    //------------------------------
-    write_ee(EE_PAGE0, VER_ADDR0, VERSION[0]);
-    write_ee(EE_PAGE0, VER_ADDR1, VERSION[1]);
-    write_ee(EE_PAGE0, VER_ADDR2, VERSION[2]);
-    write_ee(EE_PAGE0, VER_ADDR3, VERSION[3]);
-    
-    //write_eeprom(EE_PAGE0, VER_ADDR0, "1234", 4);
-    
-    // TODO: FOR DEBUGGING ONLY
-    ////////////////////////////////
-    write_test_device_id();
-    ////////////////////////////////
-
-    load_default();
-    
 }
 
 void write_test_device_id()

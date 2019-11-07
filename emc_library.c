@@ -158,6 +158,7 @@ void load_emc_number(void)
 	uint8_t temp,cnt1,cnt2,temp1,random,swap,type,page;
 	uint8_t check_sum;
     
+    // TODO: What's this for???
 	//-----mov stack_buffer_data[20~159] to rsp_buffer
 	cnt1 = 20;
 	cnt2 = 0;
@@ -481,7 +482,7 @@ send_start:
             if(  stack_buffer[0][0]=='T' )
                 loop = 1;
             else
-                loop = read_ee(EE_PAGE0,0xBC);
+                loop = read_ee(EE_PAGE0, CYCLE_ADDR);
             do{
                 CREN1 = 0;
                 rsp = TL_connection_open(cnt);

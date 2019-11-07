@@ -21,7 +21,7 @@ extern "C" {
  ****************************************************/  
 uint8_t read_ee(uint8_t page,uint8_t addr);
 void    write_ee(uint8_t page, uint8_t addr, uint8_t data_p);
-void    init_eeprom(void);
+//void    init_eeprom(void);
 void    load_default(void);
 //void    check_led_type(void);
 void    load_device_id_table(void);
@@ -178,12 +178,12 @@ typedef struct pg0_eeprom_struct
 #define DEVICE_LEN		8
 typedef struct pg1_eeprom_struct
 {
-    uint8_t     device_id[DEVICE_SIZE][DEVICE_LEN];	// 0x00 - 0x7F
-    uint8_t     reserved1[80];      		// 0x80 - 0xCF    
-    uint8_t     IP_OTA[16];         		// 0xD0 - 0xDF
-    uint8_t     reserved2[16];				// 0xE0 - 0xEF
-    uint16_t    PORT_OTA;           		// 0xF0 - 0xF1      
-    uint8_t     reserved3[15];				// 0xF2 - 0xFF 
+    uint8_t     device_id[DEVICE_SIZE][DEVICE_LEN];     // 0x00 - 0x7F
+    uint8_t     reserved1[80];                          // 0x80 - 0xCF    
+    uint8_t     IP_OTA[16];                             // 0xD0 - 0xDF
+    uint8_t     reserved2[16];                          // 0xE0 - 0xEF
+    uint16_t    PORT_OTA;                               // 0xF0 - 0xF1      
+    uint8_t     reserved3[15];                          // 0xF2 - 0xFF 
     
 } pg1_eeprom_map_t;
     
