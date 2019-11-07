@@ -31,6 +31,8 @@ void    test_flood_sensor_1(void);
 void    test_flood_sensor(void);
 void    test_smoke_sensor(void);
 
+void eeprom_test_function(void);
+
 /*****************************************************
  * VARIABLES
  ****************************************************/

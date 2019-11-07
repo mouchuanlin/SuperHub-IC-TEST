@@ -16,17 +16,11 @@
 #include "led.h"
 
 
-uint8_t test_eeprom[256];
-    
-//
-// main
-//
+/////////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv) 
 {   	
     uint8_t WDT_count;
-    
-    uint16_t junk, i;
-    
+       
     // System init - IO, timer, ADC, UART, interrupt
     init_system();
     
@@ -34,30 +28,14 @@ int main(int argc, char** argv)
     buzzer_on(10);
     
     // Programming default configuration in EE.
-    init_eeprom();
+    //init_eeprom();
+    init_pic18_eeprom();
     
-    // TODO: FOR TESTING ONLY    
-    ///////////////////////////////////////////////////
-    for (i = 0; i < 256; i++)
-        test_eeprom[i] = read_ee(EE_PAGE0, i);
-
-    read_eeprom(EE_PAGE0, 0x00, test_eeprom, 256);
-    
-    for (i = 0; i < 256; i++)
-        test_eeprom[i] = 0xFF;
-    
-//    for (i = 0; i < 256; i++)
-//        write_ee(EE_PAGE0, i, 0);
-    
-    //write_eeprom(EE_PAGE0, 0x00, test_eeprom, 256);
-    
-    read_eeprom(EE_PAGE0, 0x00, test_eeprom, 256);
-    
-    read_eeprom(EE_PAGE0, 0x00, page0_eeprom.data, 256);
-    
-    ///////////////////////////////////////////////////    
-
-    
+    // TODO: FOR page0_eeprom/page1_eeprom TESTING ONLY    
+    ////////////////////////////////////////////////////////////////////////////////////    
+    //eeprom_test_function(); 
+    ////////////////////////////////////////////////////////////////////////////////////  
+       
     // Powerup modem, send AT command to init modem.
     start_modem();
     
@@ -67,8 +45,6 @@ int main(int argc, char** argv)
     RF_input_test();
     //process_event_queue();
     ////////////////////////////////    
-    
-    
     
     // Turn off modem/UART before going to infinite loop.
     prepare_to_sleep();
@@ -513,3 +489,49 @@ void test_smoke_sensor(void)
     
     process_RF_data();
 }
+
+// TODO: FOR page0_eeprom/page1_eeprom TESTING ONLY 
+
+//uint8_t test_eeprom[256];
+//
+//union pg0_ee {
+//    uint8_t             data[EE_PAGE_SIZE];
+//    pg0_eeprom_map_t    map;
+//} page0_test;
+//
+//
+//union pg1_ee {
+//    uint8_t             data[EE_PAGE_SIZE];    
+//    pg1_eeprom_map_t    map;
+//} page1_test;
+//
+//void eeprom_test_function(void)
+//{
+//    uint16_t i;
+//    
+//    // TODO: FOR page0_eeprom/page1_eeprom TESTING ONLY    
+// 
+//    for (i = EE_START_ADDR; i < EE_PAGE_SIZE; i++)
+//        test_eeprom[i] = read_ee(EE_PAGE0, i);
+//
+//    read_eeprom(EE_PAGE0, EE_START_ADDR, test_eeprom, EE_PAGE_SIZE);
+//    
+//    for (i = EE_START_ADDR; i < EE_PAGE_SIZE; i++)
+//        test_eeprom[i] = 0xFF;
+//    
+////    for (i = EE_START_ADDR; i < EE_PAGE_SIZE; i++)
+////        write_ee(EE_PAGE0, i, 0);
+//    
+//    //write_eeprom(EE_PAGE0, EE_START_ADDR, test_eeprom, EE_PAGE_SIZE);
+//    for (i = EE_START_ADDR; i < EE_PAGE_SIZE; i++)
+//    {
+//        page0_test.data[i] = 0xFF;
+//        page1_test.data[i] = 0xFF;
+//    }
+//    
+//
+//    read_eeprom(EE_PAGE0, EE_START_ADDR, page0_test.data, EE_PAGE_SIZE);  
+//    read_eeprom(EE_PAGE1, EE_START_ADDR, page1_test.data, EE_PAGE_SIZE);  
+//    read_eeprom(EE_PAGE0, EE_START_ADDR, test_eeprom, EE_PAGE_SIZE);
+//    
+//}

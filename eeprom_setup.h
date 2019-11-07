@@ -39,6 +39,8 @@ bool is_digit(uint8_t digit);
 /*****************************************************
  * VARIABLES
  ****************************************************/
+#define ID_START    41
+#define ID_END      56
 
 
 #ifdef	__cplusplus

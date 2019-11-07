@@ -72,12 +72,15 @@ uint8_t function_code(void)
 	 	//======================================//
 		case(80)://	respond = set_n80();	//CSQ
 					break;
-		default:	if( temp1>=41&&temp1<=56 )//68 )
-                    {
-						// sensor device ID - 41 - 68
-                        respond = set_n41_to_56(temp1);                        
-                    }else
-                        return('E');
+                    
+		default:	
+                // 41 ~ 56
+                if( temp1 >= ID_START && temp1 <= ID_END )            
+                {
+                    // sensor device ID - 41 - 68
+                    respond = set_n41_to_56(temp1);                        
+                }else
+                    return('E');
 	}
 	return(respond);
 }

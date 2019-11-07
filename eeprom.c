@@ -10,6 +10,7 @@
 #include "modem.h"
 #include "eeprom_setup.h"
 
+// Read EEPROM for len (mainly use for 256) bytes
 uint8_t *read_eeprom(uint8_t page, uint8_t addr, uint8_t *ptr, uint16_t len)
 {
     uint8_t p_data;
@@ -32,6 +33,65 @@ uint8_t *read_eeprom(uint8_t page, uint8_t addr, uint8_t *ptr, uint16_t len)
 	return(ptr-len);
 }
 
+// Write EEPROM for len (mainly use for 256) bytes
+void write_eeprom(uint8_t page, uint8_t addr, uint8_t *data_p, uint16_t len)
+{
+    uint8_t temp;
+    
+    GIE = 0;
+    EEADRH = page;
+    
+    while (len--)
+    {
+        EEADR = addr++;
+        temp = *data_p++;
+        EEDATA = temp;
+        CFGS = 0;
+        EEPGD = 0;
+        WREN = 1;
+        GIE = 0;        
+        
+        EECON2 = 0x55;
+        EECON2 = 0xAA;
+        WR = 1;
+        GIE = 1;
+        WREN = 0;
+           
+        while (WR == 1)
+            ;
+    }
+    CLRWDT();
+    GIE = 1;
+}
+
+// Write EEPROM for len (mainly use for 256) bytes for data_p value
+void set_eeprom_value(uint8_t page, uint8_t addr, uint8_t data, uint16_t len)
+{    
+    GIE = 0;
+    EEADRH = page;
+    
+    while (len--)
+    {
+        EEADR = addr++;
+        EEDATA = data;
+        CFGS = 0;
+        EEPGD = 0;
+        WREN = 1;
+        GIE = 0;           
+        
+        EECON2 = 0x55;
+        EECON2 = 0xAA;
+        WR = 1;
+        GIE = 1;
+        WREN = 0;
+           
+        while (WR == 1)
+            ;
+    }
+    CLRWDT();
+    GIE = 1;
+}
+
 uint8_t read_ee(uint8_t page, uint8_t addr)
 {
     uint8_t p_data;
@@ -49,44 +109,6 @@ uint8_t read_ee(uint8_t page, uint8_t addr)
 	return(p_data);
 }
 
-void write_eeprom(uint8_t page, uint8_t addr, uint8_t *data_p, uint16_t len)
-{
-    uint8_t temp;
-    
-    GIE = 0;
-    EEADRH = page;
-//    EEADR = addr;
-//	//EEDATA = data_p;
-//	CFGS = 0;
-//	EEPGD = 0;
-//	WREN = 1;
-//	GIE = 0;
-//    // Write 55h to EECON2. Write 0AAh to EECON2.
-//	EECON2 = 0x55;
-//	EECON2 = 0xaa;
-//	WR = 1;
-//	GIE = 1;
-//	WREN = 0;
-    
-    while(len--)
-    {
-        EEADR = addr++;
-        temp = *data_p++;
-        EEDATA = temp;
-        
-        EECON2 = 0x55;
-        EECON2 = 0xaa;
-        WR = 1;
-        GIE = 1;
-        WREN = 0;
-           
-        while (WR == 1)
-            ;
-    }
-    CLRWDT();
-    GIE = 1;
-}
-
 void write_ee(uint8_t page, uint8_t addr, uint8_t data_p)
 {
     GIE = 0;
@@ -99,7 +121,7 @@ void write_ee(uint8_t page, uint8_t addr, uint8_t data_p)
 	GIE = 0;
     // Write 55h to EECON2. Write 0AAh to EECON2.
 	EECON2 = 0x55;
-	EECON2 = 0xaa;
+	EECON2 = 0xAA;
 	WR = 1;
 	GIE = 1;
 	WREN = 0;
@@ -109,18 +131,91 @@ void write_ee(uint8_t page, uint8_t addr, uint8_t data_p)
     GIE = 1;
 }
 
-// TODO: Check spec
-//bool is_first_run()
-//{
-//    return (bool)(ee_read(0, FIRST_RUN_CHECK) != 0x57);
-//}
-//
-//void save_first_run()
-//{
-//    ee_write(0, FIRST_RUN_CHECK, 0x57);
-//}
+// TODO: for some reason, FIRST_RUN doesn't work. Keep here for further investigation.
+bool is_first_run()
+{   
+    return (read_ee(EE_PAGE0, FIRST_RUN_ADDR) != FIRST_RUN) ? true : false;
+}
 
-void init_eeprom()
+void init_pic18_eeprom(void)
+{           
+    uint16_t i;
+    
+    //---------Check Version-----------
+    // This make sure we only run first time.
+    if((read_ee(EE_PAGE0,  VER_ADDR0) == VERSION[0]) && 
+		(read_ee(EE_PAGE0, VER_ADDR1) == VERSION[1]) && 
+        (read_ee(EE_PAGE0, VER_ADDR2) == VERSION[2]) &&
+		(read_ee(EE_PAGE0, VER_ADDR2) == VERSION[3]))
+        return;
+    
+    // TODO: for some reason, FIRST_RUN doesn't work. Keep here for further investigation.
+//    if (!is_first_run())
+//        return;
+    
+	// Init to 0x00
+	set_eeprom_value(EE_PAGE0, EE_START_ADDR, 0x00, EE_PAGE_SIZE);
+	set_eeprom_value(EE_PAGE1, EE_START_ADDR, 0x00, EE_PAGE_SIZE);
+    
+    page0_eeprom.map.FIRST_RUN = FIRST_RUN;
+	strncpy((char *)page0_eeprom.map.VERSION, (const char *)VERSION, (size_t)sizeof(VERSION));		
+	strncpy((char *)page0_eeprom.map.APN, (const char *)APN, (size_t)sizeof(APN));
+	strncpy((char *)page0_eeprom.map.IP1, (const char *)IP1, (size_t)sizeof(IP1));
+	strncpy((char *)page0_eeprom.map.IP2, (const char *)IP2, (size_t)sizeof(IP2));
+	strncpy((char *)page0_eeprom.map.IP3, (const char *)IP3, (size_t)sizeof(IP3));
+	strncpy((char *)page0_eeprom.map.IP4, (const char *)IP4, (size_t)sizeof(IP4));
+				
+	page0_eeprom.map.PORT1 = PORT1;
+	page0_eeprom.map.PORT2 = PORT2;
+	page0_eeprom.map.PORT3 = PORT3;
+	page0_eeprom.map.PORT4 = PORT4;
+    
+	
+	strncpy((char *)page0_eeprom.map.ACCESS_CODE, (const char *)ACCESS_CODE, (size_t)sizeof(ACCESS_CODE));
+	
+    page0_eeprom.map.PROGRAM_ACK = PROGRAM_ACK;
+    page0_eeprom.map.TEST_FREQ = TEST_FREQ;
+    page0_eeprom.map.SERVER_ACK_TIME = SERVER_ACK_TIME;
+    page0_eeprom.map.SMS_WAIT_TIME = SMS_WAIT_TIME;
+
+	strncpy((char *)page0_eeprom.map.UNIT_ACCNT, (const char *)UNIT_ACCNT, (size_t)sizeof(UNIT_ACCNT));
+	strncpy((char *)page0_eeprom.map.LINE_CARD, (const char *)LINE_CARD, (size_t)sizeof(LINE_CARD));
+    
+    page0_eeprom.map.ZONE1 = ZONE1;    
+
+	page0_eeprom.map.TP_PIN = TP_PIN;   
+	page0_eeprom.map.CYCLE = CYCLE;   
+	page0_eeprom.map.RETRY = RETRY;   
+	page0_eeprom.map.ENCRYPTION = ENCRYPTION;   
+	page0_eeprom.map.MM_COUNT = MM_COUNT;
+
+  
+    load_device_id_table();
+	
+	// Page 1 EEPROM  
+	strncpy((char *)page1_eeprom.map.IP_OTA, (const char *)IP_OTA, (size_t)sizeof(IP_OTA));
+	page1_eeprom.map.PORT_OTA = PORT_OTA;
+    
+
+    // Programming EEPROM to default values.
+    write_eeprom(EE_PAGE0, EE_START_ADDR, page0_eeprom.data, EE_PAGE_SIZE);
+    write_eeprom(EE_PAGE1, EE_START_ADDR, page1_eeprom.data, EE_PAGE_SIZE);
+    
+    // TODO: FOR DEBUGGING ONLY
+    ////////////////////////////////
+    write_test_device_id();
+    ////////////////////////////////
+    
+    
+    // Read back from EEPROM
+    read_eeprom(EE_PAGE0, EE_START_ADDR, page0_eeprom.data, EE_PAGE_SIZE);  
+    read_eeprom(EE_PAGE1, EE_START_ADDR, page1_eeprom.data, EE_PAGE_SIZE);    
+    
+    load_default();
+}
+
+
+void init_eeprom(void)
 {   
     uint16_t port1L, port2L, port3L, port4L;
         
@@ -190,8 +285,8 @@ void init_eeprom()
     //---------ENCRYPTION-----------
     write_ee(EE_PAGE0, ENCRYPTION_ADDR, ENCRYPTION);    //95#
         
-	// TODO: What's this???
-    write_ee(EE_PAGE0, 0x0f, 0x00);   //MM
+	// MM Count
+    write_ee(EE_PAGE0, MM_COUNT_ADDR, 0x00);
     
     // Device ID - 41#~56#
     for(uint8_t i = 0; i <(16*8); i++ )      		//28
@@ -220,8 +315,8 @@ void init_eeprom()
     write_test_device_id();
     ////////////////////////////////
 
-    
     load_default();
+    
 }
 
 void write_test_device_id()
