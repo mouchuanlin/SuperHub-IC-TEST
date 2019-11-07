@@ -351,7 +351,7 @@ uint8_t start_send_alarm()
                         BOOT_SEL_O = 1;
 
                         myState = OTA_BOOT;
-                        respond_day = read_ee(EE_PAGE0, TESTING_FREQ_ADDR);
+                        respond_day = page0_eeprom.map.TEST_FREQ;
                         
                         while (1)
                             ;
@@ -391,8 +391,8 @@ uint8_t start_sms()
                 rsp = 16;
                 do{
                     delayseconds(1);
-                    if( event_count_f!=event_count_l)     
-                        check_event(); 
+                    if(!is_event_que_empty())     
+                        deque_event(); 
                     
                     // Need bail out call start_send_alarm() to send data
                     if( stack_buffer[0][0]!=0&&retry_count==0&&IP_type==1 )   
@@ -429,8 +429,9 @@ uint8_t start_sms()
         }while(--sms_time!=0);
         listen_sms_state = 0;
     }
-    if( event_count_f!=event_count_l)     
-        check_event();
+    
+    if(!is_event_que_empty())    
+        deque_event();
     
     // Need bail out call start_send_alarm() to send data
     if( stack_buffer[0][0]!=0&&retry_count==0&&IP_type==1 )//LED_flash_type==LED_STANDBY )                     
@@ -523,9 +524,9 @@ void poweroff_modem(void)
 void process_event_queue(void)
 {
 	// Event queue is not empty
-	if (event_count_f != event_count_l)    
+    if(!is_event_que_empty())      
 	{
-		check_event(); 
+		deque_event(); 
 		retry_count = 0;        // new add on V104
 	}
 }

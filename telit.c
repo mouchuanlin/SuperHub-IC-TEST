@@ -240,7 +240,7 @@ uint8_t TL_send_data_to_server(void)
     uint8_t tp_cnt;
     
     tp_cnt = enc_cnt;
-    if( encryption==0 )
+    if( page0_eeprom.map.ENCRYPTION == 0 )
         tp_cnt--;
     CREN1 = 0;
     soutdata(send);

@@ -413,6 +413,7 @@ uint8_t set_n41_to_56(uint8_t type)
     type -= 41;
     val = type;
     type *= 8;
+    // Delete ID 41 - 1111#41#*#, key[] hold SMS without access code.
     if( key[3]=='*'&&key[4]=='#' )
     {        
         for( cnt=0;cnt<8;cnt++ )

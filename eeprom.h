@@ -29,7 +29,7 @@ uint8_t get_zone_number(uint8_t *device_id);
 uint8_t add_ID(uint8_t *ptr);
 uint8_t del_ID(uint8_t id);
 uint8_t send_trigger_to_RF(uint8_t type);
-void    write_EE_setting(uint8_t page, uint8_t addr, uint8_t const setting[]);
+//void    write_EE_setting(uint8_t page, uint8_t addr, uint8_t const setting[]);
 void    check_ip_setting(void);
 
 void    write_test_device_id(void);
@@ -178,7 +178,7 @@ typedef struct pg0_eeprom_struct
 #define DEVICE_LEN		8
 typedef struct pg1_eeprom_struct
 {
-    uint8_t     device_id[DEVICE_SIZE][DEVICE_LEN];     // 0x00 - 0x7F
+    uint8_t     device_id_table[DEVICE_SIZE][DEVICE_LEN];     // 0x00 - 0x7F
     uint8_t     reserved1[80];                          // 0x80 - 0xCF    
     uint8_t     IP_OTA[16];                             // 0xD0 - 0xDF
     uint8_t     reserved2[16];                          // 0xE0 - 0xEF

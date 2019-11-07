@@ -70,7 +70,7 @@ void handle_smoke_hub(void)
 			{
 				if( ++alarm_count>=10 )
 				{
-					add_event(SMOKE_ALARM_T,1); 
+					enque_event(SMOKE_ALARM_T,1); 
 				   // send_trigger_to_RF(1);
 					alarm_count = 0;
 				}
@@ -84,7 +84,7 @@ void handle_smoke_hub(void)
 				{
 				 //   if( alarm_out(TAMPER_OPEN_T)==0 )
 				  //      Tamper_open_f = 1;
-						add_event(TAMPER_OPEN_T,1);
+						enque_event(TAMPER_OPEN_T,1);
 				}
 				err_count = 10;
 			}
@@ -94,7 +94,7 @@ void handle_smoke_hub(void)
 			{
 			  //  if( alarm_out(TAMPER_CLOSE_T)==0 )
 				//    Tamper_close_f = 1;
-					add_event(TAMPER_CLOSE_T,1);
+					enque_event(TAMPER_CLOSE_T,1);
 			}
 			err_count = 0;
 		}   
@@ -129,7 +129,7 @@ void handle_smoke_hub(void)
 						{
 							if( BT_S_respond==0 )
 							{
-								add_event(LOW_BATTERY_T,1);
+								enque_event(LOW_BATTERY_T,1);
 								error_status_count = 0;
 								BT_S_respond = BT_EOL_RESEND;
 							}
@@ -140,7 +140,7 @@ void handle_smoke_hub(void)
 						{
 							if( EOL_respond==0 )
 							{
-								add_event(EOL_T,1);
+								enque_event(EOL_T,1);
 								error_status_count = 0;
 								EOL_respond = BT_EOL_RESEND;
 							}
@@ -339,7 +339,7 @@ void process_sms_menu(void)
             update_led_state(APN_IP_ACCT_NOT_SET);
 
             // Add event
-            add_event(GO_SMS_T,0);
+            enque_event(GO_SMS_T,0);
         }
         // learn_btn 5-2 - adding device ID
         else if (buttonPressCount == 2)
@@ -366,7 +366,7 @@ void process_sms_menu(void)
         {
             inButtonMenu = false;       // Leave button menu if we're in it
             disable_tmr3();
-//                add_event(TEST_PIN, (uint8_t)(ee_read(0x00, HUB_ZONE_ADDR)));             // If test is in queue, goes into listen mode after
+//                enque_event(TEST_PIN, (uint8_t)(ee_read(0x00, HUB_ZONE_ADDR)));             // If test is in queue, goes into listen mode after
 
             update_led_state(BUTTON_MENU);
         }    
@@ -411,7 +411,7 @@ void calculate_adc_time(void)
             //if( Respond_T_Day >= 0x02 )  
             {
                 Respond_T_Day = 0;
-                add_event(TEST_CYCLE_S,0);             
+                enque_event(TEST_CYCLE_S,0);             
                 response_low_batt();
                 // TODO: COMMENT THIS OUT SINCE WE ARE NOT GOING TO HAVE OTA.
                 //OTA_flag = 1;
@@ -450,10 +450,10 @@ void response_low_batt(void)
         {
             // RF Battery
             if( device_id_table[cnt1][6]=='B' )                  
-                add_event(LOW_BATTERY_T,cnt1+3U); 
+                enque_event(LOW_BATTERY_T,cnt1+3U); 
             // RF periodical report
             if( device_id_table[cnt1][7]=='S' )                  
-                add_event(SUPERVISORY_T,cnt1+3U);            
+                enque_event(SUPERVISORY_T,cnt1+3U);            
         }
     }
     CLRWDT();

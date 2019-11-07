@@ -40,21 +40,6 @@ uint8_t check_csq(void);
 void    send_test_AT_commands(void);
 void    reset_at_command_default(void);
 
-
-//extern void     delay5ms(uint16_t cnt);
-//extern void     TL_module_first_run(void);
-//extern void     check_led_type(void);
-//extern uint8_t  read_ee(uint8_t page,uint8_t addr);
-//extern void     write_ee(uint8_t page, uint8_t addr, uint8_t data_p);
-//extern void     set_sms_init(void);
-//extern void     check_event(void);
-//extern uint8_t  check_sms(void);
-//extern uint8_t  check_emc_stack(void);
-//extern void     check_state(void);
-//extern uint8_t  check_OTA(void);
-//extern void     check_nework(void);
-//extern void     check_receive_overrun(void);
-
 /*****************************************************
  * VARIABLES
  ****************************************************/

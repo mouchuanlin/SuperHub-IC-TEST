@@ -84,7 +84,7 @@ void check_alarm_tamper(void)
         if( ++tamper_status>2 )
         {
             if( first_tamper==0 )                    
-                add_event(TAMPER_CLOSE_T,1);
+                enque_event(TAMPER_CLOSE_T,1);
             first_tamper = 0;
             tamper_status = 0;
             SPK = 0;
@@ -129,7 +129,7 @@ uint8_t check_supervisory()
             {
                 if( ++device_id_table[cnt1][7] >= 84 )
                 {            
-                    add_event(SUPERVISORY_T,cnt1+3U);
+                    enque_event(SUPERVISORY_T,cnt1+3U);
                     device_id_table[cnt1][7] = 'S';
                 }
             }
@@ -169,7 +169,7 @@ void process_ADC(void)
 		{                                       //838->2.50 V
 			if( BT_L_respond==0 )
 			{                    
-				add_event(LOW_BATTERY_S,0);    
+				enque_event(LOW_BATTERY_S,0);    
                 // board battery - send out once a week
 				BT_L_respond = BT_EOL_RESEND;
 			}

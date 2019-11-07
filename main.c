@@ -295,7 +295,7 @@ void smokehub_ISR(void)
             if( TEST_PIN==1 )
             {
                 //if( test_enable==1||first_test!=0||Test_click==1 )
-                //    add_event(TEST_PIN_T,2);
+                //    enque_event(TEST_PIN_T,2);
             }else alarm_count = 1;                              
         }
         if( INT2IF==1 )     //ERROR(PIN6)
@@ -326,7 +326,7 @@ void superhub_ISR(void)
             INT0IF = 0;
             if( tamper_status==0 )
             {
-                add_event(TAMPER_OPEN_T,1);
+                enque_event(TAMPER_OPEN_T,1);
                 tamper_status = 1;        
                 SPK = 1;
             }
@@ -397,7 +397,7 @@ void sms_menu(void)
         case 1:
 			// This bit indicating we are in button 5-1 state
             listen_sms_state = 1;
-            add_event(GO_SMS_T,0);
+            enque_event(GO_SMS_T,0);
             // SMS listening state
             learning_mode = KEY_NONE;
             //update_led_state(APN_IP_ACCT_NOT_SET);
@@ -420,7 +420,7 @@ void sms_menu(void)
             
         // learn_btn 5-4 - sending test alarm     
         case 4:
-            add_event(TEST_PIN_T,0);
+            enque_event(TEST_PIN_T,0);
          //   send_trigger_to_RF(0);
             learning_mode = KEY_NONE;
             update_led_state(SENDING);
@@ -537,7 +537,7 @@ void test_smoke_sensor(void)
 //    
 //}
 
-void update_page_info()
+void update_page_info(void)
 {
     // Read back from EEPROM
     read_eeprom(EE_PAGE0, EE_START_ADDR, page0_eeprom.data, EE_PAGE_SIZE);  

@@ -265,49 +265,49 @@ void send_sensor_alarm(uint8_t zone, uint8_t id[])
 			// ID starts with 8 - Smoke detector 
 			// ID starts with 6 - flood sensor
 			if( id[0]=='8')
-				add_event(SMOKE_ALARM_T,zone);
+				enque_event(SMOKE_ALARM_T,zone);
 			else if( id[0]=='6' ) 
-				add_event(FLOOD_T,zone); 
+				enque_event(FLOOD_T,zone); 
 			else if( id[0]=='2' )
-				add_event(CARBON_T,zone);
+				enque_event(CARBON_T,zone);
 			else if( id[0]=='C' )
-				add_event(GLASS_T,zone);
+				enque_event(GLASS_T,zone);
 			else if( id[0]=='9' )
-				add_event(MOTION_T,zone);
+				enque_event(MOTION_T,zone);
 			else if( id[0]=='3' )
-				add_event(DOOR_T,zone);
+				enque_event(DOOR_T,zone);
 			else if( id[0]=='1' )
-				add_event(PANIC_T,zone);
+				enque_event(PANIC_T,zone);
 			else if( id[0]=='B' )
-				add_event(HVAC_T,zone);
+				enque_event(HVAC_T,zone);
 			else if( id[0]=='5' )
-				add_event(APPLIANCE_T,zone);
+				enque_event(APPLIANCE_T,zone);
 			else if( id[0]=='4' )
-				add_event(RESERVE1_T,zone);
+				enque_event(RESERVE1_T,zone);
 			else if( id[0]=='7' )
-				add_event(RESERVE2_T,zone);
+				enque_event(RESERVE2_T,zone);
 			else if( id[0]=='A' )
-				add_event(RESERVE3_T,zone);
+				enque_event(RESERVE3_T,zone);
 			else if( id[0]=='D' )
-				add_event(RESERVE4_T,zone);
+				enque_event(RESERVE4_T,zone);
 			else if( id[0]=='E' )
-				add_event(RESERVE5_T,zone);
+				enque_event(RESERVE5_T,zone);
 			else if( id[0]=='0' )
-				add_event(RESERVE6_T,zone);
+				enque_event(RESERVE6_T,zone);
 			else if( id[0]=='F' )
-				add_event(RESERVE7_T,zone);
+				enque_event(RESERVE7_T,zone);
 		}
         //test
 		if( (rx2_buf[4]&0x04)!=0 )
 		{
-			add_event(TEST_PIN_T,zone);                            
+			enque_event(TEST_PIN_T,zone);                            
 		}    
          //Tamper open
 		if( ((rx2_buf[4]&0x02)!=0) )
 		{
 			if( device_id_table[zone-3U][8]==0 )
 			{
-				add_event(TAMPER_OPEN_T,zone);     
+				enque_event(TAMPER_OPEN_T,zone);     
 				device_id_table[zone-3U][8]=1; 
 			}
 		}
@@ -315,19 +315,19 @@ void send_sensor_alarm(uint8_t zone, uint8_t id[])
 		{
 			if( device_id_table[zone-3U][8]==1 )
 			{
-				add_event(TAMPER_CLOSE_T,zone);     
+				enque_event(TAMPER_CLOSE_T,zone);     
 				device_id_table[zone-3U][8]=0; 
 			}
 		}
         //Low Battery
 		if( (rx2_buf[4]&0x10)!=0 )
 		{
-			add_event(LOW_BATTERY_T,zone);                            
+			enque_event(LOW_BATTERY_T,zone);                            
 		}     
         //Supervisory
 		if( (rx2_buf[4]&0x80)!=0 )
 		{
-			add_event(SUPERVISORY_T,zone);                            
+			enque_event(SUPERVISORY_T,zone);                            
 		}     
 		/*out_sbuf2('$');
 		out_sbuf2('A');

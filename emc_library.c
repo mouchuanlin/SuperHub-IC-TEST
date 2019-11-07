@@ -163,7 +163,7 @@ void load_emc_number(void)
 	cnt1 = 20;
 	cnt2 = 0;
 	/*------------random number---------------*/
-	if( encryption==1 )
+	if ( page0_eeprom.map.ENCRYPTION == 1 )
 	{
 		random = (uint8_t) ((rand()>>8U)^rand()^random_rx);
 		rsp_buffer[cnt2++] = random;
@@ -173,7 +173,7 @@ void load_emc_number(void)
 	/*------------encryption ---------------*/
 	do{
 		temp = stack_buffer[0][cnt1++];
-		if( encryption==1 )
+		if( page0_eeprom.map.ENCRYPTION == 1 )
 		{
 			if( temp==0x0d )
 				break;
@@ -200,14 +200,14 @@ void load_emc_number(void)
 		}
 	}while(cnt2< (LOG_MAX_T-20));
     CLRWDT();
-	if( encryption==1 )
+	if( page0_eeprom.map.ENCRYPTION == 1 )
 	{		
 		rsp_buffer[cnt2++] = check_sum;
 	}
 	enc_cnt = cnt2;
 }
 
-bool alarm_out(uint8_t type,uint8_t zone_ext)
+bool alarm_out(uint8_t type, uint8_t zone_ext)
 {
 	uint8_t tp_cnt,mm_cnt,cnt,temp;
     uint8_t *sp;
@@ -242,7 +242,7 @@ bool alarm_out(uint8_t type,uint8_t zone_ext)
                         stack_buffer[cnt][tp_cnt++] = temp;
                     }while(temp!='$');
                     #ifndef DEBUG
-                    stack_buffer[cnt][tp_cnt-1U] = read_ee(0x00, 0xB9);        
+                    stack_buffer[cnt][tp_cnt-1] = read_ee(EE_PAGE0, 0xB9);        
                     stack_buffer[cnt][tp_cnt++] = (uint8_t) ((zone_ext/10)+0x30);
                     stack_buffer[cnt][tp_cnt++] = (uint8_t) ((zone_ext%10)+0x30);
                     #else
@@ -276,8 +276,6 @@ bool alarm_out(uint8_t type,uint8_t zone_ext)
         cnt = stack_data_header(tp_cnt, mm_cnt, cnt);
         mm_cnt = 0;
         
-        
-
 		// This function store data into stack_buffer[tp_cnt].
 		//                             0    1    2    3    4    5    6    7        20   21    22   23   24   25   26   27   28   29   30 
 		//  Ex: stack_buffer[0][] = 0x50 0x01 0xF2 0xFF 0xFF 0x03 0x03 0x00 .... 0x30 0x30 0x037 0x35 0x34 0x38 0x2C 0x34 0x30 0x30 0x37
@@ -293,9 +291,9 @@ bool alarm_out(uint8_t type,uint8_t zone_ext)
         // stack_buffer[0][41] = zone
         // stack_buffer[0][42] = zone
         // stack_buffer[0][43] = CR
-        stack_buffer[tp_cnt][cnt-1U] = read_ee(EE_PAGE0, ZONE1_ADDR);        
-        stack_buffer[tp_cnt][cnt++] = (zone_ext/10U)+0x30;
-        stack_buffer[tp_cnt][cnt++] = (zone_ext%10U)+0x30;
+        stack_buffer[tp_cnt][cnt-1] = page0_eeprom.map.ZONE1;
+        stack_buffer[tp_cnt][cnt++] = (zone_ext/10)+0x30;
+        stack_buffer[tp_cnt][cnt++] = (zone_ext%10)+0x30;
 #else
         stack_buffer[tp_cnt][cnt-1] = (zone/100)+0x30;
         zone %= 100;        
@@ -440,7 +438,7 @@ uint8_t check_emc_stack(void)
 #ifdef DEBUG
     uint8_t const ascii[]="0123456789ABCDEF";
 #endif
-    encryption = read_ee(EE_PAGE0, ENCRYPTION_ADDR);
+    //encryption = read_ee(EE_PAGE0, ENCRYPTION_ADDR);
     
 send_start:
     //lock_buffer = 0;
@@ -557,30 +555,41 @@ send_start:
     return('E');
 }
 
-void add_event(uint8_t event, uint8_t zone)
+void enque_event(uint8_t event, uint8_t zone)
 {
-    event_log[event_count_f][0] = event;
-    event_log[event_count_f][1] = zone;
+    uint8_t front = event_que.front;
+
+    event_que.data[front].event = event;
+    event_que.data[front].zone = zone;
     
-    if( ++event_count_f >= EVENT_MAX )
-        event_count_f = 49;
+    if( ++event_que.front >= EVENT_MAX )
+        event_que.front = 49;
 }
 
-void check_event(void)
+void deque_event(void)
 {
-    do
+    uint8_t rear;
+    
+    while(event_que.rear != event_que.front)
     {
-        alarm_out(event_log[event_count_l][0],event_log[event_count_l][1]);
-        event_count_l++;
-        // TODO: Check
-        if (event_count_l >= EVENT_MAX)
-            event_count_l = 0;
+        rear = event_que.rear;
+        
+        alarm_out(event_que.data[rear].event, event_que.data[rear].zone);
+        event_que.rear++;
+
+        if (event_que.rear >= EVENT_MAX)
+            event_que.rear = 0;
         
         // TODO: This should be wrap up to 0???
-        if( event_count_l == event_count_f )
+        if( event_que.rear == event_que.front )
         {
-            event_count_f = 0;
-            event_count_l = 0;
+            event_que.front = 0;
+            event_que.rear = 0;
         }
-    } while(event_count_l != event_count_f);
+    };
+}
+
+bool is_event_que_empty(void)
+{
+    return (event_que.front != event_que.rear) ? true : false;        
 }

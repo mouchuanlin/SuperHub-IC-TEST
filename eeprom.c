@@ -226,21 +226,10 @@ void write_test_device_id()
 
 void load_default(void)
 {
-    encryption = read_ee(EE_PAGE0, ENCRYPTION_ADDR);
+    //encryption = read_ee(EE_PAGE0, ENCRYPTION_ADDR);
     // How often we want report low 
-    respond_day = read_ee(EE_PAGE0, TESTING_FREQ_ADDR);
-    test_enable = read_ee(EE_PAGE0, TP_PIN_ADDR);
-}
-
-void write_EE_setting(uint8_t page, uint8_t addr, uint8_t const setting[])
-{
-    uint8_t temp, cnt = 0;
-
-    do {
-        temp = setting[cnt];
-        write_ee(page, (uint8_t) (addr+cnt), temp);
-        cnt++;
-    } while (temp != '#');    
+    respond_day = page0_eeprom.map.TEST_FREQ;
+    test_enable = page0_eeprom.map.TP_PIN;
 }
 
 // Check if the APN & IP1 has been set. In this case, will try to send data.
@@ -274,7 +263,7 @@ void load_device_id_table()
     CLRWDT();
 }
 
-uint8_t get_zone_number(uint8_t device_id[])
+uint8_t get_zone_number(uint8_t id[])
 {
     uint8_t row , column, temp;
     
@@ -284,7 +273,7 @@ uint8_t get_zone_number(uint8_t device_id[])
         for( column = 0; column < ID_LEN; column++ )
         {
             temp = device_id_table[row][column];
-            if( temp != device_id[column] )
+            if( temp != id[column] )
             {
                 //out_sbuf2(ptr[cnt2]);
                 break;             

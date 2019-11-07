@@ -159,7 +159,7 @@ void set_boot_sel_output(void);
 //#define POWER_ON    9
 //#define RF_INT      10
 //--------------------       
-#define EVENT_MAX 50
+
 
 // TODO: Supposed to be send oout once every 7 days
 #define BT_EOL_RESEND       7       // days
@@ -207,20 +207,29 @@ uint8_t const encryption_code[16]={ 0x6c,0x31,0x6e,0x79,0x52,0x7f,0x26,0x6f,
 //--------------------
 #define BUFFER_STACK    6
 // TODO: why 220? In load_emc_number() "mov stack_buffer_data[20~159] to rsp_buffer" ????
-
 //#define LOG_MAX_T       220
 #define LOG_MAX_T       45
 
-uint8_t encryption = 0;
+//uint8_t encryption = 0;
 uint8_t rsp_buffer[250];
 uint8_t enc_cnt;
 uint8_t stack_buffer[BUFFER_STACK][LOG_MAX_T];
 uint8_t random_rx;
 
-// TODO: This should be a array of struct.
-uint8_t event_log[EVENT_MAX][2];
-uint8_t event_count_f = 0;
-uint8_t event_count_l = 0;
+// Event queue struct
+#define EVENT_MAX 50
+typedef struct event_data {
+    uint8_t event;
+    uint8_t zone;
+} event_data_t;
+
+typedef struct event_q {
+    uint8_t         front;
+    uint8_t         rear;
+    event_data_t    data[EVENT_MAX];
+} event_que_t;
+
+event_que_t event_que;
 
 #ifdef DEBUG
 uint8_t debug_buffer[250];
