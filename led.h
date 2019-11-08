@@ -55,5 +55,12 @@ extern led_states_t led_state;
 #define R_ON()              R_LED=0
 #define R_OFF()             R_LED=1
 
+// LED for RF
+#define LED_RF_RX_ON()          LED_RX_IN=0
+#define LED_RF_RX_OFF()         LED_RX_IN=1
+
+#define LED_RF_ID_MATCH_ON()    LED_RX_OUT=0
+#define LED_RF_ID_MATCH_OFF()   LED_RX_OUT=1
+
 #endif	/* LED_H */
 

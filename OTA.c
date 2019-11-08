@@ -281,10 +281,10 @@ uint8_t OTA_send_data_to_server(void)
     CREN1 = 0;
     soutdata(send);
     cnt = tp_cnt;
-    out_sbuf((cnt/100U)+0x30);
-    cnt %= 100U;
-    out_sbuf((cnt/10U)+0x30);
-    out_sbuf((cnt%10U)+0x30);
+    out_sbuf((cnt/100)+0x30);
+    cnt %= 100;
+    out_sbuf((cnt/10)+0x30);
+    out_sbuf((cnt%10)+0x30);
     out_sbuf('\r');
     //out_sbuf('\n');
     RCIE = 0;
@@ -355,7 +355,7 @@ uint8_t OTA_receive_data_from_server(void)
                 #endif
 				if( ++buffer_p>=250 )				
                  buffer_p = 249;			
-		  		if( (temp==0x0a) && (buffer[buffer_p-2U]==0x0d) )	//Network opened
+		  		if( (temp==0x0a) && (buffer[buffer_p-2]==0x0d) )	//Network opened
 				{
                     //if( buffer[0]=='E'&&buffer[1]=='R'&&buffer[2]=='R'&&buffer[3]=='O'&&buffer[4]=='R' )   
                     if (strncmp((const char *)buffer, (const char *)"ERROR", 5) == 0)
@@ -439,8 +439,8 @@ uint8_t OTA_connection_open(uint8_t type)   //0: command mode 1:online mode
         addr = 0xB0;
     }
 
-	port = (uint16_t) (read_ee(page,addr)<<8U);
-	port += read_ee(page,addr+1U);
+	port = (uint16_t) (read_ee(page,addr)<<8);
+	port += read_ee(page,addr+1);
 	cnt = 0;
 	temp = port/10000;
 	if( temp!=0 )

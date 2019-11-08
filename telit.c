@@ -145,8 +145,8 @@ uint8_t TL_connection_open(uint8_t type)
 	else 
         cnt = 0xB6;
 
-	port = (uint16_t) (read_ee(EE_PAGE0, cnt)<<8U);
-	port += read_ee(EE_PAGE0, cnt+1U);
+	port = (uint16_t) (read_ee(EE_PAGE0, cnt)<<8);
+	port += read_ee(EE_PAGE0, cnt+1);
     
 
 	cnt = 0;
@@ -246,10 +246,10 @@ uint8_t TL_send_data_to_server(void)
     soutdata(send);
     cnt = tp_cnt;
     // Convert to ASCII - 0x30 is 0
-    out_sbuf((cnt/100U)+0x30);
+    out_sbuf((cnt/100)+0x30);
     cnt %= 100;
-    out_sbuf((cnt/10U)+0x30);
-    out_sbuf((cnt%10U)+0x30);
+    out_sbuf((cnt/10)+0x30);
+    out_sbuf((cnt%10)+0x30);
     out_sbuf('\r');
     //out_sbuf('\n');
     RCIE = 0;
@@ -321,7 +321,7 @@ uint8_t TL_receive_data_from_server(void)
                 #endif
 				if( ++buffer_p>=250 )				
                  buffer_p = 249;			
-		  		if( temp==0x0a && buffer[buffer_p-2U] == 0x0d )	//Network opened
+		  		if( temp==0x0a && buffer[buffer_p-2] == 0x0d )	//Network opened
 				{
                     if( buffer[0]=='E'&&buffer[1]=='R'&&buffer[2]=='R'&&buffer[3]=='O'&&buffer[4]=='R' )                     
                     {

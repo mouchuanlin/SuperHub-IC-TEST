@@ -129,7 +129,7 @@ uint8_t check_supervisory()
             {
                 if( ++device_id_table[cnt1][7] >= 84 )
                 {            
-                    enque_event(SUPERVISORY_T,cnt1+3U);
+                    enque_event(SUPERVISORY_T,cnt1+3);
                     device_id_table[cnt1][7] = 'S';
                 }
             }
@@ -161,7 +161,7 @@ void process_ADC(void)
 		
         // ADRESH: ADC RESULT REGISTER HIGH (ADRESH) ADFM = 1
         // ADRESL: ADC RESULT REGISTER LOW (ADRESL) ADFM = 1
-		ADC_data = (uint16_t) ((ADRESH<<8U)+ADRESL);
+		ADC_data = (uint16_t) ((ADRESH<<8)+ADRESL);
 		ADC_data &= 0x03ff;
 		ADON = 0;                               //748->2.80 V
 		ADC_time = 0;                           //776->2.70 V

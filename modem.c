@@ -864,7 +864,7 @@ uint8_t check_register(uint8_t type)
                                 temp++;
                                 if ( creg_s[temp]== '$' )
                                 {
-                                    if( buffer[temp+2U]=='1'|| buffer[temp+2U]=='5' )
+                                    if( buffer[temp+2]=='1'|| buffer[temp+2]=='5' )
                                     {
                                         TMR3ON = 0;
                                         RC1IE = 1;
@@ -880,7 +880,7 @@ uint8_t check_register(uint8_t type)
                                 temp++;
                                 if ( cereg_s[temp]== '$' )
                                 {
-                                    if( buffer[temp+2U]=='1'|| buffer[temp+2U]=='5' )
+                                    if( buffer[temp+2]=='1'|| buffer[temp+2]=='5' )
                                     {
                                         TMR3ON = 0;
                                         RC1IE = 1;

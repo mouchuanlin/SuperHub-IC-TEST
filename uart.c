@@ -7,6 +7,7 @@
 #include "io.h"
 #include "eeprom.h"
 #include "modem.h"
+#include "led.h"
 
 void UART_init(void)
 {
@@ -122,70 +123,51 @@ void UART2_ISR(void)
 	uint8_t temp;
 	
     // RC2IE: EUSART2 Receive Interrupt Enable bit
-    if ((RC2IE == 1) && (RC2IF == 1))
-    {
-        while (RC2IF == 1)
-        {            
-            temp = RC2REG;
-			
-            // Store data in rx2_buf
-            rx2_buf[rx2_cnt] = temp;
-            
-            // If exceed MAX size, save to the last spot.
-            if( ++rx2_cnt >= MAX_RX2_BUF_SIZE )
-                rx2_cnt = MAX_RX2_BUF_SIZE - 1;
-            
-            // 7 bytes RF data in HEX - $ + 3byte ID + 1byte status + <CR> + <LF>
-            // TODO: This might be able to call process_RF_data() in infinite loop instead of processing in ISR.
-			if( temp == LF )      // \n
-				process_RF_data();          
-        };
-       // RC1IF = 0;
-    }        	       	
+    while (RC2IF == 1)
+    {            
+        temp = RC2REG;
+
+        // Store data in rx2_buf
+        rx2_buf.data[rx2_cnt] = temp;
+
+        // If exceed MAX size, save to the last spot.
+        if( ++rx2_cnt >= MAX_RX2_BUF_SIZE )
+            rx2_cnt = MAX_RX2_BUF_SIZE - 1;
+
+        // 7 bytes RF data in HEX - $ + 3byte ID + 1byte status + <CR> + <LF>
+        // TODO: This might be able to call process_RF_data() in infinite loop instead of processing in ISR.
+        if( temp == LF )      // \n
+            process_RF_data();          
+    };
+     	       	
 }
 
 void process_RF_data(void)
 {
 	//uint8_t temp;
-    uint8_t zone,cnt;
+    uint8_t zone;
     uint8_t id[6];
 		
-    // We are expecting to receive 7 bytes of HEX data from RX receiver module.
-    // In case we receive more than 7 byte of data.
-	if( rx2_cnt>=7 )
-	{
-		cnt = 0;
-		if( (rx2_buf[rx2_cnt-7U]=='$') && (rx2_buf[rx2_cnt-2U]== CR) )                    
-		{
-			for(zone=rx2_cnt-7U; zone<rx2_cnt; zone++ )
-			{
-				rx2_buf[cnt++] = rx2_buf[zone];
-			}
-			rx2_cnt = 7;
-		}
-	}
-	
 	// 7 bytes RF data in HEX - $ + 3byte ID + 1byte status + <CR> + <LF>
     // Cell configuration data saved in EEPROM is in ASCII. Need convert 3 byte ID to ASCII.
 	// TODO: Can add CRC check after status byte.
-	if( (rx2_buf[0]=='$') && (rx2_buf[5] == CR) && (rx2_buf[6] == LF) )                    
+	if(is_valid_rf_data())                    
 	{                
 		led_count = 10;
-		LED_RX_IN = 0;  // green ON - active LOW
-		
+		// LED5 green ON - active LOW
+		LED_RF_RX_ON();
+        
 		// Decode 6 bytes device ID
         decode_device_id(id);
         
-        // TODO: don't need this???
-		//temp = rx2_buf[4];
-
         // Get zone# from device_id_table
 		zone = get_zone_number(id);       //respond zone number(3~30),error=0
 	   
 		if( zone!=0 )
 		{
-			device_id_table[zone-3U][7] = 0;     //clear supervisory count
-			LED_RX_OUT = 0;                     // Yellow ON - active LOW
+			device_id_table[zone-3][7] = 0;     //clear supervisory count
+			//LED4 Yellow ON - active LOW
+            LED_RF_ID_MATCH_ON();
 		}
         // Real sensor device alarms.
 		if( learning_mode==KEY_NONE )
@@ -212,58 +194,61 @@ void process_RF_data(void)
 	CREN2 = 1;   
 }
 
+bool is_valid_rf_data(void)
+{
+	if( (rx2_buf.map.dollar =='$') && (rx2_buf.map.cr == CR) && (rx2_buf.map.lf == LF) )   
+        return true;
+    else
+        return false;
+}
+
 void decode_device_id(uint8_t id[])
 {
-    uint8_t temp;
+    uint8_t temp, i;
         
 	// 7 bytes RF data in HEX - $ + 3byte ID + 1byte status + <CR> + <LF>
-    // Convert 3 bytes ID from HEX to ASCII
-    rx2_cnt = 1;                                             
-    do{
-        // Convert from HEX to ASCII
-        temp = (uint8_t) ((rx2_buf[rx2_cnt] >> 4) & 0x0f);
-        if( temp>=10 )
-        {
-            temp += 0x41;
-            temp -= 10;
-        }else temp += 0x30;
+    // Convert 3 bytes of RF device ID from HEX to ASCII and store in id[0-5]. Ex. 0x62 0x72 0x75 -> "627275"
+    for (i = 0; i < 3; i++)
+    {
+        // Upper nibble
+        temp = (uint8_t) ((rx2_buf.map.rf_id[i] >> 4) & 0x0F);
+        id[i*2] = hex_to_ascii(temp);
         
-        id[(rx2_cnt-1)*2] = temp;
-    //    out_sbuf2(temp);////
-        temp = (uint8_t) (rx2_buf[rx2_cnt] & 0x0f);
-        if( temp>=10 )
-        {
-            temp += 0x41;
-            temp -= 10;
-        }else temp += 0x30;
-        id[(rx2_cnt-1)*2+1] = temp;
-    //    out_sbuf2(temp);//////
-    }while(++rx2_cnt<4);     
+        // Lower nibble
+        temp = (uint8_t) (rx2_buf.map.rf_id[i] & 0x0F);
+        id[i*2+1] = hex_to_ascii(temp);
+    }
+}
+
+uint8_t hex_to_ascii(uint8_t hex)
+{
+    if( hex >= 10 )
+    {
+        hex += 0x41;
+        hex -= 10;
+    }
+    else 
+        hex += 0x30;
+
+    return hex;
 }
 
 void ACK_to_RF_receiver(void)
 {
-    for( uint8_t i=0; i<7; i++)
-        out_sbuf2(rx2_buf[i]);    
+    uint8_t i;
+    
+    for(i = 0; i < MAX_RX2_BUF_SIZE; i++)
+        out_sbuf2(rx2_buf.data[i]);    
 }
 
 void send_sensor_alarm(uint8_t zone, uint8_t id[])
 {
-	if( zone==0 )
-	{
-	/*    out_sbuf2('$');
-		out_sbuf2('A');
-		out_sbuf2('N');
-		out_sbuf2(0x0d);
-		out_sbuf2(0x0a);*/
-	}
-    else
+    if (zone != 0)
     {   
         //Supervisory,nc,nc,low BT,nc,test,tamper,trigger/alarm                                                                                           
-		if( (rx2_buf[4]&0x01)!=0 )   //alarm
+		if( (rx2_buf.map.status & 0x01) != 0 )   //alarm
 		{             
-			// ID starts with 8 - Smoke detector 
-			// ID starts with 6 - flood sensor
+			// Ex. ID starts with 8 - Smoke detector, 6 - flood sensor
 			if( id[0]=='8')
 				enque_event(SMOKE_ALARM_T,zone);
 			else if( id[0]=='6' ) 
@@ -298,41 +283,36 @@ void send_sensor_alarm(uint8_t zone, uint8_t id[])
 				enque_event(RESERVE7_T,zone);
 		}
         //test
-		if( (rx2_buf[4]&0x04)!=0 )
+		if( (rx2_buf.map.status &0x04) != 0 )
 		{
 			enque_event(TEST_PIN_T,zone);                            
 		}    
          //Tamper open
-		if( ((rx2_buf[4]&0x02)!=0) )
+		if( ((rx2_buf.map.status & 0x02) != 0) )
 		{
-			if( device_id_table[zone-3U][8]==0 )
+			if( device_id_table[zone-3][8]==0 )
 			{
 				enque_event(TAMPER_OPEN_T,zone);     
-				device_id_table[zone-3U][8]=1; 
+				device_id_table[zone-3][8]=1; 
 			}
 		}
         else    //Tamper close
 		{
-			if( device_id_table[zone-3U][8]==1 )
+			if( device_id_table[zone-3][8]==1 )
 			{
 				enque_event(TAMPER_CLOSE_T,zone);     
-				device_id_table[zone-3U][8]=0; 
+				device_id_table[zone-3][8]=0; 
 			}
 		}
         //Low Battery
-		if( (rx2_buf[4]&0x10)!=0 )
+		if( (rx2_buf.map.status & 0x10) != 0 )
 		{
 			enque_event(LOW_BATTERY_T,zone);                            
 		}     
         //Supervisory
-		if( (rx2_buf[4]&0x80)!=0 )
+		if( (rx2_buf.map.status & 0x80) != 0 )
 		{
 			enque_event(SUPERVISORY_T,zone);                            
 		}     
-		/*out_sbuf2('$');
-		out_sbuf2('A');
-		out_sbuf2('S');
-		out_sbuf2(0x0d);
-		out_sbuf2(0x0a);*/
 	}	
 }

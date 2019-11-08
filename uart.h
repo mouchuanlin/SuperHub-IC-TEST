@@ -27,6 +27,9 @@ void decode_device_id(uint8_t id[]);
 void ACK_to_RF_receiver(void);
 void send_sensor_alarm(uint8_t zone, uint8_t id[]);
 
+uint8_t hex_to_ascii(uint8_t hex);
+bool    is_valid_rf_data(void);
+
 /*****************************************************
  * VARIABLES
  ****************************************************/
@@ -35,9 +38,25 @@ void send_sensor_alarm(uint8_t zone, uint8_t id[]);
 #define CR 		0x0D    // \r
 #define LF 		0x0A    // \n
 
-#define MAX_RX2_BUF_SIZE    20
+
+// 7 bytes RF data in HEX - $ + 3byte ID + 1byte status + <CR> + <LF>
+//#define MAX_RX2_BUF_SIZE    20
+#define MAX_RX2_BUF_SIZE    7
 uint8_t 	rx2_cnt = 0;
-uint8_t 	rx2_buf[MAX_RX2_BUF_SIZE];
+//uint8_t 	rx2_buf[MAX_RX2_BUF_SIZE];
+
+typedef struct rf_data {
+    uint8_t dollar;
+    uint8_t rf_id[3];
+    uint8_t status;
+    uint8_t cr;
+    uint8_t lf;
+} rf_data_t;
+
+union rx2 {
+    uint8_t     data[MAX_RX2_BUF_SIZE];
+    rf_data_t   map;
+} rx2_buf;
 
 extern  uint8_t led_count;
 

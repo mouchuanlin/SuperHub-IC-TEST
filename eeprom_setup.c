@@ -445,17 +445,17 @@ uint8_t set_n41_to_56(uint8_t type)
         for( cnt=0;cnt<6;cnt++ )
         {
             // ID starts from byte 3 - Ex 892C31
-            temp = key[cnt+3U];
+            temp = key[cnt+3];
             write_ee(EE_PAGE1, (uint8_t) (type+cnt), temp);
             device_id_table[val][cnt] = temp;
         }
         
         // TODO: Why write to [6]???
-        write_ee(EE_PAGE1, type+6U, 0);
+        write_ee(EE_PAGE1, type+6, 0);
         device_id_table[val][6] = 0;
         
         // TODO: Why write to [7]???
-        write_ee(EE_PAGE1, type+7U, 0);
+        write_ee(EE_PAGE1, type+7, 0);
         device_id_table[val][7] = 0;
         return('K');
     }
@@ -493,7 +493,7 @@ uint8_t back_door_function(uint8_t p)
 			}else if( is_digit(temp) )
 			{
 				temp &=0x0f;
-				addr = addr*10U + temp;
+				addr = addr*10 + temp;
 			}else return('E');
 		}while(cnt<0x06);
 		return('E');

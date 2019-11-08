@@ -12,11 +12,13 @@
 void update_mmcnt(void)
 {
 	uint8_t mm_cnt;
-	mm_cnt = read_ee(EE_PAGE0, MM_COUNT_ADDR);
+    
+	mm_cnt = page0_eeprom.map.MM_COUNT;
 
 	if( ++mm_cnt>=END_MM_COUNT )
 		mm_cnt = START_MM_COUNT;
     
+    page0_eeprom.map.MM_COUNT = mm_cnt;
 	write_ee(EE_PAGE0, MM_COUNT_ADDR, mm_cnt);
 }
 
@@ -32,7 +34,7 @@ uint8_t save_stack_header(void)
 			stack_buffer[tp_cnt][1] = 1;				//dial type
             
             // TODO: What's EEPROM 0x7b for???
-			temp = (uint8_t)(read_ee(EE_PAGE0,0x7b)<<4U);				//line fault
+			temp = (uint8_t)(read_ee(EE_PAGE0,0x7b)<<4);				//line fault
             
 			/* new add 12/09 */
             //  // TODO: What's this for???
@@ -78,7 +80,7 @@ uint8_t stack_data_header(uint8_t tp_cnt,uint8_t mm_cnt, uint8_t cnt)
 	const uint8_t 	hex[17]="0123456789ABCDEF";
     
 	//temp = (mm_cnt/10)+0x30;			//MM
-	temp = hex[(uint8_t)(mm_cnt>>4U)];
+	temp = hex[(uint8_t)(mm_cnt>>4)];
 	stack_buffer[tp_cnt][cnt++] = temp;
 	//temp = (mm_cnt%10)+0x30;
 	temp = hex[((uint8_t) (mm_cnt&0x0f))];
@@ -120,8 +122,8 @@ void move_stack_buffer(void)
     {
         cnt2 = 0;
         do{
-            temp = stack_buffer[cnt+1U][cnt2];
-            stack_buffer[cnt+1U][cnt2] = 0;
+            temp = stack_buffer[cnt+1][cnt2];
+            stack_buffer[cnt+1][cnt2] = 0;
             stack_buffer[cnt][cnt2] = temp;
         }while(++cnt2<LOG_MAX_T);
         CLRWDT();
@@ -165,10 +167,10 @@ void load_emc_number(void)
 	/*------------random number---------------*/
 	if ( page0_eeprom.map.ENCRYPTION == 1 )
 	{
-		random = (uint8_t) ((rand()>>8U)^rand()^random_rx);
+		random = (uint8_t) ((rand()>>8)^rand()^random_rx);
 		rsp_buffer[cnt2++] = random;
 		check_sum = random;
-		random = (uint8_t)(((random>>4U)+(random&0x0f)))%16U;
+		random = (uint8_t)(((random>>4)+(random&0x0f)))%16;
 	}
 	/*------------encryption ---------------*/
 	do{
@@ -180,10 +182,10 @@ void load_emc_number(void)
 			/*------------encryption ---------------*/
 			temp1 = encryption_code[random];		
 			temp ^= temp1;					//xor
-			swap = (uint8_t) (temp<<4U);					//4bit swap
+			swap = (uint8_t) (temp<<4);					//4bit swap
 			temp >>=4;
 			temp += swap;	
-			swap = (uint8_t) (temp >>6U);				//left shift 2 bit
+			swap = (uint8_t) (temp >>6);				//left shift 2 bit
 			temp <<= 2;
 			temp += swap;
 			temp ^= temp1;					//xor
@@ -334,17 +336,17 @@ uint8_t chk_data_type(uint8_t *buffer,uint8_t buffer_p)
 	{		        
 		/*---decrypt code---*/
 		random = buffer[0];
-		random = (uint8_t)(((random>>4U)+(random&0x0f)))%16U;
+		random = (uint8_t)(((random>>4)+(random&0x0f)))%16;
 		//random = 0;
 		for( cnt=1;cnt<(buffer_p-1);cnt++ )
 		{
 			temp2 = buffer[cnt];
 			temp1 = encryption_code[random];	
 			temp2 ^= temp1;					//xor		
-			swap = (uint8_t) (temp2 <<6U);				//left shift 2 bit
+			swap = (uint8_t) (temp2 <<6);				//left shift 2 bit
 			temp2 >>= 2;
 			temp2 += swap;
-			swap = (uint8_t) (temp2<<4U);					//4bit swap
+			swap = (uint8_t) (temp2<<4);					//4bit swap
 			temp2 >>=4;
 			temp2 += swap;	
 			temp2 ^= temp1;					//xor	

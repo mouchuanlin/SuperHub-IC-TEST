@@ -25,8 +25,8 @@ void TMR0_ISR(void)
         {
             if( --led_count==0 )
             {
-                LED_RX_IN = 1;
-                LED_RX_OUT = 1;
+                LED_RF_RX_OFF();
+                LED_RF_ID_MATCH_OFF();
             }
         }
         
@@ -450,10 +450,10 @@ void response_low_batt(void)
         {
             // RF Battery
             if( device_id_table[cnt1][6]=='B' )                  
-                enque_event(LOW_BATTERY_T,cnt1+3U); 
+                enque_event(LOW_BATTERY_T,cnt1+3); 
             // RF periodical report
             if( device_id_table[cnt1][7]=='S' )                  
-                enque_event(SUPERVISORY_T,cnt1+3U);            
+                enque_event(SUPERVISORY_T,cnt1+3);            
         }
     }
     CLRWDT();

@@ -254,7 +254,7 @@ void load_device_id_table()
 	
     for( cnt1=0;cnt1<28;cnt1++ )
     {
-        addr =cnt1*8U;
+        addr =cnt1*8;
         for( cnt2=0;cnt2<8;cnt2++ )
             device_id_table[cnt1][cnt2] = read_ee(1, (uint8_t)(addr+cnt2) );
         
@@ -284,7 +284,7 @@ uint8_t get_zone_number(uint8_t id[])
         {
             //ut_sbuf2('S');
             // TODO: Why zone# is the cntl+3???
-            return(row+3U);   //respond Zone number 3~30
+            return(row+3);   //respond Zone number 3~30
         }
     }
     CLRWDT();
@@ -301,7 +301,7 @@ uint8_t add_ID(uint8_t *ptr)
         temp = device_id_table[cnt1][0];
         if( temp==0x00 )
         {            
-            addr =cnt1*8U;
+            addr =cnt1*8;
             for( cnt2=0;cnt2<6;cnt2++)
             {
                 temp = ptr[cnt2];
@@ -309,9 +309,9 @@ uint8_t add_ID(uint8_t *ptr)
                 write_ee(1,(uint8_t)(addr+cnt2),temp);
             }
             device_id_table[cnt1][6]=0;
-            write_ee(1,addr+6U,0);
+            write_ee(1,addr+6,0);
             device_id_table[cnt1][7]=0;
-            write_ee(1,addr+7U,0);
+            write_ee(1,addr+7,0);
             device_id_table[cnt1][8]=0;
             GIE = 1;
             return('K');
@@ -325,8 +325,9 @@ uint8_t add_ID(uint8_t *ptr)
 uint8_t del_ID(uint8_t id)
 {
     uint8_t addr,cnt1;
+    
     id -=3;
-    addr =id*8U;
+    addr =id*8;
     for( cnt1=0;cnt1<8;cnt1++ )
     {
         device_id_table[id][cnt1] = 0x00;
