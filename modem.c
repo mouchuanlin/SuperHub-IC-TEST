@@ -395,7 +395,7 @@ uint8_t start_sms()
                         deque_event(); 
                     
                     // Need bail out call start_send_alarm() to send data
-                    if( stack_buffer[0][0]!=0&&retry_count==0&&IP_type==1 )   
+                    if( stack_buffer[0].map.state != 0 && retry_count==0 && IP_type==1 )   
                     {                   
                        //goto alarm_start;
 					   return false;
@@ -434,7 +434,7 @@ uint8_t start_sms()
         deque_event();
     
     // Need bail out call start_send_alarm() to send data
-    if( stack_buffer[0][0]!=0&&retry_count==0&&IP_type==1 )//LED_flash_type==LED_STANDBY )                     
+    if( stack_buffer[0].map.state !=0 && retry_count==0 && IP_type==1 )//LED_flash_type==LED_STANDBY )                     
         //goto alarm_start;
 		return false;
 		    

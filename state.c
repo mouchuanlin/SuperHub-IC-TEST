@@ -63,7 +63,7 @@ void check_state(void)
 
 bool process_restart()
 {	
-	if( (retry_count == 0 ) && (stack_buffer[0][0] != 0) && (IP_type == 1) )        
+	if( (retry_count == 0 ) && (stack_buffer[0].map.state != 0) && (IP_type == 1) )        
 	{                   
 		MD_POWER = POWER_OFF;
 		delayseconds(1);

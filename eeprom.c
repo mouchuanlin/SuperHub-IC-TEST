@@ -252,11 +252,11 @@ void load_device_id_table()
 {
     uint8_t cnt1,cnt2,addr;
 	
-    for( cnt1=0;cnt1<28;cnt1++ )
+    for( cnt1=0; cnt1<ID_TABLE_ROW; cnt1++ )
     {
-        addr =cnt1*8;
-        for( cnt2=0;cnt2<8;cnt2++ )
-            device_id_table[cnt1][cnt2] = read_ee(1, (uint8_t)(addr+cnt2) );
+        addr = cnt1*8;
+        for( cnt2=0; cnt2<8; cnt2++ )
+            device_id_table[cnt1][cnt2] = read_ee(EE_PAGE1, (uint8_t)(addr+cnt2) );
         
         device_id_table[cnt1][cnt2] = 0;
     }
@@ -295,6 +295,7 @@ uint8_t get_zone_number(uint8_t id[])
 uint8_t add_ID(uint8_t *ptr)
 {
     uint8_t cnt1,cnt2,temp,addr;
+    
     GIE = 0;
     for( cnt1=0;cnt1<16;cnt1++ )    //28
     {
@@ -308,6 +309,8 @@ uint8_t add_ID(uint8_t *ptr)
                 device_id_table[cnt1][cnt2]=temp;
                 write_ee(1,(uint8_t)(addr+cnt2),temp);
             }
+            
+            // TODO: What's this for???
             device_id_table[cnt1][6]=0;
             write_ee(1,addr+6,0);
             device_id_table[cnt1][7]=0;

@@ -443,7 +443,7 @@ void prepare_to_sleep(void)
 
 void RF_input_test(void)
 {
-    test_flood_sensor();
+    test_flood_sensor_1();
 }
 
 void test_flood_sensor_1(void)

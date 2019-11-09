@@ -1,5 +1,5 @@
 //
-// io.h
+// file: io.h
 //
 
 #ifndef IO_H
@@ -207,13 +207,49 @@ uint8_t const encryption_code[16]={ 0x6c,0x31,0x6e,0x79,0x52,0x7f,0x26,0x6f,
 //--------------------
 #define BUFFER_STACK    6
 // TODO: why 220? In load_emc_number() "mov stack_buffer_data[20~159] to rsp_buffer" ????
-//#define LOG_MAX_T       220
-#define LOG_MAX_T       45
+#define LOG_MAX_T       220
+//#define LOG_MAX_T       45
+//uint8_t stack_buffer[BUFFER_STACK][LOG_MAX_T];
 
-//uint8_t encryption = 0;
+// TODO: Need a better name for emc and stack_buffer???
+// See EEPROMMap.xlsx for details.
+
+// Smoke default 12-15-2017.xlsx
+//  Command     Content             Terminator	Default     Comment
+//  -------     -------             ----------  -------     -------
+//  05#         Access code         #           1111        4-6 digits/Char
+//  10#         Unit Accnt No.      #           None        Fixed 6 digits/Char, fill '0' up 4 digits.
+//  11#         Line Card No. (L)	#           1           1-4 digits/Char
+//
+
+typedef struct emc {
+    uint8_t state;              // 'P' - pending, 'S' - sending, 'T' - test
+    uint8_t dial_type;
+    uint8_t retry_count;
+    uint8_t ack_time;
+    uint8_t ack_count;
+    uint8_t reboot_time[2];
+    uint8_t reserved1[13];
+    uint8_t mm_count[2];
+    uint8_t line_card[4];       // TODO: line_card could be 4-8 bytes. Not sure how to deal within this struct. Use 4 for now.
+    uint8_t comma;
+    uint8_t unit_account[4];    // TODO: unit account could be 4-8 bytes. Not sure how to deal within this struct. Use 4 for now.
+    uint8_t alarm_string[9];
+    uint8_t zone_1;
+    uint8_t zone[2];
+    uint8_t cr;
+} emc_t;
+
+// Use union since we need encrypt [20] to end of array (CR).
+union sb {
+    uint8_t     data[LOG_MAX_T];
+    emc_t       map;
+} stack_buffer[BUFFER_STACK];
+
+// This is the real data (either encrypt or not) sending out
 uint8_t rsp_buffer[250];
+// data length count
 uint8_t enc_cnt;
-uint8_t stack_buffer[BUFFER_STACK][LOG_MAX_T];
 uint8_t random_rx;
 
 // Event queue struct
@@ -250,8 +286,18 @@ uint16_t ADC_data = 0;
 uint8_t RF_wait_count = 0;
 
 // RF slave device ID table. ID from 41 - 68
-#define ID_TABLE_ROW        28
-#define ID_TABLE_COLUM      9       // TODO: We are using only 6 bytes ID for now. Shoulb be able change to 6
+#define ID_TABLE_ROW        16
+// TODO: We are using only 6 bytes ID for now. Should be able change to 6
+//  Seems there are other use for [6-8]???
+//      [6] - low battery
+//      [7] - supervisory
+//      [8] - tamper open/close
+//
+// TODO: 
+//      - Should use page1_eeprom for RF device ID table to replace device_id_table
+//      - Use another struct to hold those 3 bits
+//
+#define ID_TABLE_COLUM      9
 #define ID_LEN              6
 uint8_t device_id_table[ID_TABLE_ROW][ID_TABLE_COLUM];
 

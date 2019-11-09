@@ -24,13 +24,14 @@ void    load_emc_number(void);
 uint8_t check_emc_stack(void);
 uint8_t chk_data_type(uint8_t *buffer, uint8_t buffer_p);
 bool    is_event_que_empty(void);
+void    encrypt_byte(uint8_t *temp, uint8_t *random);
 
 /*****************************************************
  * VARIABLES
  ****************************************************/ 
 
 #define NUM_OF_STR      25
-#define MAX_STR_SIZE    20
+#define MAX_STR_SIZE    12
 uint8_t alarm_string[NUM_OF_STR][MAX_STR_SIZE] = {
     "18,111100$",       //002$";
     "18,E60200$",       //035$";
@@ -49,7 +50,7 @@ uint8_t alarm_string[NUM_OF_STR][MAX_STR_SIZE] = {
     "18,E38100$",       //002$";
     "18,116200$",       //002$";
     "18,113200$",       //002$";
-    "18,1134700$",      //002$";
+    "18,1134700$",      //002$";    // TODO: WHY THIS IS DIFFERENT???
     "18,110100$",       //002$";
     "18,116100$",       //002$";
     "18,115200$",       //002$";
@@ -91,6 +92,7 @@ typedef enum event_enum{
     RESERVE7_T      = 23,   
     GO_SMS_T        = 24              
 } EVENT_ENUM;
+
 
 #define SMOKE_ALARM_T   0    
 #define TEST_CYCLE_S    1

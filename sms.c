@@ -358,7 +358,7 @@ uint8_t remote_setting(void)
 			if( (toupper(sms_buffer[x_cnt]) == 'S') && (toupper(sms_buffer[x_cnt+1]) == 'E') && 
 				(toupper(sms_buffer[x_cnt+2]) == 'N') && (toupper(sms_buffer[x_cnt+3]) == 'S') && 
 				(toupper(sms_buffer[x_cnt+4]) == 'O') && (toupper(sms_buffer[x_cnt+5]) == 'R') &&  
-                (sms_buffer[x_cnt+6]=='#')   )  //SEMSOR
+                (sms_buffer[x_cnt+6]=='#')   )  //SENSOR
             {
                 off_set = 0;
                 for( temp1=0;temp1<16;temp1++ )

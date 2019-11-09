@@ -196,7 +196,7 @@ void process_RF_data(void)
 
 bool is_valid_rf_data(void)
 {
-	if( (rx2_buf.map.dollar =='$') && (rx2_buf.map.cr == CR) && (rx2_buf.map.lf == LF) )   
+	if( (rx2_buf.map.dollar == '$') && (rx2_buf.map.cr == CR) && (rx2_buf.map.lf == LF) )   
         return true;
     else
         return false;

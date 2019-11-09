@@ -28,47 +28,35 @@ uint8_t save_stack_header(void)
 
 	tp_cnt = 0;
 	do{
-		if( stack_buffer[tp_cnt][0]==0x00 )
+		if ( stack_buffer[tp_cnt].map.state == 0x00 )
 		{
-			stack_buffer[tp_cnt][0] = 'P';
-			stack_buffer[tp_cnt][1] = 1;				//dial type
-            
-            // TODO: What's EEPROM 0x7b for???
-			temp = (uint8_t)(read_ee(EE_PAGE0,0x7b)<<4);				//line fault
+			stack_buffer[tp_cnt].map.state = 'P';
+			stack_buffer[tp_cnt].map.dial_type = 1;				//dial type
             
 			/* new add 12/09 */
-            //  // TODO: What's this for???
-			if( read_ee(0x01,0x20)==0x0C )				//retry count if line2 empty,line1 retry <5>
+            // TODO: What's this for??? Page 1 0x20 is device ID location. WHY???
+			if( read_ee(0x01, 0x20)==0x0C )				//retry count if line2 empty,line1 retry <5>
 				temp += RETRY_NUMBER1;	
 			else temp += RETRY_NUMBER2;	
             
-			/*---------------*/
-			stack_buffer[tp_cnt][2] = temp;
+			stack_buffer[tp_cnt].map.retry_count = temp;
 
-            // TODO: What's EEPROM 0x59 for???
+            // TODO: What's EEPROM 0x59 for??? There is NO 0x59 defined.
 			temp = read_ee(EE_PAGE0, 0x59);
             
-			stack_buffer[tp_cnt][3] = temp;			 	//ack time
-			stack_buffer[tp_cnt][4] = temp;				//ack count
-            stack_buffer[tp_cnt][5] = 3;                // reboot times
-            stack_buffer[tp_cnt][6] = 3;
-		/*	cnt1 = 0;
-			cnt2 = 5;
-			do{
-				temp = key[cnt1++];
-				if( temp!=0x0c )
-					temp = adjust_ascii(temp);
-				stack_buffer[tp_cnt][cnt2++] = temp;
-			}while( temp!=0x0c && cnt1<16 );*/
-							
+			stack_buffer[tp_cnt].map.ack_time = temp;			 	//ack time
+			stack_buffer[tp_cnt].map.ack_count = temp;				//ack count
+            stack_buffer[tp_cnt].map.reboot_time[0] = 3;                // reboot times
+            stack_buffer[tp_cnt].map.reboot_time[1] = 3;
+			
 			update_mmcnt();	
 			return(tp_cnt);
 		}
-	}while(++tp_cnt<BUFFER_STACK);
+	} while (++tp_cnt < BUFFER_STACK);
+    
     CLRWDT();
 	return(tp_cnt);
 }
-
 
 uint8_t stack_data_header(uint8_t tp_cnt,uint8_t mm_cnt, uint8_t cnt)
 {
@@ -81,33 +69,39 @@ uint8_t stack_data_header(uint8_t tp_cnt,uint8_t mm_cnt, uint8_t cnt)
     
 	//temp = (mm_cnt/10)+0x30;			//MM
 	temp = hex[(uint8_t)(mm_cnt>>4)];
-	stack_buffer[tp_cnt][cnt++] = temp;
+	stack_buffer[tp_cnt].map.mm_count[0] = temp;
 	//temp = (mm_cnt%10)+0x30;
 	temp = hex[((uint8_t) (mm_cnt&0x0f))];
-	stack_buffer[tp_cnt][cnt++] = temp;
+	stack_buffer[tp_cnt].map.mm_count[1] = temp;
     
     // Read Line Card (ex. 7548) from EEPROM one byte each time and store in stack_buffer
     //  Max 6 bytes (account no + #)
-	addr = LINE_CARD_ADDR;	
-	do {
-		temp = read_ee(EE_PAGE0, addr);
-		
-		if( temp!='#'&& temp!=0x0c)
-			stack_buffer[tp_cnt][cnt++] = temp;
-		else 
-			temp='#';
-	} while( (++addr < 0xD5) && (temp != '#') );
+//	addr = LINE_CARD_ADDR;	
+//	do {
+//		temp = read_ee(EE_PAGE0, addr);
+//		
+//		if( temp!='#'&& temp!=0x0c)
+//			stack_buffer[tp_cnt][cnt++] = temp;
+//		else 
+//			temp='#';
+//	} while( (++addr < 0xD5) && (temp != '#') );
+    
+    // TODO: use 4 as the line card length. Need figure out if range 4-8
+    strncpy((char *)stack_buffer[tp_cnt].map.line_card, (const char *)page0_eeprom.map.LINE_CARD, 4);
 	
-	stack_buffer[tp_cnt][cnt++] = ',';
+	stack_buffer[tp_cnt].map.comma = ',';
     
     // Read Unit Account (ex. 4007) from EEPROM one byte each time and store in stack_buffer
     //  Max 5 bytes (line card + #)
-	addr = UNIT_ACCT_ADDR;
-	do { 	
-		temp = read_ee(EE_PAGE0, addr);		
-		if( temp!='#' )
-			stack_buffer[tp_cnt][cnt++] = temp;
-	} while ( (++addr < 0xD0) && (temp != '#') );
+//	addr = UNIT_ACCT_ADDR;
+//	do { 	
+//		temp = read_ee(EE_PAGE0, addr);		
+//		if( temp!='#' )
+//			stack_buffer[tp_cnt][cnt++] = temp;
+//	} while ( (++addr < 0xD0) && (temp != '#') );
+    
+    // TODO: use 4 as the unit account length. Need figure out if range 4-8
+    strncpy((char *)stack_buffer[tp_cnt].map.unit_account, (const char *)page0_eeprom.map.UNIT_ACCNT, 4);
     
     CLRWDT();
 	return(cnt);
@@ -118,106 +112,99 @@ void move_stack_buffer(void)
 {
 	uint8_t cnt,temp,cnt2;
     
-    for( cnt = 0;cnt<(BUFFER_STACK-1);cnt++ )
+    // TODO: What's this for??? - temporary use union data to swap.
+    //      Swap stack_buffer[0] - [1]/ [2] - [3]/ 3-4/ 5-6???
+    for( cnt = 0; cnt < (BUFFER_STACK-1); cnt++ )
     {
         cnt2 = 0;
-        do{
-            temp = stack_buffer[cnt+1][cnt2];
-            stack_buffer[cnt+1][cnt2] = 0;
-            stack_buffer[cnt][cnt2] = temp;
-        }while(++cnt2<LOG_MAX_T);
+        
+        while (++cnt2 < LOG_MAX_T)
+        {
+            temp = stack_buffer[cnt+1].data[cnt2];
+            stack_buffer[cnt+1].data[cnt2] = 0;
+            stack_buffer[cnt].data[cnt2] = temp;
+        }
+        
         CLRWDT();
     }                
-    
-/*	for( cnt=0;cnt<LOG_MAX_T;cnt++ )
-	{
-		stack_buffer[0][cnt] = 0;
-  	}
-
-    
-  	if( stack_buffer[1][0] !=0 )
-	{
-		for( cnt=0;cnt<LOG_MAX_T;cnt++ )
-		{
-			temp = stack_buffer[1][cnt];
-			stack_buffer[0][cnt] = temp;
-	  	}
-	}else 
-	{
-		//connection_close();
-		//internet_close();
-		return;
-	}
-	for( cnt=0;cnt<LOG_MAX_T;cnt++ )
-	{
-		stack_buffer[1][cnt] = 0;
-  	}*/
 }
 
 //------------------------------//
 void load_emc_number(void)
 {
-	uint8_t temp,cnt1,cnt2,temp1,random,swap,type,page;
+	uint8_t temp,stack_buf_index,resp_buf_index,temp1,random,swap;
 	uint8_t check_sum;
     
-    // TODO: What's this for???
-	//-----mov stack_buffer_data[20~159] to rsp_buffer
-	cnt1 = 20;
-	cnt2 = 0;
-	/*------------random number---------------*/
+	// Encrypt or copy stack_buffer_data[20~159] to rsp_buffer. stack_buffer_data[0-20] NOT USE.
+	stack_buf_index = 20;
+	resp_buf_index = 0;
+	
+    ////////////// random number //////////////
 	if ( page0_eeprom.map.ENCRYPTION == 1 )
 	{
-		random = (uint8_t) ((rand()>>8)^rand()^random_rx);
-		rsp_buffer[cnt2++] = random;
+		random = (uint8_t) ((rand() >> 8) ^ rand() ^ random_rx);
+        // TODO: The first byte is random from here. In this case is 0. How can server know???
+		rsp_buffer[resp_buf_index++] = random;
 		check_sum = random;
 		random = (uint8_t)(((random>>4)+(random&0x0f)))%16;
 	}
-	/*------------encryption ---------------*/
-	do{
-		temp = stack_buffer[0][cnt1++];
+
+    ////////////// encryption //////////////
+    // Encrypt [20] to end of array (CR).
+	while (resp_buf_index < (LOG_MAX_T-20))
+    {
+		temp = stack_buffer[0].data[stack_buf_index++];
 		if( page0_eeprom.map.ENCRYPTION == 1 )
 		{
-			if( temp==0x0d )
+			if(temp == CR)
 				break;
+            
 			/*------------encryption ---------------*/
-			temp1 = encryption_code[random];		
-			temp ^= temp1;					//xor
-			swap = (uint8_t) (temp<<4);					//4bit swap
-			temp >>=4;
-			temp += swap;	
-			swap = (uint8_t) (temp >>6);				//left shift 2 bit
-			temp <<= 2;
-			temp += swap;
-			temp ^= temp1;					//xor
-			rsp_buffer[cnt2++] = temp;
-			if( ++random>=16 )
+            encrypt_byte(&temp, &random);
+                        
+			rsp_buffer[resp_buf_index++] = temp;
+			if( ++random >= 16 )
 				random = 0;
 			/*-------------encryption --------------*/
 			check_sum ^= temp;
-	  	}else
+	  	}
+        else
 		{
-			rsp_buffer[cnt2++] = temp;
-			if( temp==0x0d )
+            // Just copy, no encryption
+			rsp_buffer[resp_buf_index++] = temp;
+			if( temp == CR )
 				break;
 		}
-	}while(cnt2< (LOG_MAX_T-20));
-    CLRWDT();
-	if( page0_eeprom.map.ENCRYPTION == 1 )
-	{		
-		rsp_buffer[cnt2++] = check_sum;
 	}
-	enc_cnt = cnt2;
+    
+    CLRWDT();
+    // Check sum at the end for encrypt data.
+	if( page0_eeprom.map.ENCRYPTION == 1 )		
+		rsp_buffer[resp_buf_index++] = check_sum;
+	
+    // This is the length of resp_buffer
+	enc_cnt = resp_buf_index;
+}
+
+void encrypt_byte(uint8_t *temp, uint8_t *random)
+{
+    uint8_t temp1,swap;
+        
+    temp1 = encryption_code[*random];		
+    *temp ^= temp1;					//xor
+    swap = (uint8_t) (*temp<<4);					//4bit swap
+    *temp >>= 4;
+    *temp += swap;	
+    swap = (uint8_t) (*temp >>6);				//left shift 2 bit
+    *temp <<= 2;
+    *temp += swap;
+    *temp ^= temp1;					//xor
 }
 
 bool alarm_out(uint8_t type, uint8_t zone_ext)
 {
 	uint8_t tp_cnt,mm_cnt,cnt,temp;
     uint8_t *sp;
-    
-#ifdef DEBUG    
-    uint16_t zone;
-    zone =  ADC_data;
-#endif
 
     if (type > NUM_OF_STR)
         return 0;
@@ -227,33 +214,28 @@ bool alarm_out(uint8_t type, uint8_t zone_ext)
     // Looking for the buffer first char is 'P'???
     for( cnt=0;cnt<BUFFER_STACK;cnt++ )
     {
-        if( stack_buffer[cnt][0]=='P')
+        if( stack_buffer[cnt].map.state == 'P')
             break;
     }
-    if( cnt!=BUFFER_STACK )
-    {      
-        for( tp_cnt=20;tp_cnt<LOG_MAX_T;tp_cnt++)
+    
+    if( cnt != BUFFER_STACK )
+    {    
+        // TODO: What's this for??? 20-220???
+        for( tp_cnt=20; tp_cnt<LOG_MAX_T; tp_cnt++)
         {
-            if( stack_buffer[cnt][tp_cnt]==0x0d )
+            if( stack_buffer[cnt].data[tp_cnt]==0x0d )
             {
                 if( tp_cnt<160 )
                 {
                     mm_cnt = 2;
                     do{
                         temp = sp[mm_cnt++];
-                        stack_buffer[cnt][tp_cnt++] = temp;
+                        stack_buffer[cnt].data[tp_cnt++] = temp;
                     }while(temp!='$');
-                    #ifndef DEBUG
-                    stack_buffer[cnt][tp_cnt-1] = read_ee(EE_PAGE0, 0xB9);        
-                    stack_buffer[cnt][tp_cnt++] = (uint8_t) ((zone_ext/10)+0x30);
-                    stack_buffer[cnt][tp_cnt++] = (uint8_t) ((zone_ext%10)+0x30);
-                    #else
-                    stack_buffer[cnt][tp_cnt-1] = (zone/100)+0x30;
-                    zone %= 100;        
-                    stack_buffer[cnt][tp_cnt++] = (zone/10)+0x30;
-                    stack_buffer[cnt][tp_cnt++] = (zone%10)+0x30;
-                    #endif
-                    stack_buffer[cnt][tp_cnt++] = 0x0d;
+                    stack_buffer[cnt].data[tp_cnt-1] = read_ee(EE_PAGE0, 0xB9);        
+                    stack_buffer[cnt].data[tp_cnt++] = (uint8_t) ((zone_ext/10)+0x30);
+                    stack_buffer[cnt].data[tp_cnt++] = (uint8_t) ((zone_ext%10)+0x30);
+                    stack_buffer[cnt].data[tp_cnt++] = CR;
                     return(1);
                 }
             }
@@ -264,15 +246,15 @@ bool alarm_out(uint8_t type, uint8_t zone_ext)
     mm_cnt = read_ee(EE_PAGE0, MM_COUNT_ADDR);
     tp_cnt = save_stack_header();
     
-    if( type==TEST_PIN_T||type==TEST_CYCLE_S   )
+    if( type==TEST_PIN_T || type==TEST_CYCLE_S   )
     {
-        stack_buffer[tp_cnt][0] = 'T';
-        stack_buffer[tp_cnt][5] = 1;
-        stack_buffer[tp_cnt][6] = 1;
+        stack_buffer[tp_cnt].map.state = 'T';
+        stack_buffer[tp_cnt].map.reboot_time[0] = 1;
+        stack_buffer[tp_cnt].map.reboot_time[1] = 1;
     }
     if( tp_cnt < BUFFER_STACK )
     {
-        stack_buffer[tp_cnt][1] = 1; //usb line1~4
+        stack_buffer[tp_cnt].map.dial_type = 1; //usb line1~4
         //MML,ACCT18,E60200002
         cnt = 20;
         cnt = stack_data_header(tp_cnt, mm_cnt, cnt);
@@ -284,26 +266,23 @@ bool alarm_out(uint8_t type, uint8_t zone_ext)
 		//                             P                                                       (7548)                  (4007)
         // Added alarm_string to stack_buffer - Ex. "18,115400$"
         //  stack_buffer[31]~[40] = "18,115400$"
-        do{
-            temp = sp[mm_cnt++];
-            stack_buffer[tp_cnt][cnt++] = temp;
-        }while(temp!='$');
-#ifndef DEBUG
+//        do{
+//            temp = sp[mm_cnt++];
+//            stack_buffer[tp_cnt][cnt++] = temp;
+//        }while(temp!='$');
+
+        strncpy((char *)stack_buffer[tp_cnt].map.alarm_string, (const char *)sp, MAX_STR_SIZE-1);
+        
         // stack_buffer[0][40] = ZONE1 from EEPROM
         // stack_buffer[0][41] = zone
         // stack_buffer[0][42] = zone
         // stack_buffer[0][43] = CR
-        stack_buffer[tp_cnt][cnt-1] = page0_eeprom.map.ZONE1;
-        stack_buffer[tp_cnt][cnt++] = (zone_ext/10)+0x30;
-        stack_buffer[tp_cnt][cnt++] = (zone_ext%10)+0x30;
-#else
-        stack_buffer[tp_cnt][cnt-1] = (zone/100)+0x30;
-        zone %= 100;        
-        stack_buffer[tp_cnt][cnt++] = (zone/10)+0x30;
-        stack_buffer[tp_cnt][cnt++] = (zone%10)+0x30;
-#endif
+        stack_buffer[tp_cnt].map.zone_1 = page0_eeprom.map.ZONE1;
+        stack_buffer[tp_cnt].map.zone[0]= (zone_ext/10)+0x30;
+        stack_buffer[tp_cnt].map.zone[1] = (zone_ext%10)+0x30;
+
         // Carriage return
-        stack_buffer[tp_cnt][cnt++] = CR; 
+        stack_buffer[tp_cnt].map.cr = CR; 
     }
     else 
         return(0);   
@@ -315,8 +294,6 @@ uint8_t chk_data_type(uint8_t *buffer,uint8_t buffer_p)
 {
 	uint8_t cnt,temp1,temp2,random,swap;
 	uint8_t i_cnt;
-    //uint8_t tp_buffer[250];
-    //uint8_t tp_cnt;
     
     buffer_p -= 2;    
 
@@ -362,69 +339,32 @@ uint8_t chk_data_type(uint8_t *buffer,uint8_t buffer_p)
         if( buffer[buffer_p-1]==0x0d )
             buffer[buffer_p-1] = 0xcc;
         else buffer[buffer_p++] = 0xcc;                    
-    }
-
-                //------------------------
-#ifdef DEBUG
-    uint8_t const ascii[]="0123456789ABCDEF";
-    delay5ms(200);
-    delay5ms(200);
-        delay5ms(200);
-        soutdata((uinit8_t *) "AT+Q=$");
-        cnt = 0;
-        do{
-            temp1 = buffer[cnt];            
-            out_sbuf(ascii[temp1>>4]);
-            out_sbuf(ascii[temp1&0x0f]);
-        }while(++cnt<buffer_p);
-        out_sbuf(0x0d);
-        out_sbuf(0x0a);
-        delay5ms(200);
-#endif            
+    }         
 	if( buffer[2]==' '&&buffer[3]=='N'&&buffer[4]=='A'&&buffer[5]=='C')//&&buffer[6]=='K' )
 	{
-		if( (buffer[0]==stack_buffer[0][20])&&(buffer[1]==stack_buffer[0][21]) )
+		if( (buffer[0] == stack_buffer[0].map.mm_count[0]) && (buffer[1]==stack_buffer[0].map.mm_count[1]) )
 		{
-			stack_buffer[0][4] = 1;
-			temp1 = (uint8_t) (stack_buffer[0][2] & 0xf0);
-			stack_buffer[0][2] = temp1;
+			stack_buffer[0].map.ack_count = 1;
+			temp1 = (uint8_t) (stack_buffer[0].map.retry_count & 0xf0);
+			stack_buffer[0].map.retry_count = temp1;
 			return('N');
 	   	}
 	}else
 	{	
-        #ifdef DEBUG
-        soutdata((uinit8_t *) "AT+C=$");
-        #endif
+        // TODO: WHAT'S THIS FOR???
 		cnt = 0;
 		do{
-			temp1 = stack_buffer[0][cnt+20U];
+            // TODO: temporary use .data.
+			temp1 = stack_buffer[0].data[cnt+20];
 			temp2 = buffer[cnt];	
-            #ifdef DEBUG
-            out_sbuf(ascii[temp1>>4]);
-            out_sbuf(ascii[temp1&0x0f]);			
-            out_sbuf(ascii[temp2>>4]);
-            out_sbuf(ascii[temp2&0x0f]);
-            out_sbuf('-');
-            #endif
+
 			if( temp1!=temp2 )
 			{
 				if( temp1==0x0d&&temp2==0xcc )
 				{			
 					move_stack_buffer();
-                    #ifdef DEBUG
-                    out_sbuf('K');
-                    out_sbuf(0x0d);
-                    out_sbuf(0x0a);
-                    delay5ms(200);
-                    #endif
 					return('K');
 				}
-                #ifdef DEBUG
-                out_sbuf('E');
-                out_sbuf(0x0d);
-                out_sbuf(0x0a);
-                delay5ms(200);
-                #endif
 				return('E');
 			}
 		}while(++cnt<=buffer_p);
@@ -440,38 +380,22 @@ uint8_t check_emc_stack(void)
 #ifdef DEBUG
     uint8_t const ascii[]="0123456789ABCDEF";
 #endif
-    //encryption = read_ee(EE_PAGE0, ENCRYPTION_ADDR);
     
 send_start:
     //lock_buffer = 0;
-    temp = stack_buffer[0][0];
-    if( temp=='P'||temp=='S'||temp=='T' )     //connect to server
+    temp = stack_buffer[0].map.state;
+    if( temp == 'P' || temp == 'S' || temp== 'T' )     //connect to server
     {
       //  encryption = 0;
         GIE = 0;
         if( temp=='P' )
-            stack_buffer[0][0] = 'S';
+            stack_buffer[0].map.state = 'S';
         GIE = 1;
+        
+        // Encrypt or just copy to resp_buffer[].
         load_emc_number();				
-       // stack_buffer[0][0] = 'S';
-        //------------------------
-#ifdef DEBUG
-        delay5ms(200);
-        soutdata((uinit8_t *) "AT+Q=$");
-        out_sbuf(ascii[enc_cnt>>4]);
-        out_sbuf(ascii[enc_cnt&0x0f]);
-        out_sbuf('-');
-        cnt = 0;
-        do{
-            temp = rsp_buffer[cnt];            
-            out_sbuf(ascii[temp>>4]);
-            out_sbuf(ascii[temp&0x0f]);
-        }while(++cnt<enc_cnt);
-        out_sbuf(0x0d);
-        out_sbuf(0x0a);
-        delay5ms(200);
-#endif
-        //------------------------------------
+
+
         //TMR0IE = 0;
         delay5ms(200);
 
@@ -479,10 +403,10 @@ send_start:
         
         cnt = 1;
         do{
-            if(  stack_buffer[0][0]=='T' )
+            if(stack_buffer[0].map.state=='T')
                 loop = 1;
             else
-                loop = read_ee(EE_PAGE0, CYCLE_ADDR);
+                loop = page0_eeprom.map.CYCLE;
             do{
                 CREN1 = 0;
                 rsp = TL_connection_open(cnt);
@@ -491,35 +415,11 @@ send_start:
                     rsp = TL_send_data_to_server();     
                     if( rsp=='K' )     
                     {
-                        count = read_ee(EE_PAGE0,0xC9);
+                        count = page0_eeprom.map.SERVER_ACK_TIME;
                         do{                            
                             delayseconds(5);
                             rsp = TL_receive_data_from_server();         
                             delayseconds(2);
-                            //------------------------
-                            #ifdef DEBUG
-                            soutdata((uinit8_t *) "AT+U=$");
-                            out_sbuf(ascii[debug_p>>4]);
-                            out_sbuf(ascii[debug_p&0x0f]);
-                            out_sbuf('-');
-                            cnt = 0;
-                            do{
-                                temp = debug_buffer[cnt];
-                          /*      if( temp!=0x0d&&temp!=0x0a )
-                                {
-                                    out_sbuf(temp);
-                                }else
-                                {                                    
-                                    if( temp==0x0d )
-                                        out_sbuf('r');
-                                    else out_sbuf('n');
-                                }*/                                   
-                                    out_sbuf(ascii[temp>>4]);
-                                    out_sbuf(ascii[temp&0x0f]);
-                            }while(++cnt<debug_p);
-                            out_sbuf(0x0d);
-                            out_sbuf(0x0a);
-                            #endif
                         }while(--count!=0&&rsp=='E');
                     }
                 }else 
@@ -529,26 +429,27 @@ send_start:
                 delay5ms(100);
                 TL_connection_close();
                 delay5ms(200);
-                if( stack_buffer[0][0]=='T'&&cnt==2 )
+                if( stack_buffer[0].map.state == 'T' && cnt==2 )
                     break;
             }while(--loop!=0&&rsp!='K'); 
         }while(++cnt<5&&rsp!='K');  
+        
         TL_internet_close();
         if( rsp=='K' )		
         {
             //move_stack_buffer();
             delay5ms(200);
-            #ifdef DEBUG
-            soutdata((uinit8_t *) "AT+OK=1\r\n$");
-            delay5ms(200);
-            #endif
+
             retry_count = 0;
             goto send_start;            
-        }else retry_count = read_ee(EE_PAGE0,0xBD)*600U;
-        stack_buffer[0][5]--;
-        if( stack_buffer[0][5]==0 )
+        }
+        else 
+            retry_count = read_ee(EE_PAGE0,0xBD)*600;
+        
+        stack_buffer[0].map.reboot_time[0]--;
+        if( stack_buffer[0].map.reboot_time[0]==0 )
         {
-            stack_buffer[0][5] = stack_buffer[0][6];
+            stack_buffer[0].map.reboot_time[0] = stack_buffer[0].map.reboot_time[1];
             return('E');
         }
         else return('U');
@@ -593,5 +494,5 @@ void deque_event(void)
 
 bool is_event_que_empty(void)
 {
-    return (event_que.front != event_que.rear) ? true : false;        
+    return (event_que.front == event_que.rear) ? true : false;        
 }
