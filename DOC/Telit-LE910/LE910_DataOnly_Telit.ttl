@@ -1,0 +1,202 @@
+; Tera Term Macro: Basic AT amd Data Connect
+
+
+; 0 - Erase the screen
+clearscreen 0
+
+;
+; 
+;
+sendln 'AT+IPR=115200'
+wait 'OK'
+
+sendln 'AT+CMEE=2'
+wait 'OK'
+
+sendln 'AT#CCID'
+wait 'OK'
+
+sendln 'AT+CSQ'
+wait 'OK'
+
+sendln 'AT#MONI'
+wait 'OK'
+
+sendln 'AT+COPS?'
+wait 'OK'
+
+sendln 'AT+CGREG?'
+wait 'OK'
+
+sendln 'AT+CEREG?'
+wait 'OK'
+
+sendln 'AT+CGSN'
+wait 'OK
+
+sendln 'AT+CSQ'
+wait 'OK'
+
+sendln 'AT+CNUM'
+;wait 'OK'
+pause 1
+
+sendln 'AT+CGMR'
+wait 'OK'
+
+sendln 'AT+CIMI'
+wait 'OK'
+
+sendln 'AT+CREG?'
+wait 'OK'
+
+sendln  'AT+CGDCONT=1,"IP","11583.mcs","0.0.0.0",0,0'
+;wait 'OK'
+
+;sendln  'AT+CGDCONT=3,"IP","11583.mcs","0.0.0.0",0,0'
+wait 'OK'
+
+sendln 'AT+CGDCONT?'
+wait 'OK'
+
+sendln 'AT#SGACT=1,1'
+;wait 'OK'
+pause 1
+
+
+
+
+
+;=================================================
+
+;sendln 'AT+CMGL="ALL"'
+;wait 'OK'
+
+;sendln 'AT+QBAND?'
+;wait 'OK'
+
+;sendln 'AT+QSPN?'
+;wait 'OK'
+
+;sendln 'AT+QCCID'
+;wait 'OK'
+
+;sendln 'AT+CRSM'
+;wait 'OK'
+
+;sendln 'AT+CSIM'
+;wait 'OK'
+
+
+
+; Send SMS still not working. Need do it manually.
+;sendln 'AT+CMGF=1'
+;wait 'OK'
+
+;sendln 'AT+CMGS="+15039709528" 129 3 "THIS IS A TEST" 26'
+;wait 'OK'
+
+
+
+
+;=======================================================
+
+; 1 - Turn on Echo
+sendln  'ATE1'
+wait 'OK'
+pause 1
+
+; 2 - Turn on verbose error messages
+sendln  'AT+CMEE=2'
+wait 'OK'
+pause 1
+
+; 3 - Set APN
+;sendln  'AT+CGDCONT=3,"IP","c2.korem2m.com","0.0.0.0",0,0'
+sendln  'AT+CGDCONT=1,"IP","11583.mcs","0.0.0.0",0,0'
+wait 'OK'
+sendln  'AT+CGDCONT?'
+wait 'OK'
+pause 1
+
+; 4 - Check software version
+sendln  'AT+CGMR'
+wait 'OK'
+pause 1
+
+; 5 - Check MEID/IMEI
+sendln  'AT+CGSN'
+wait 'OK'
+pause 1
+
+; 6 - Configure socket #1 to Data Amount mode
+sendln  'AT#SCFGEXT=1,1,0,0,0,0'
+wait 'OK'
+pause 1
+
+; 7 - Configure socket #2 to Data View mode
+sendln  'AT#SCFGEXT=2,2,0,0,0,0'
+wait 'OK'
+pause 1
+
+; 8 - Query extended socket settings
+sendln 'AT#SCFGEXT?'
+wait 'OK'
+pause 2
+
+; 9 - Activate PDP
+sendln  'AT#SGACT=3,1'
+wait 'OK'
+pause 1
+
+; 10 - Open TCP connection on Socket 1 to Echo Server
+sendln  'AT#SD=1,0,10510,"modules.telit.com",0,0,1'
+;sendln  'AT#SD=1,0,10510,"c2.korem2m.com",0,0,1'
+wait 'OK'
+
+; 11 - Send Data on Socket 1
+sendln 'AT#SSEND=1'
+wait '>'
+sendln  'Echo Server TCP connection on Socket #1. Receive with #SRECV command.'
+pause 1
+send #26
+wait 'OK'
+pause 6
+
+; 12 - Read data
+sendln 'AT#SRECV=1,89'
+wait 'OK'
+pause 3
+
+; 13 - Open connection to echo server
+sendln  'AT#SD=2,0,10510,"modules.telit.com",0,0,1'
+;sendln  'AT#SD=2,0,10510,"c2.korem2m.com",0,0,1'
+wait 'OK'
+
+; 14 - Send data
+sendln 'AT#SSEND=2'
+wait '>'
+sendln  'Echo Server TCP connection on Socket #2. Your module will automatically receive and display this message.
+pause 1
+send #26
+wait 'OK'
+pause 6
+
+; 15 - Socket status
+sendln 'AT#SS'
+wait 'OK'
+pause 3
+
+; 16 -Close socket #1
+sendln  'AT#SH=1'
+wait 'OK'
+pause 1
+
+; 17 - Close socket #2
+sendln  'AT#SH=2'
+wait 'OK'
+pause 1
+
+; 18 - Deactivate PDP
+sendln  'AT#SGACT=3,0'
+wait 'OK'
