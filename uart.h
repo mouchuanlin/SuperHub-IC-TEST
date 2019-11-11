@@ -42,8 +42,6 @@ bool    is_valid_rf_data(void);
 // 7 bytes RF data in HEX - $ + 3byte ID + 1byte status + <CR> + <LF>
 //#define MAX_RX2_BUF_SIZE    20
 #define MAX_RX2_BUF_SIZE    7
-uint8_t 	rx2_cnt = 0;
-//uint8_t 	rx2_buf[MAX_RX2_BUF_SIZE];
 
 typedef struct rf_data {
     uint8_t dollar;
@@ -54,6 +52,7 @@ typedef struct rf_data {
 } rf_data_t;
 
 union rx2 {
+    uint8_t 	count;    
     uint8_t     data[MAX_RX2_BUF_SIZE];
     rf_data_t   map;
 } rx2_buf;
