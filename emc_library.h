@@ -31,7 +31,7 @@ void    encrypt_byte(uint8_t *temp, uint8_t *random);
  ****************************************************/ 
 
 #define NUM_OF_STR      25
-#define MAX_STR_SIZE    12
+#define MAX_STR_SIZE    10
 uint8_t alarm_string[NUM_OF_STR][MAX_STR_SIZE] = {
     "18,111100$",       //002$";
     "18,E60200$",       //035$";
@@ -50,7 +50,7 @@ uint8_t alarm_string[NUM_OF_STR][MAX_STR_SIZE] = {
     "18,E38100$",       //002$";
     "18,116200$",       //002$";
     "18,113200$",       //002$";
-    "18,1134700$",      //002$";    // TODO: WHY THIS IS DIFFERENT???
+    "18,113400$",      //002$";    // TODO: WHY THIS IS DIFFERENT???
     "18,110100$",       //002$";
     "18,116100$",       //002$";
     "18,115200$",       //002$";
