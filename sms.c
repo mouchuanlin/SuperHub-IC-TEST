@@ -502,7 +502,7 @@ uint8_t remote_setting(void)
 			if( respond=='K' )
 			{
 				// all setting 
-				respond = function_code();
+				respond = sms_setup_functions();
 			}
 		}while( (x_cnt<sms_p)&&respond=='K' );
 		

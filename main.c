@@ -1,5 +1,5 @@
 //
-// main.c
+// file:    main.c
 //
 
 // Configuration, global variable and forward declaration.
@@ -14,6 +14,7 @@
 #include "uart.h"
 #include "state.h"
 #include "led.h"
+#include "eeprom_setup.h"
 
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -43,9 +44,21 @@ int main(int argc, char** argv)
     
     // TODO: FOR DEBUGGING ONLY
     ////////////////////////////////
-    RF_input_test();
+    //RF_input_test();
     //process_event_queue();
-    ////////////////////////////////    
+    //////////////////////////////// 
+    
+    // TODO: SMS setup TEST ONLY
+    //uint8_t *test_str = "01#198.17.112.128#"
+    //char test_str[] = "36#12.12.201.84#";
+    char test_str[] = "41#627275#";
+   
+    key_p = 10;
+    strncpy((char *)key, (const char *)test_str, (size_t)strlen(test_str));
+    sms_setup_functions();    
+    //////////////////////////////// 
+    
+    
     
     // Turn off modem/UART before going to infinite loop.
     prepare_to_sleep();

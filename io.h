@@ -13,6 +13,7 @@ extern "C" {
  * INCLUDES
  ****************************************************/       
 #include "inc.h"   
+#include <stdint.h>
     
 /*****************************************************
  * FUNCTION PROTOTYPES
@@ -275,6 +276,17 @@ uint8_t signal_val;
 
 // Pointer and array to store SMS message
 uint8_t key_p, key[100];
+
+typedef struct sms_key {
+    uint8_t pound_id;
+    uint8_t len;
+    uint8_t ip[16];
+} sms_key_t;
+
+union sms_msg{
+    uint8_t data[100];
+    sms_key_t sms;
+};
 
 uint8_t back_door;
 uint8_t respond_day = 0;

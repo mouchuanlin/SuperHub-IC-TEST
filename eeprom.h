@@ -50,7 +50,7 @@ void 	init_pic18_eeprom(void);
 #define EE_PAGE0                            0x00
 #define EE_PAGE1                            0x01
        
-// Page 0 EEPROM Map
+///// Page 0 EEPROM Map
 #define VER_ADDR0                           0x00
 #define VER_ADDR1                           0x01
 #define VER_ADDR2                           0x02   
@@ -82,42 +82,49 @@ void 	init_pic18_eeprom(void);
 
 #define UNIT_ACCT_ADDR                      0xD0    // 10#
 #define LINE_CARD_ADDR                      0xD8    // 11#
+
 #define ENCRYPTION_ADDR                     0xE0    // 95#
 
-// Page 1 EEPROM Map
+///// Page 1 EEPROM Map
 #define IP_OTA_ADDR                         0xD0    // 36#
 #define PORT_OTA_ADDR                       0xF0    // 37#
+
     
 // EEPROM default value define
-//uint8_t const APN[]="c2.korem2m.com#";                //35# Kore
 uint8_t const   FIRST_RUN       = 0x57;
-uint8_t const 	APN[]   		= "11583.mcs#";			//35# Telit
 uint8_t const 	IP1[]   		= "198.17.112.128#";    //01#
 uint8_t const 	IP2[]   		= "#";                  //02#
 uint8_t const 	IP3[]   		= "#";                  //03#
 uint8_t const 	IP4[]   		= "#";                  //04#
-// OTA Server in John's home office
-//uint8_t const IP_OTA[]		="72.197.171.234#"; 	//36#
-// OTA Server in Instant Care office
-uint8_t const 	IP_OTA[]    	= "12.12.201.84#";		//36#
-uint16_t const 	PORT1       	= 2020;					//31#   
-uint16_t const 	PORT2       	= 2020;					//32#   
-uint16_t const 	PORT3           = 2020;               	//33#   
-uint16_t const 	PORT4           = 2020;               	//34#   
-uint16_t const 	PORT_OTA        = 2021;            		//37#   
 uint8_t const 	ACCESS_CODE[]   = "1111#";      		//05#
+
 uint8_t const 	PROGRAM_ACK     = 0x01;           		//06#
 uint8_t const 	TEST_FREQ       = 15;               	//07#
 uint8_t const 	SERVER_ACK_TIME = 45;         			//08#
+uint8_t const 	SMS_WAIT_TIME   = 10;         			//09#
+//uint8_t const SMS_WAIT_TIME   = 3;          			//09#
 uint8_t const 	UNIT_ACCNT[]    = "4007#";       		//10#
+
 uint8_t const 	LINE_CARD[]     = "7548#";        		//11#
 uint8_t const 	ZONE1           = '0';                  //12#
 //   uint8_t const ZONE2=20;                			//13#
 uint8_t const 	TP_PIN          = 0;                   	//14#
 uint8_t const 	CYCLE           = 3;                  	//15#
+
 uint8_t const 	RETRY           = 30;                 	//16#
-uint8_t const 	SMS_WAIT_TIME   = 10;         			//09#
-//uint8_t const SMS_WAIT_TIME   = 3;          			//09#
+
+uint16_t const 	PORT1       	= 2020;					//31#   
+uint16_t const 	PORT2       	= 2020;					//32#   
+uint16_t const 	PORT3           = 2020;               	//33#   
+uint16_t const 	PORT4           = 2020;               	//34#   
+uint8_t const 	APN[]   		= "11583.mcs#";			//35# Telit
+//uint8_t const APN[]="c2.korem2m.com#";                //35# Kore
+// OTA Server in John's home office
+//uint8_t const IP_OTA[]		="72.197.171.234#"; 	//36#
+// OTA Server in Instant Care office
+uint8_t const 	IP_OTA[]    	= "12.12.201.84#";		//36#
+uint16_t const 	PORT_OTA        = 2021;            		//37#   
+
 uint8_t const 	ENCRYPTION      = 1;             		//95# 
 uint8_t const 	MM_COUNT        = 0;        
 

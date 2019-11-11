@@ -65,7 +65,7 @@ uint8_t stack_data_header(uint8_t tp_cnt,uint8_t mm_cnt, uint8_t cnt)
     //  Ex: stack_buffer[0][] = 0x50 0x01 0xF2 0xFF 0xFF 0x03 0x03 0x00 .... 0x30 0x30 0x037 0x35 0x34 0x38 0x2C 0x34 0x30 0x30 0x37
     //                             P                                                       (7548)                  (4007)
 	uint8_t 		addr, temp;
-	const uint8_t 	hex[17]="0123456789ABCDEF";
+	const uint8_t 	hex[16]="0123456789ABCDEF";
     
 	//temp = (mm_cnt/10)+0x30;			//MM
 	temp = hex[(uint8_t)(mm_cnt>>4)];
