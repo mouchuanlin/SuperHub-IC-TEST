@@ -128,11 +128,11 @@ void UART2_ISR(void)
         temp = RC2REG;
 
         // Store data in rx2_buf
-        rx2_buf.data[rx2_buf.count] = temp;
+        rx2_buf.data[rx2_cnt] = temp;
 
         // If exceed MAX size, save to the last spot.
-        if( ++rx2_buf.count >= MAX_RX2_BUF_SIZE )
-            rx2_buf.count = MAX_RX2_BUF_SIZE - 1;
+        if( rx2_cnt++ >= MAX_RX2_BUF_SIZE )
+            rx2_cnt = MAX_RX2_BUF_SIZE - 1;
 
         // 7 bytes RF data in HEX - $ + 3byte ID + 1byte status + <CR> + <LF>
         // TODO: This might be able to call process_RF_data() in infinite loop instead of processing in ISR.
@@ -188,7 +188,7 @@ void process_RF_data(void)
 		// Send response to RF receiver. Same data as we received.
         ACK_to_RF_receiver();
 	}
-	rx2_buf.count = 0;
+	rx2_cnt = 0;
 	CREN2 = 0;
 	NOP();
 	CREN2 = 1;   

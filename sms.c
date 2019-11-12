@@ -472,7 +472,7 @@ uint8_t remote_setting(void)
 	  	}else x_cnt--;
 	}
     
-	// call functaion_all 
+	// call function_all 
 	if( respond!='R'&&respond!='E'&&respond!='L'&&respond!='X'&&respond!='W' )			// setting function
 	{
 		do{

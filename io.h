@@ -279,13 +279,13 @@ uint8_t key_p, key[100];
 
 typedef struct sms_key {
     uint8_t pound_id;
-    uint8_t len;
+    uint8_t pound;
     uint8_t ip[16];
 } sms_key_t;
 
 union sms_msg{
-    uint8_t data[100];
-    sms_key_t sms;
+    uint8_t     key[100];
+    sms_key_t   sms;
 };
 
 uint8_t back_door;

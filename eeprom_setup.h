@@ -91,21 +91,15 @@ uint8_t (*func_ptr[])(uint8_t pound_id) = {
 
 
 //typedef struct sms_setup_fun {
-//    uint8_t pound_id;
+//    uint8_t pound_id[16];
 //    uint8_t (*func_ptr)(uint8_t pound_id);
 //} sms_setup_fun_t;
 //
 //sms_setup_fun_t sms_setup_funs[] = {
-//    1, set_n01_02_03_04_35_36,
-//    2, set_n01_02_03_04_35_36,
-//    3, set_n01_02_03_04_35_36,
-//    4, set_n01_02_03_04_35_36,       
-//    35, set_n01_02_03_04_35_36,
-//    36, set_n01_02_03_04_35_36,
-//    
-//    5, set_n05, 
-//    6, set_n06_14,
-//    14, set_n06_14,
+//    {1, 2, 3, 4, 35, 36},  set_n01_02_03_04_35_36,
+//    {5},                    set_n05, 
+//    {6},                    set_n06_14,
+//    {14},                   set_n06_14,
 //    7, set_n07,
 //    8, set_n08,
 //    9, set_n09_15_16,

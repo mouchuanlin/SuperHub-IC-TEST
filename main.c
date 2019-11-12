@@ -462,7 +462,7 @@ void RF_input_test(void)
 void test_flood_sensor_1(void)
 {
     // 7 bytes RF data in HEX - $ + 3byte ID + 1byte status + <CR> + <LF>
-    rx2_buf.count = 7;
+    rx2_cnt = 7;
     rx2_buf.map.dollar = '$';
     rx2_buf.map.rf_id[0] = 0x33;
     rx2_buf.map.rf_id[1] = 0x34;
@@ -477,7 +477,7 @@ void test_flood_sensor_1(void)
 void test_flood_sensor(void)
 {
     // 7 bytes RF data in HEX - $ + 3byte ID + 1byte status + <CR> + <LF>
-    rx2_buf.count = 7;
+    rx2_cnt = 7;
     rx2_buf.map.dollar = '$';
     rx2_buf.map.rf_id[0] = 0x62;
     rx2_buf.map.rf_id[1] = 0x72;
@@ -492,7 +492,7 @@ void test_flood_sensor(void)
 void test_smoke_sensor(void)
 {
     // 7 bytes RF data in HEX - $ + 3byte ID + 1byte status + <CR> + <LF>
-    rx2_buf.count = 7;
+    rx2_cnt = 7;
     rx2_buf.map.dollar = '$';
     rx2_buf.map.rf_id[0] = 0x89;
     rx2_buf.map.rf_id[1] = 0x2C;
