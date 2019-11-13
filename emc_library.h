@@ -32,6 +32,11 @@ void    encrypt_byte(uint8_t *temp, uint8_t *random);
 
 #define NUM_OF_STR      25
 #define MAX_STR_SIZE    10
+//    18 - Is this used to identify  the message as contact ID?
+//    1 - Is this event qualifier?
+//    111 - Is this event code?
+//    00 - What's this?
+
 uint8_t alarm_string[NUM_OF_STR][MAX_STR_SIZE] = {
     "18,111100$",       //002$";
     "18,E60200$",       //035$";

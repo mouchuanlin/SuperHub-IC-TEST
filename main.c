@@ -31,6 +31,12 @@ int main(int argc, char** argv)
     // Programming default configuration in EE.
     //init_eeprom();
     init_pic18_eeprom();
+
+    for (uint16_t i = EE_START_ADDR; i < EE_PAGE_SIZE; i++)
+    {
+        page0_eeprom.data[i] = 0x00;
+        page1_eeprom.data[i] = 0x00;
+    }
     update_page_info();
     
     // TODO: FOR page0_eeprom/page1_eeprom TESTING ONLY    
@@ -51,9 +57,9 @@ int main(int argc, char** argv)
     // TODO: SMS setup TEST ONLY
     //uint8_t *test_str = "01#198.17.112.128#"
     //char test_str[] = "36#12.12.201.84#";
-    char test_str[] = "41#627275#";
-   
-    key_p = 10;
+    //char test_str[] = "41#627275#";
+    char test_str[] = "05#1234#";
+    key_p = strlen(test_str);
     strncpy((char *)key, (const char *)test_str, (size_t)strlen(test_str));
     sms_setup_functions();    
     //////////////////////////////// 
@@ -550,9 +556,3 @@ void test_smoke_sensor(void)
 //    
 //}
 
-void update_page_info(void)
-{
-    // Read back from EEPROM
-    read_eeprom(EE_PAGE0, EE_START_ADDR, page0_eeprom.data, EE_PAGE_SIZE);  
-    read_eeprom(EE_PAGE1, EE_START_ADDR, page1_eeprom.data, EE_PAGE_SIZE);      
-}

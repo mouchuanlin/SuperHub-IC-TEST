@@ -32,7 +32,7 @@ void    test_flood_sensor(void);
 void    test_smoke_sensor(void);
 
 void    eeprom_test_function(void);
-void    update_page_info(void);
+
 
 /*****************************************************
  * VARIABLES

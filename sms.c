@@ -9,7 +9,8 @@
 #include "modem.h"
 #include "timer.h"
 
-uint8_t sms_p,sms_buffer[160]; 
+#define SMS_BUF_LEN     160
+uint8_t sms_p,sms_buffer[SMS_BUF_LEN]; 
 uint8_t time[9];
 uint8_t sms_phone[40];
 uint8_t phone_cnt;
@@ -333,15 +334,14 @@ uint8_t check_remote(void)
 // query and set
 uint8_t remote_setting(void)
 {
-/*	uint8_t code ARMED[]="ARMED$";
-	uint8_t code DISARMED[]="DISARMED$";
-	uint8_t code F_ARMED[]="FAIL TO ARMED$";
-	uint8_t code F_DISARMED[]="FAIL TO DISARMED$";*/
-
 	uint8_t temp,temp1,temp2,respond,cnt;
 	uint8_t addr_tp,off_set,off_tp;
-	uint16_t count,data_int;
 
+
+    
+    for (uint8_t i = 0 ; i < SMS_BUF_LEN; i++)
+        sms_buffer[i] = toupper(sms_buffer[i]);
+    
 	addr_tp = x_cnt; 					// record first address
 
 	//----- function code
@@ -355,10 +355,7 @@ uint8_t remote_setting(void)
 			x_cnt += 2;
 			respond = 'X';
 			// 1111##20sensor# - query sensor info
-			if( (toupper(sms_buffer[x_cnt]) == 'S') && (toupper(sms_buffer[x_cnt+1]) == 'E') && 
-				(toupper(sms_buffer[x_cnt+2]) == 'N') && (toupper(sms_buffer[x_cnt+3]) == 'S') && 
-				(toupper(sms_buffer[x_cnt+4]) == 'O') && (toupper(sms_buffer[x_cnt+5]) == 'R') &&  
-                (sms_buffer[x_cnt+6]=='#')   )  //SENSOR
+			if ( strstr((const char *)sms_buffer[x_cnt], (const char *)"SENSOR#"))
             {
                 off_set = 0;
                 for( temp1=0;temp1<16;temp1++ )
@@ -391,32 +388,15 @@ uint8_t remote_setting(void)
                     rsp_buffer[off_set++] = ',';
                 }     
                 rsp_buffer[off_set-1] = 0x0d;
-            }/*else if(  (sms_buffer[x_cnt]=='S')||(sms_buffer[x_cnt]=='s')&&(sms_buffer[x_cnt+1]=='M')||(sms_buffer[x_cnt+1]=='m')&&(sms_buffer[x_cnt+2]=='O')||(sms_buffer[x_cnt+2]=='o')&&
-                       (sms_buffer[x_cnt+3]=='K')||(sms_buffer[x_cnt+3]=='k')&&(sms_buffer[x_cnt+4]=='E')||(sms_buffer[x_cnt+4]=='e')&&(sms_buffer[x_cnt+5]=='#')   )  //SMOKE
-            {        
-                off_set = 0;
-                for( temp1=16;temp1<28;temp++ )
-                {
-                    for( temp2=0;temp2<6;temp2++)
-                    {
-                        temp = read_ee(1,(temp1*8)+temp2);
-                        if( temp2==0&&temp==0 )
-                            break;
-                        rsp_buffer[off_set++] = temp;
-                    }
-                    rsp_buffer[off_set++] = ',';
-                }     
-                rsp_buffer[off_set-1] = 0x0d;                
-            }*/
+            }
 			// 1111#20#all# - query all setting info
-			//else if( (sms_buffer[x_cnt]=='A')||(sms_buffer[x_cnt]=='a') )
-			else if( toupper(sms_buffer[x_cnt]) == 'A') 
+			else if(sms_buffer[x_cnt] == 'A') 
 			{
 				x_cnt++;
-				if( toupper(sms_buffer[x_cnt]) == 'L' )
+				if( sms_buffer[x_cnt] == 'L' )
 				{
 					x_cnt++;
-					if( (toupper(sms_buffer[x_cnt]) == 'L') && (sms_buffer[x_cnt+1] == '#') )
+					if( (sms_buffer[x_cnt] == 'L') && (sms_buffer[x_cnt+1] == '#') )
 					{
 						rsp_buffer[0]='V';
 						rsp_buffer[1]='.';
@@ -469,7 +449,8 @@ uint8_t remote_setting(void)
 					rsp_buffer[off_set-1]=0x0d;
 				respond = 'X';
 			}
-	  	}else x_cnt--;
+	  	}
+		else x_cnt--;
 	}
     
 	// call function_all 

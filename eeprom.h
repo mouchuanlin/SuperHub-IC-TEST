@@ -37,6 +37,11 @@ uint8_t *read_eeprom(uint8_t page, uint8_t addr, uint8_t *ptr, uint16_t len);
 void    write_eeprom(uint8_t page, uint8_t addr, uint8_t *data_p, uint16_t len);
 void 	set_eeprom_value(uint8_t page, uint8_t addr, uint8_t data, uint16_t len);
 void 	init_pic18_eeprom(void);
+
+void    update_page_info(void);
+void    update_eeprom(void);
+void    update_eeprom_page0(void);
+void    update_eeprom_page1(void);
     
 /*****************************************************
  * VARIABLES
@@ -64,10 +69,10 @@ void 	init_pic18_eeprom(void);
 #define IP3_ADDR                            0x70    // 03# 
 #define IP4_ADDR                            0x90    // 04# 
 
-#define PORT1_ADDR                          0xB0    // 31#
-#define PORT2_ADDR                          0xB2    // 32#
-#define PORT3_ADDR                          0xB4    // 33#
-#define PORT4_ADDR                          0xB6    // 34#
+#define PORT1_ADDR                          0xA8    // 31#
+#define PORT2_ADDR                          0xAC    // 32#
+#define PORT3_ADDR                          0xB0    // 33#
+#define PORT4_ADDR                          0xB4    // 34#
 #define SMS_WAIT_TIME_ADDR                  0xB8    // 09#
 #define ZONE1_ADDR                          0xB9    // 12#
 #define ZONE2_ADDR                          0xBA    // 13#
@@ -89,23 +94,25 @@ void 	init_pic18_eeprom(void);
 #define IP_OTA_ADDR                         0xD0    // 36#
 #define PORT_OTA_ADDR                       0xF0    // 37#
 
+// 16-bit check sum - same offset for both page 0/1.
+#define CHECKSUM_ADDR                       0xFE
     
 // EEPROM default value define
 uint8_t const   FIRST_RUN       = 0x57;
-uint8_t const 	IP1[]   		= "198.17.112.128#";    //01#
-uint8_t const 	IP2[]   		= "#";                  //02#
-uint8_t const 	IP3[]   		= "#";                  //03#
-uint8_t const 	IP4[]   		= "#";                  //04#
-uint8_t const 	ACCESS_CODE[]   = "1111#";      		//05#
+uint8_t const 	IP1[]   		= "198.17.112.128";     //01#
+uint8_t const 	IP2[]   		= "";                   //02#
+uint8_t const 	IP3[]   		= "";                   //03#
+uint8_t const 	IP4[]   		= "";                   //04#
+uint8_t const 	ACCESS_CODE[]   = "1111";               //05#
 
 uint8_t const 	PROGRAM_ACK     = 0x01;           		//06#
 uint8_t const 	TEST_FREQ       = 15;               	//07#
 uint8_t const 	SERVER_ACK_TIME = 45;         			//08#
 uint8_t const 	SMS_WAIT_TIME   = 10;         			//09#
 //uint8_t const SMS_WAIT_TIME   = 3;          			//09#
-uint8_t const 	UNIT_ACCNT[]    = "4007#";       		//10#
+uint8_t const 	UNIT_ACCNT[]    = "4007";       		//10#
 
-uint8_t const 	LINE_CARD[]     = "7548#";        		//11#
+uint8_t const 	LINE_CARD[]     = "7548";        		//11#
 uint8_t const 	ZONE1           = '0';                  //12#
 //   uint8_t const ZONE2=20;                			//13#
 uint8_t const 	TP_PIN          = 0;                   	//14#
@@ -113,17 +120,17 @@ uint8_t const 	CYCLE           = 3;                  	//15#
 
 uint8_t const 	RETRY           = 30;                 	//16#
 
-uint16_t const 	PORT1       	= 2020;					//31#   
-uint16_t const 	PORT2       	= 2020;					//32#   
-uint16_t const 	PORT3           = 2020;               	//33#   
-uint16_t const 	PORT4           = 2020;               	//34#   
-uint8_t const 	APN[]   		= "11583.mcs#";			//35# Telit
-//uint8_t const APN[]="c2.korem2m.com#";                //35# Kore
+uint8_t const 	PORT1[]       	= "2020";				//31#   
+uint8_t const 	PORT2[]       	= "2020";				//32#   
+uint8_t const 	PORT3[]         = "2020";               //33#   
+uint8_t const 	PORT4[]         = "2020";               //34#   
+uint8_t const 	APN[]   		= "11583.mcs";			//35# Telit
+//uint8_t const APN[]="c2.korem2m.com";                //35# Kore
 // OTA Server in John's home office
-//uint8_t const IP_OTA[]		="72.197.171.234#"; 	//36#
+//uint8_t const IP_OTA[]		="72.197.171.234"; 	//36#
 // OTA Server in Instant Care office
-uint8_t const 	IP_OTA[]    	= "12.12.201.84#";		//36#
-uint16_t const 	PORT_OTA        = 2021;            		//37#   
+uint8_t const 	IP_OTA[]    	= "12.12.201.84";		//36#
+uint8_t const 	PORT_OTA[]      = "2021";            	//37#   
 
 uint8_t const 	ENCRYPTION      = 1;             		//95# 
 uint8_t const 	MM_COUNT        = 0;        
@@ -139,36 +146,35 @@ typedef struct pg0_eeprom_struct
     uint8_t 	MM_COUNT;           // 0x0F
     
     // 0x10 - 0xAF
-    uint8_t 	APN[16];			// 0x10
-    uint8_t 	reserved2[16];      // 0x20
+    uint8_t 	APN[32];			// 0x10
     uint8_t 	IP1[16];			// 0x30
-    uint8_t 	reserved3[16];      // 0x40
+    uint8_t 	reserved2[16];      // 0x40
     uint8_t 	IP2[16];            // 0x50
-    uint8_t 	reserved4[16];      // 0x60
+    uint8_t 	reserved3[16];      // 0x60
     uint8_t 	IP3[16];            // 0x70
-    uint8_t 	reserved5[16];      // 0x80
+    uint8_t 	reserved4[16];      // 0x80
     uint8_t 	IP4[16];            // 0x90   
-    uint8_t 	reserved6[16];      // 0xA0
+    uint8_t 	reserved5[8];       // 0xA0
     
     // 0xB0 - 0xBF
-    uint16_t 	PORT1;				// 0xB0 
-    uint16_t 	PORT2;				// 0xB2 
-    uint16_t 	PORT3;				// 0xB4
-    uint16_t	PORT4;				// 0xB6 
+    uint8_t 	PORT1[4];			// 0xA8
+    uint8_t 	PORT2[4];			// 0xAC 
+    uint8_t 	PORT3[4];			// 0xB0
+    uint8_t     PORT4[4];			// 0xB4 
     uint8_t 	SMS_WAIT_TIME;		// 0xB8
 	uint8_t 	ZONE1;				// 0xB9
 	uint8_t 	ZONE2;				// 0xBA
     uint8_t 	TP_PIN;				// 0xBB
     uint8_t 	CYCLE;				// 0xBC
     uint8_t 	RETRY;				// 0xBD
-	uint8_t 	reserved7[2];       // 0xBE	
+	uint8_t 	reserved6[2];       // 0xBE	
 	
     // 0xC0 - 0xCF
     uint8_t 	ACCESS_CODE[7];		// 0xC0
     uint8_t 	PROGRAM_ACK;		// 0xC7
     uint8_t 	TEST_FREQ;			// 0xC8
     uint8_t 	SERVER_ACK_TIME;	// 0xC9
-	uint8_t 	reserved8[6];       // 0xCA
+	uint8_t 	reserved7[6];       // 0xCA
 	
 	// 0xD0 - 0xDF
     uint8_t 	UNIT_ACCNT[8];		// 0xD0 - 0xD7
@@ -176,7 +182,8 @@ typedef struct pg0_eeprom_struct
 
     // 0xE0
     uint8_t 	ENCRYPTION;			// 0xE0    
-	uint8_t 	reserved9[31];		// 0xE1 - 0xFF
+	uint8_t 	reserved8[29];		// 0xE1 - 0xFD
+    uint16_t    CHECKSUM;           // 0xFE - 0xFF
 	
 } pg0_eeprom_map_t;
 
@@ -189,9 +196,9 @@ typedef struct pg1_eeprom_struct
     uint8_t     reserved1[80];                          // 0x80 - 0xCF    
     uint8_t     IP_OTA[16];                             // 0xD0 - 0xDF
     uint8_t     reserved2[16];                          // 0xE0 - 0xEF
-    uint16_t    PORT_OTA;                               // 0xF0 - 0xF1      
-    uint8_t     reserved3[15];                          // 0xF2 - 0xFF 
-    
+    uint8_t     PORT_OTA[4];                            // 0xF0 - 0xF4      
+    uint8_t     reserved3[10];                          // 0xF4 - 0xFD
+    uint16_t    CHECKSUM;                               // 0xFE - 0xFF
 } pg1_eeprom_map_t;
     
 #define EE_PAGE_SIZE    256

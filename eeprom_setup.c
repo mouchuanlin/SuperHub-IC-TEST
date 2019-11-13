@@ -11,7 +11,7 @@
 uint8_t sms_setup_functions(void)
 {
 	uint8_t poundH, poundL, response='E';
-    uint8_t pound_id, option;
+    uint8_t cmd, option;
     
     uint8_t index;
     bool    found = true;
@@ -20,45 +20,46 @@ uint8_t sms_setup_functions(void)
 	poundH = (uint8_t) (key[0] & 0x0F);
 	poundL = (uint8_t) (key[1] & 0x0F);
 	
-	pound_id = (uint8_t) (poundH*10 + poundL);
+	cmd = (uint8_t) (poundH*10 + poundL);
 	
     // ID: 1,2,3,4,35,36 - IP address
-	if ( ((pound_id >= 1) && (pound_id <= 4)) || (pound_id == 35) || (pound_id == 36) )
+	if ( ((cmd >= 1) && (cmd <= 4)) || (cmd == 35) || (cmd == 36) )
 		option = 0;
     // ID: 5 access code
-	else if ( pound_id == 5 )
+	else if ( cmd == 5 )
 		option = 1;
-	else if ( (pound_id == 6) || (pound_id == 14) )
+	else if ( (cmd == 6) || (cmd == 14) )
 		option = 2;
-	else if ( pound_id == 7 )
+	else if ( cmd == 7 )
 		option = 3;
-	else if ( pound_id == 8 )
+	else if ( cmd == 8 )
 		option = 4;
-	else if ( (pound_id == 9) || (pound_id == 15) || (pound_id == 16) )
+	else if ( (cmd == 9) || (cmd == 15) || (cmd == 16) )
 		option = 5;
-	else if ( pound_id == 10 )
+	else if ( cmd == 10 )
 		option = 6;
-	else if ( pound_id == 11 )
+	else if ( cmd == 11 )
 		option = 7;
-	else if ( pound_id == 12 )
+	else if ( cmd == 12 )
 		option = 8;
-	else if ( ((pound_id >= 31) && (pound_id <= 34)) || (pound_id == 37) )
+	else if ( ((cmd >= 31) && (cmd <= 34)) || (cmd == 37) )
 		option = 9;
-	else if ( pound_id == 98 )
+	else if ( cmd == 98 )
 		option = 10;
-    else if( pound_id >= ID_START && pound_id <= ID_END )   
+    else if( cmd >= ID_START && cmd <= ID_END )   
         option = 11;
     else
         found = false;
     
     if (found)
-        response = (*func_ptr[option])(pound_id);
+        response = (*func_ptr[option])(cmd);
     
     
+//    uint8_t junk = sizeof(sms_setup_funs)/sizeof(sms_setup_fun_t);
 //    for (index = 0 ; index < sizeof(sms_setup_funs)/sizeof(sms_setup_fun_t); index++)
 //    {
-//        response = sms_setup_funs[index].(*func_ptr())(pound_id);
-//        return response
+////        response = sms_setup_funs[index].(*func_ptr())(cmd);
+////        return response
 //    }
 
 	return response;
@@ -71,23 +72,23 @@ uint8_t sms_setup_functions(void)
 //      35#c2.korem2m.com#
 //      36#12.12.201.84#
 //
-uint8_t set_n01_02_03_04_35_36(uint8_t pound_id)
+uint8_t set_n01_02_03_04_35_36(uint8_t cmd)
 {
 	uint8_t cnt,temp,dot,addr,page;
 	
     page = EE_PAGE0;
-    if( pound_id == P_OTA )
+    if( cmd == P_OTA )
     {
         page = EE_PAGE1;
         addr = 0xD0;
     }
-    else if( pound_id == P_APN )
+    else if( cmd == P_APN )
 		addr = 0x10;
 	else 
-        addr = (uint8_t) ((pound_id <<4 )*2+0x10);
+        addr = (uint8_t) ((cmd <<4 )*2+0x10);
 
     // Delete device ID. Ex: 01#*#
-	if( key_p == 5 && key[3] == '*' && pound_id != P_APN )
+	if( key_p == 5 && key[3] == '*' && cmd != P_APN )
 	{
 		write_ee(EE_PAGE0, addr,'#');
 		return('K');
@@ -105,7 +106,7 @@ uint8_t set_n01_02_03_04_35_36(uint8_t pound_id)
 	cnt = 0x03;
 	do{
 		temp = key[cnt++];
-		if( pound_id != 32 )
+		if( cmd != 32 )
 		{
 			if( temp=='*' )
 				temp = '.';
@@ -120,37 +121,49 @@ uint8_t set_n01_02_03_04_35_36(uint8_t pound_id)
 //  EX:
 //      05#1111#
 //
-uint8_t set_n05(uint8_t pound_id)
+// Access code - 4-6 digits/Char
+//  EX: 05#123456#  - 10
+//      05#1234#    - 8
+uint8_t set_n05(uint8_t cmd)
 {
-	uint8_t cnt,temp,addr;
+	uint8_t index,temp,addr;
 	
-	cnt = 0x03;
-	do{							 
-		temp = key[cnt++];		 
-	}while(temp!='#'&&cnt<0x09);
+	index = 0x03;
+	while (temp != '#' && index < 0x09)
+    {
+		temp = key[index++];		 
+	};
 	
-	if( temp!='#' || cnt<0x07 )
+	if( temp!='#' || index<0x07 )
 		return('E');
- 	cnt = 0x03;
-    addr = 0xC0;
-	do{
-		temp = key[cnt++];
- 	    write_ee(EE_PAGE0,addr,temp);
-		addr++;
-	}while(temp!='#');
+    
+//    strncpy((char *)page0_eeprom.map.ACCESS_CODE, (const char *)key[3], index - 3);
+    update_eeprom_page0();
+    
+// 	index = 0x03;
+//    addr = 0xC0;
+//	do{
+//		temp = key[index++];
+// 	    write_ee(EE_PAGE0,addr,temp);
+//		addr++;
+//	}while(temp!='#');
+    
+    
     CLRWDT();
 	return('K');
 }
 
-//-----------------------------------//
-uint8_t set_n06_14(uint8_t pound_id)
+// This function is called to setup 06#/14#
+//  EX:
+//
+uint8_t set_n06_14(uint8_t cmd)
 {
     uint8_t temp,addr;
 	
     temp = key[3];
 	if( key_p==5 && (temp=='1'||temp=='0') )
 	{
-        if( pound_id == 0x06 )
+        if( cmd == 0x06 )
             addr = 0xC7;
         else addr = 0xBB;
         if( temp=='1' )
@@ -161,8 +174,10 @@ uint8_t set_n06_14(uint8_t pound_id)
 	return('E');
 }
 
-//-----------------------------------//
-uint8_t set_n07(uint8_t pound_id)
+// This function is called to setup 07#
+//  EX:
+//      07#10#
+uint8_t set_n07(uint8_t cmd)
 {
 	uint8_t cnt, temp, addr;
 
@@ -187,8 +202,8 @@ uint8_t set_n07(uint8_t pound_id)
 	return('E');
 }
 
-//-----------------------------------//
-uint8_t set_n08(uint8_t pound_id)
+// This function is called to setup 08#
+uint8_t set_n08(uint8_t cmd)
 {
 	uint8_t cnt,temp;
 	uint16_t addr;
@@ -213,8 +228,10 @@ uint8_t set_n08(uint8_t pound_id)
 	return('E');
 }
 
-//-----------------------------------//
-uint8_t set_n09_15_16(uint8_t pound_id)
+// This function is called to setup 09#/15#/16#.
+//  EX:
+//
+uint8_t set_n09_15_16(uint8_t cmd)
 {
 	uint8_t cnt,temp;
 	uint16_t addr;
@@ -227,11 +244,11 @@ uint8_t set_n09_15_16(uint8_t pound_id)
 		{
 			if( cnt==0x00 || addr>100 )
 				return('E');
-            if( pound_id==9 )
+            if( cmd==9 )
                 write_ee(EE_PAGE0,0xB8,addr);
-            else if( pound_id==15 )     //17/11/08
+            else if( cmd==15 )     //17/11/08
                 write_ee(EE_PAGE0,0xBC,addr);
-            else if( pound_id==16 )     //17/11/08
+            else if( cmd==16 )     //17/11/08
                 write_ee(EE_PAGE0,0xBD,addr);
             else return('E');
 			return('K');
@@ -245,8 +262,11 @@ uint8_t set_n09_15_16(uint8_t pound_id)
 	return('E');
 }
 
-//-----------------------------------//
-uint8_t set_n10(uint8_t pound_id)
+// This function is called to setup 10# Unit Account.
+//  EX:
+//      10#4007#
+//
+uint8_t set_n10(uint8_t cmd)
 {
 	uint8_t cnt,temp,addr,tp;
 
@@ -282,7 +302,7 @@ uint8_t set_n10(uint8_t pound_id)
 }
 
 //-----------------------------------//
-uint8_t set_n11(uint8_t pound_id)
+uint8_t set_n11(uint8_t cmd)
 {
 	uint8_t cnt,temp,addr;
 
@@ -310,7 +330,7 @@ uint8_t set_n11(uint8_t pound_id)
 }
 
 //-----------------------------------//
-uint8_t set_n12_13(uint8_t pound_id)
+uint8_t set_n12_13(uint8_t cmd)
 {
 	uint8_t temp;
 
@@ -323,11 +343,18 @@ uint8_t set_n12_13(uint8_t pound_id)
 	return('K');
 }
 
-//-----------------------------------//
-uint8_t set_n31_32_33_34_37(uint8_t pound_id)
+// This function is called to set PORT1/2/3/4 and OTA_Port.
+//  EX:
+//      31#2020#
+//      37#2021#
+//
+uint8_t set_n31_32_33_34_37(uint8_t cmd)
 {
 	uint8_t cnt,temp;
 	uint16_t addr;
+    
+    
+    port_no = (port_stru_t *)&key[0];
 
 	cnt = 0x03;
 	addr = 0;
@@ -358,27 +385,27 @@ uint8_t set_n31_32_33_34_37(uint8_t pound_id)
 				}else if( key[3]>'6' )
 					return('E');
 			}	
-			if( pound_id==31 )
+			if( cmd==P_PORT1 )
 			{
                 // PORT1_ADDR
 				write_ee(EE_PAGE0, 0xB0, (addr>>8));
 				write_ee(EE_PAGE0, 0xB1, (addr&0x00ff));
-			}else if( pound_id==32 )
+			}else if( cmd==P_PORT1 )
 			{
                 // PORT2_ADDR
 				write_ee(EE_PAGE0, 0xB2, (addr>>8));
 				write_ee(EE_PAGE0, 0xB3, (addr&0x00ff));
-			}else if( pound_id==33 )
+			}else if( cmd==P_PORT1 )
 			{
                 // PORT3_ADDR
 				write_ee(EE_PAGE0, 0xB4, (addr>>8));
 				write_ee(EE_PAGE0, 0xB5, (addr&0x00ff));
-			}else if( pound_id==34)
+			}else if( cmd==P_PORT1)
 			{
                 // PORT4_ADDR
 				write_ee(EE_PAGE0, 0xB6, (addr>>8));
 				write_ee(EE_PAGE0, 0xB7, (addr&0x00ff));
-			}else if( pound_id==37)
+			}else if( cmd==P_PORT_OTA)
 			{
 				write_ee(EE_PAGE1, 0xF0, (addr>>8));
 				write_ee(EE_PAGE1, 0xF1, (addr&0x00ff));
@@ -400,22 +427,22 @@ uint8_t set_n31_32_33_34_37(uint8_t pound_id)
 //      42#892C31#
 //      43#333435#
 //
-uint8_t set_n41_to_56(uint8_t pound_id)
+uint8_t set_n41_to_56(uint8_t cmd)
 {
     uint8_t cnt,temp,val;
     
-    // The parameter pound_id is the EEPROM ID#. It starts from 41 while we want save to array[0]
+    // The parameter cmd is the EEPROM ID#. It starts from 41 while we want save to array[0]
     // RF slave device ID store in EEPROM Page 1 address 0 - 8 bytes for each device.
     cnt = 0x03;
-    pound_id -= 41;
-    val = pound_id;
-    pound_id *= 8;
+    cmd -= 41;
+    val = cmd;
+    cmd *= 8;
     // Delete ID 41 - 1111#41#*#, key[] hold SMS without access code.
     if( key[3]=='*'&&key[4]=='#' )
     {        
         for( cnt=0;cnt<8;cnt++ )
         {            
-            write_ee(EE_PAGE1, (uint8_t) (pound_id+cnt), 0);
+            write_ee(EE_PAGE1, (uint8_t) (cmd+cnt), 0);
             device_id_table[val][cnt] = 0;
         }
         return('K');
@@ -443,24 +470,26 @@ uint8_t set_n41_to_56(uint8_t pound_id)
         {
             // ID starts from byte 3 - Ex 892C31
             temp = key[cnt+3];
-            write_ee(EE_PAGE1, (uint8_t) (pound_id+cnt), temp);
+            write_ee(EE_PAGE1, (uint8_t) (cmd+cnt), temp);
             device_id_table[val][cnt] = temp;
         }
         
         // TODO: Why write to [6]???
-        write_ee(EE_PAGE1, pound_id+6, 0);
+        write_ee(EE_PAGE1, cmd+6, 0);
         device_id_table[val][6] = 0;
         
         // TODO: Why write to [7]???
-        write_ee(EE_PAGE1, pound_id+7, 0);
+        write_ee(EE_PAGE1, cmd+7, 0);
         device_id_table[val][7] = 0;
         return('K');
     }
     return('E');
 }
 
-//-----------------------------------//
-uint8_t set_n98(uint8_t pound_id)
+// This function is called to re-init EEPROM
+//  EX:
+//      98#*#
+uint8_t set_n98(uint8_t cmd)
 {
 	if( key[3]=='*'&&key[4]=='*'&&key[5]=='#' )
 	{

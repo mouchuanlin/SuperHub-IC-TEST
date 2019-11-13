@@ -167,10 +167,11 @@ void init_pic18_eeprom(void)
 	strncpy((char *)page0_eeprom.map.IP3, (const char *)IP3, (size_t)sizeof(IP3));
 	strncpy((char *)page0_eeprom.map.IP4, (const char *)IP4, (size_t)sizeof(IP4));
 				
-	page0_eeprom.map.PORT1 = PORT1;
-	page0_eeprom.map.PORT2 = PORT2;
-	page0_eeprom.map.PORT3 = PORT3;
-	page0_eeprom.map.PORT4 = PORT4;
+	strncpy((char *)page0_eeprom.map.PORT1, (const char *)PORT1, (size_t)sizeof(PORT1));
+	strncpy((char *)page0_eeprom.map.PORT2, (const char *)PORT1, (size_t)sizeof(PORT2));
+    strncpy((char *)page0_eeprom.map.PORT3, (const char *)PORT1, (size_t)sizeof(PORT3));
+    strncpy((char *)page0_eeprom.map.PORT4, (const char *)PORT1, (size_t)sizeof(PORT4));
+
     
 	
 	strncpy((char *)page0_eeprom.map.ACCESS_CODE, (const char *)ACCESS_CODE, (size_t)sizeof(ACCESS_CODE));
@@ -196,12 +197,11 @@ void init_pic18_eeprom(void)
 	
 	// Page 1 EEPROM  
 	strncpy((char *)page1_eeprom.map.IP_OTA, (const char *)IP_OTA, (size_t)sizeof(IP_OTA));
-	page1_eeprom.map.PORT_OTA = PORT_OTA;
+    strncpy((char *)page1_eeprom.map.PORT_OTA, (const char *)PORT_OTA, (size_t)sizeof(PORT_OTA));
     
 
     // Programming EEPROM to default values.
-    write_eeprom(EE_PAGE0, EE_START_ADDR, page0_eeprom.data, EE_PAGE_SIZE);
-    write_eeprom(EE_PAGE1, EE_START_ADDR, page1_eeprom.data, EE_PAGE_SIZE);
+    update_eeprom();
     
     // TODO: FOR DEBUGGING ONLY
     ////////////////////////////////
@@ -370,3 +370,27 @@ uint8_t del_ID(uint8_t id)
     WIFI_INT1_TRIS = INPUT;
     WIFI_INT1 = 1;
 }*/
+
+
+void update_page_info(void)
+{
+    // Read back from EEPROM
+    read_eeprom(EE_PAGE0, EE_START_ADDR, page0_eeprom.data, EE_PAGE_SIZE);  
+    read_eeprom(EE_PAGE1, EE_START_ADDR, page1_eeprom.data, EE_PAGE_SIZE);      
+}
+
+void update_eeprom(void)
+{
+    update_eeprom_page0();
+    update_eeprom_page1();
+}
+
+void update_eeprom_page0(void)
+{
+    write_eeprom(EE_PAGE0, EE_START_ADDR, page0_eeprom.data, EE_PAGE_SIZE);    
+}
+
+void update_eeprom_page1(void)
+{
+    write_eeprom(EE_PAGE1, EE_START_ADDR, page1_eeprom.data, EE_PAGE_SIZE);
+}
