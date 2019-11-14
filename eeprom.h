@@ -100,7 +100,7 @@ void    update_eeprom_page1(void);
 // EEPROM default value define
 uint8_t const   FIRST_RUN       = 0x57;
 //uint8_t const 	IP1[]   	= "198.17.112.128";     //01#   // Affiliated portal IP
-uint8_t const   IP1[]           = "12.12.201.92";       //01    // Server in IC office IP
+uint8_t const   IP1[]           = "12.12.201.82";       //01    // Server in IC office IP
 uint8_t const 	IP2[]   		= "";                   //02#
 uint8_t const 	IP3[]   		= "";                   //03#
 uint8_t const 	IP4[]   		= "";                   //04#
