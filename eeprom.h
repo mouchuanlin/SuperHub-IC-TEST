@@ -99,7 +99,8 @@ void    update_eeprom_page1(void);
     
 // EEPROM default value define
 uint8_t const   FIRST_RUN       = 0x57;
-uint8_t const 	IP1[]   		= "198.17.112.128";     //01#
+//uint8_t const 	IP1[]   	= "198.17.112.128";     //01#   // Affiliated portal IP
+uint8_t const   IP1[]           = "12.12.201.92";       //01    // Server in IC office IP
 uint8_t const 	IP2[]   		= "";                   //02#
 uint8_t const 	IP3[]   		= "";                   //03#
 uint8_t const 	IP4[]   		= "";                   //04#
@@ -124,12 +125,10 @@ uint8_t const 	PORT1[]       	= "2020";				//31#
 uint8_t const 	PORT2[]       	= "2020";				//32#   
 uint8_t const 	PORT3[]         = "2020";               //33#   
 uint8_t const 	PORT4[]         = "2020";               //34#   
-uint8_t const 	APN[]   		= "11583.mcs";			//35# Telit
-//uint8_t const APN[]="c2.korem2m.com";                //35# Kore
-// OTA Server in John's home office
-//uint8_t const IP_OTA[]		="72.197.171.234"; 	//36#
-// OTA Server in Instant Care office
-uint8_t const 	IP_OTA[]    	= "12.12.201.84";		//36#
+uint8_t const 	APN[]   		= "11583.mcs";			//35#   // Telit
+//uint8_t const APN[]           = "c2.korem2m.com";     //35#   // Kore
+//uint8_t const IP_OTA[]		= "72.197.171.234";     //36#   // OTA Server in John's home office
+uint8_t const 	IP_OTA[]    	= "12.12.201.84";		//36#   // OTA Server in IC office
 uint8_t const 	PORT_OTA[]      = "2021";            	//37#   
 
 uint8_t const 	ENCRYPTION      = 1;             		//95# 
@@ -192,13 +191,13 @@ typedef struct pg0_eeprom_struct
 #define DEVICE_LEN		8
 typedef struct pg1_eeprom_struct
 {
-    uint8_t     device_id_table[DEVICE_SIZE][DEVICE_LEN];     // 0x00 - 0x7F
-    uint8_t     reserved1[80];                          // 0x80 - 0xCF    
-    uint8_t     IP_OTA[16];                             // 0xD0 - 0xDF
-    uint8_t     reserved2[16];                          // 0xE0 - 0xEF
-    uint8_t     PORT_OTA[4];                            // 0xF0 - 0xF4      
-    uint8_t     reserved3[10];                          // 0xF4 - 0xFD
-    uint16_t    CHECKSUM;                               // 0xFE - 0xFF
+    uint8_t     device_id_table[DEVICE_SIZE][DEVICE_LEN];       // 0x00 - 0x7F
+    uint8_t     reserved1[80];                                  // 0x80 - 0xCF    
+    uint8_t     IP_OTA[16];                                     // 0xD0 - 0xDF
+    uint8_t     reserved2[16];                                  // 0xE0 - 0xEF
+    uint8_t     PORT_OTA[4];                                    // 0xF0 - 0xF4      
+    uint8_t     reserved3[10];                                  // 0xF4 - 0xFD
+    uint16_t    CHECKSUM;                                       // 0xFE - 0xFF
 } pg1_eeprom_map_t;
     
 #define EE_PAGE_SIZE    256

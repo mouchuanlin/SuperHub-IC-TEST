@@ -155,11 +155,11 @@ void init_pic18_eeprom(void)
     if (!is_first_run())
         return;
     
-	// Init to 0x00
+	// Init to 0x00.
 	set_eeprom_value(EE_PAGE0, EE_START_ADDR, 0x00, EE_PAGE_SIZE);
 	set_eeprom_value(EE_PAGE1, EE_START_ADDR, 0x00, EE_PAGE_SIZE);
     
-    page0_eeprom.map.FIRST_RUN = FIRST_RUN;
+    //page0_eeprom.map.FIRST_RUN = FIRST_RUN;
 	strncpy((char *)page0_eeprom.map.VERSION, (const char *)VERSION, (size_t)sizeof(VERSION));		
 	strncpy((char *)page0_eeprom.map.APN, (const char *)APN, (size_t)sizeof(APN));
 	strncpy((char *)page0_eeprom.map.IP1, (const char *)IP1, (size_t)sizeof(IP1));
@@ -168,12 +168,9 @@ void init_pic18_eeprom(void)
 	strncpy((char *)page0_eeprom.map.IP4, (const char *)IP4, (size_t)sizeof(IP4));
 				
 	strncpy((char *)page0_eeprom.map.PORT1, (const char *)PORT1, (size_t)sizeof(PORT1));
-	strncpy((char *)page0_eeprom.map.PORT2, (const char *)PORT1, (size_t)sizeof(PORT2));
-    strncpy((char *)page0_eeprom.map.PORT3, (const char *)PORT1, (size_t)sizeof(PORT3));
-    strncpy((char *)page0_eeprom.map.PORT4, (const char *)PORT1, (size_t)sizeof(PORT4));
-
-    
-	
+	strncpy((char *)page0_eeprom.map.PORT2, (const char *)PORT2, (size_t)sizeof(PORT2));
+    strncpy((char *)page0_eeprom.map.PORT3, (const char *)PORT3, (size_t)sizeof(PORT3));
+    strncpy((char *)page0_eeprom.map.PORT4, (const char *)PORT4, (size_t)sizeof(PORT4));
 	strncpy((char *)page0_eeprom.map.ACCESS_CODE, (const char *)ACCESS_CODE, (size_t)sizeof(ACCESS_CODE));
 	
     page0_eeprom.map.PROGRAM_ACK = PROGRAM_ACK;
@@ -192,7 +189,6 @@ void init_pic18_eeprom(void)
 	page0_eeprom.map.ENCRYPTION = ENCRYPTION;   
 	page0_eeprom.map.MM_COUNT = MM_COUNT;
 
-  
     load_device_id_table();
 	
 	// Page 1 EEPROM  
@@ -235,7 +231,7 @@ void load_default(void)
 // Check if the APN & IP1 has been set. In this case, will try to send data.
 void check_ip_setting()
 {
-    if((read_ee(EE_PAGE0, APN_ADDR)=='#') || (read_ee(EE_PAGE0, IP1_ADDR)=='#'))    
+    if( strcmp((const char *)page0_eeprom.map.APN, (const char *)"") || strcmp((const char *)page0_eeprom.map.IP1, (const char *)"") )    
     {
         ready_for_sending = false;
         IP_type = 0;

@@ -50,7 +50,7 @@ int main(int argc, char** argv)
     
     // TODO: FOR DEBUGGING ONLY
     ////////////////////////////////
-    //RF_input_test();
+    RF_input_test();
     //process_event_queue();
     //////////////////////////////// 
     
