@@ -262,7 +262,7 @@ void send_test_AT_commands(void)
     soutdata((uint8_t *) "AT+CGDCONT?\r\n$");    
     delay5ms(20);   
     
-    soutdata((uint8_t *) "AT#SGACT=1,1\r\n$");    
+    soutdata((uint8_t *) "AT#SGACT=3,1\r\n$");    
     delay5ms(20);
     
     soutdata((uint8_t *) "AT+CGSN\r\n$");    
@@ -561,7 +561,22 @@ void soutdata(const uint8_t dat[])
         temp = dat[cnt++];
         if( temp!='$' )
             out_sbuf(temp);
-    }while(temp!='$');
+    } while (temp !='$' && temp != '\0');
+    CLRWDT();
+}
+
+void soutdata_1(const uint8_t dat[], uint8_t len)
+{
+    uint8_t temp,cnt;
+    
+    cnt = 0;
+    while (len--)
+    {
+        
+        temp = dat[cnt++];
+        out_sbuf(temp);
+    };
+    
     CLRWDT();
 }
 

@@ -125,15 +125,15 @@ void check_receive_overrun(void)
 	}	
 }
 
-void get_access_code(void)
-{
-    uint8_t temp = 0;
-            
-	// get access code from eeprom
-    do{
-        access_code[temp] = read_ee(EE_PAGE0, (uint8_t)(0xC0+temp));
-    }while(++temp<7);       
-}
+//void get_access_code(void)
+//{
+//    uint8_t temp = 0;
+//            
+//	// get access code from eeprom
+//    do{
+//        access_code[temp] = read_ee(EE_PAGE0, (uint8_t)(0xC0+temp));
+//    }while(++temp<7);       
+//}
 
 //---------------------------------------------------
 uint8_t read_sms(uint8_t a,uint8_t b,uint8_t c)
@@ -152,7 +152,7 @@ uint8_t read_sms(uint8_t a,uint8_t b,uint8_t c)
     temp = 0;
 	
     // get access code
-    get_access_code();
+    //get_access_code();
 	
   	soutdata(cmgr);
   	out_sbuf(a);
@@ -226,7 +226,9 @@ uint8_t read_sms(uint8_t a,uint8_t b,uint8_t c)
 			  			sms_p=159;
 					if(temp==0x0d)
 					{
-						if( (sms_buffer[0]==access_code[0])&&(sms_buffer[1]==access_code[1])&&(sms_buffer[2]==access_code[2])&&(sms_buffer[3]==access_code[3]) )							
+                        // TODO: set for length 4 now. Should be up to 7.
+                        if (strncmp((const char *)sms_buffer, (const char *)page0_eeprom.map.ACCESS_CODE, 4))
+						//if( (sms_buffer[0]==access_code[0])&&(sms_buffer[1]==access_code[1])&&(sms_buffer[2]==access_code[2])&&(sms_buffer[3]==access_code[3]) )							
 							NOP();
 						else										
 							break;

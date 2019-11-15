@@ -30,6 +30,7 @@ void    process_event_queue(void);
 uint8_t process_SMS_setup_state(void);
 void    out_sbuf(uint8_t tmp);
 void    soutdata(const uint8_t *dat);
+void    soutdata_1(const uint8_t dat[], uint8_t len);
 void    out_sbuf2(uint8_t tmp);
 uint8_t wait_ok_respond(uint16_t);
 uint8_t check_module_version(uint8_t type);

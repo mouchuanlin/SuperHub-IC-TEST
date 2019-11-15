@@ -59,14 +59,18 @@ uint8_t TL_internet_init(void)
     // AT+CGDCONT=3,"IP","c2.korem2m.com"
     // AT+CGDCONT=3,"IP","11583.mcs"
 	soutdata(cgdcont);
-	cnt = 0x10;
-	do{
-        // APN - 35# - "c2.korem2m.com"
-		temp = read_ee(EE_PAGE0, cnt);
-		if( temp!='#' )
-			out_sbuf(temp);
-		cnt++;
-	}while( temp!='#' );
+    
+//	cnt = 0x10;
+//	do{
+//        // APN - 35# - "c2.korem2m.com"
+//		temp = read_ee(EE_PAGE0, cnt);
+//		if( temp!='#' )
+//			out_sbuf(temp);
+//		cnt++;
+//	}while( temp!='#' );
+    
+    soutdata(page0_eeprom.map.APN);
+    
 	out_sbuf('"');
 	out_sbuf(0x0d);
 	out_sbuf(0x0a);
@@ -135,7 +139,8 @@ uint8_t TL_connection_open(uint8_t type)
 	soutdata(netconnect);
     
     //------ port ------
-    // Get 2 bytes of port number
+
+        // Get 2 bytes of port number
     if( type==0x01 )
 		cnt = 0xB0;
 	else if( type==0x02 )
@@ -144,58 +149,16 @@ uint8_t TL_connection_open(uint8_t type)
 		cnt = 0xB4;
 	else 
         cnt = 0xB6;
-
-	port = (uint16_t) (read_ee(EE_PAGE0, cnt)<<8);
-	port += read_ee(EE_PAGE0, cnt+1);
     
-
-	cnt = 0;
-	temp = port/10000;
-	if( temp!=0 )
-	{	
-		cnt = 1;
-		out_sbuf((uint8_t)(temp+0x30));
-	}
-	port %= 10000;
-	temp = port/1000;
-	if( temp!=0||cnt==1 )
-	{
-		cnt = 1;
-		out_sbuf( (uint8_t) (temp+0x30) );
-	}
-	port %= 1000;
-	temp = port/100;
-	if( temp!=0||cnt==1 )
-	{
-		cnt = 1;
-		out_sbuf( (uint8_t) (temp+0x30) );
-	}
-	port %= 100;
-	temp = port/10;
-	if( temp!=0||cnt==1 )
-	{
-		cnt = 1;
-		out_sbuf( (uint8_t) (temp+0x30) );
-	}
-	temp = port%10;
-	out_sbuf( (uint8_t) (temp+0x30) );
+    // TODO: should be either PORT1/2/3/4
+    soutdata_1(page0_eeprom.map.PORT1, 4);
+    
     out_sbuf(',');
     out_sbuf('"');
     
     //------ IP ------    
-    if( type==0x01 )
-		cnt = 0x30;
-	else if( type==0x02 )
-		cnt = 0x50;
-	else if( type==0x03 )
-		cnt = 0x70;
-	else cnt = 0x90;
-	do{
-		temp = read_ee(EE_PAGE0, cnt);
-		if( temp!='#' )
-			out_sbuf(temp);
-		cnt++;
-	}while( temp!='#' );     
+    soutdata(page0_eeprom.map.IP1);
+    
     CLRWDT();
 	soutdata(net_2);
 	out_sbuf(0x0d);
@@ -357,16 +320,7 @@ bool is_ip_exists(uint8_t type)
     uint8_t temp;
     
     // Check IP address EEPROM. If # then there is no IP address has been stored.
-    if( type==0x01 )
-        temp = read_ee(EE_PAGE0, IP1_ADDR);
-    else if( type==0x02 )
-        temp = read_ee(EE_PAGE0, IP2_ADDR);
-    else if( type==0x03 )
-        temp = read_ee(EE_PAGE0, IP3_ADDR);
-    else 
-        temp = read_ee(EE_PAGE0, IP4_ADDR);    
-    
-    if( temp=='#' )
+    if (!page0_eeprom.map.IP1[0] && !page0_eeprom.map.IP2[0] && !page0_eeprom.map.IP3[0] && !page0_eeprom.map.IP4[0])
         return false;
     else
         return true;

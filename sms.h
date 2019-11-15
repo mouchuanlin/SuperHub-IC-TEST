@@ -26,7 +26,7 @@ uint8_t remote_setting(void);
 void    send_respond(uint8_t);
 //void    select_sms_type(bit);
 uint8_t respond_setting(uint8_t,uint8_t);
-void    get_access_code(void);
+//void    get_access_code(void);
 void    check_receive_overrun(void);
 
 //extern void     out_sbuf(uint8_t tmp);

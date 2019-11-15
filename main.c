@@ -57,8 +57,8 @@ int main(int argc, char** argv)
     // TODO: SMS setup TEST ONLY
     //uint8_t *test_str = "01#198.17.112.128#"
     //char test_str[] = "36#12.12.201.84#";
-    //char test_str[] = "41#627275#";
-    char test_str[] = "05#1234#";
+    char test_str[] = "41#627275#";
+    //char test_str[] = "05#1234#";
     key_p = strlen(test_str);
     strncpy((char *)key, (const char *)test_str, (size_t)strlen(test_str));
     sms_setup_functions();    

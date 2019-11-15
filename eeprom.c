@@ -230,8 +230,8 @@ void load_default(void)
 
 // Check if the APN & IP1 has been set. In this case, will try to send data.
 void check_ip_setting()
-{
-    if( strcmp((const char *)page0_eeprom.map.APN, (const char *)"") || strcmp((const char *)page0_eeprom.map.IP1, (const char *)"") )    
+{   
+    if( !page0_eeprom.map.APN[0] || !page0_eeprom.map.IP1[0] )    
     {
         ready_for_sending = false;
         IP_type = 0;
