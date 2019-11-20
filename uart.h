@@ -57,6 +57,16 @@ union rx2 {
     rf_data_t   map;
 } rx2_buf;
 
+
+
+// UART 1 buffer
+#define MAX_RX1_BUF_SIZE    50
+uint8_t rx1_buf[MAX_RX1_BUF_SIZE];
+uint8_t rx1_cnt = 0;
+
+bool    rx1_flag = false;
+
+
 extern  uint8_t led_count;
 
 #endif	/* UART_H */

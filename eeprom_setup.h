@@ -89,34 +89,65 @@ uint8_t (*func_ptr[])(uint8_t cmd) = {
     set_n41_to_56
 };
 
-
-
 typedef struct sms_setup_fun {
-    uint8_t *cmd;
+    uint8_t cmd;
     uint8_t (*func_ptr)(uint8_t cmd);
 } sms_setup_fun_t;
 
-//sms_setup_fun_t sms_setup_funs[] = {
-//	{1, 2, 3, 4, 35, 36},   set_n01_02_03_04_35_36,
-//	{5},                      set_n05, 
-//	{6, 14},                set_n06_14,
-//	{7},                      set_n07,
-//	{8},                      set_n08,
-//	{9, 10, 11},            set_n09_15_16,   
-//	{12, 13},               set_n12_13,
-//	{31, 32, 33, 34, 37},   set_n31_32_33_34_37,
-//	{98}, 					set_n98,
-//	{41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56}, set_n41_to_56,
-//};
+sms_setup_fun_t sms_setup_funs[] = {
+	1,   	set_n01_02_03_04_35_36,
+	2,   	set_n01_02_03_04_35_36,
+	3,   	set_n01_02_03_04_35_36,
+	4,   	set_n01_02_03_04_35_36,
+	35,  	set_n01_02_03_04_35_36,
+	36,  	set_n01_02_03_04_35_36,
+    
+	5,      set_n05, 
+	6,      set_n06_14,
+    14,     set_n06_14,
+	7,      set_n07,
+	8,		set_n08,
+	
+	9,      set_n09_15_16,  
+	15,     set_n09_15_16,  
+	16,     set_n09_15_16,  
+	
+	12,     set_n12_13,
+	12, 	set_n12_13,	
+	
+	31,   	set_n31_32_33_34_37,
+	32,   	set_n31_32_33_34_37,
+	33,   	set_n31_32_33_34_37,
+	34,   	set_n31_32_33_34_37,
+	37,   	set_n31_32_33_34_37,	
+	
+	98, 	set_n98,
+	41,		set_n41_to_56,
+	42,		set_n41_to_56,
+	43,		set_n41_to_56,
+	44,		set_n41_to_56,
+	45,		set_n41_to_56,
+	46,		set_n41_to_56,
+	47,		set_n41_to_56,
+	48,		set_n41_to_56,
+	49,		set_n41_to_56,
+	50,		set_n41_to_56,
+	51,		set_n41_to_56,
+	52,		set_n41_to_56,
+	53,		set_n41_to_56,
+	54,		set_n41_to_56,
+	55,		set_n41_to_56,
+	56,		set_n41_to_56,	
+};
 
-typedef struct port_stru {
-    uint8_t     id[2];
+typedef struct {
+    uint16_t    id;
     uint8_t     pound;
     uint8_t     port[4];
     uint8_t     pound1;
-} port_stru_t;  
+} port_cmd_t;  
 
-port_stru_t *port_no;
+//port_cmd_t *port_cmd;
 
 
 

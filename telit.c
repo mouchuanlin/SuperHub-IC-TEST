@@ -1,6 +1,7 @@
 //
 // telit.c
 //
+#include <stdio.h>
 
 #include "io.h"
 #include "eeprom.h"
@@ -43,7 +44,8 @@ uint8_t TL_internet_init(void)
     const uint8_t sgact[]="AT#SGACT=3,1\r\n$";    
 	uint8_t cnt,temp,count;
     uint8_t buffer_p,buffer[32];
-
+    uint8_t out_cmd[50];
+    
     CREN1 = 0;
     delay5ms(100);
     // AT#SCFG=1,3,300,90,200,50
@@ -55,27 +57,13 @@ uint8_t TL_internet_init(void)
 		wait_ok_respond(200);
     CREN1 = 0;
    	delay5ms(100);
+        
+    //send_at_command("AT+CGDCONT=3,\"IP\",\"11583.mcs\"\r\n$");     
+    sprintf((char *)out_cmd, (char *)"AT+CGDCONT=3,\"IP\",\"%s\"\r\n$", page0_eeprom.map.APN);
+    send_at_command(out_cmd);
     
-    // AT+CGDCONT=3,"IP","c2.korem2m.com"
-    // AT+CGDCONT=3,"IP","11583.mcs"
-	soutdata(cgdcont);
-    
-//	cnt = 0x10;
-//	do{
-//        // APN - 35# - "c2.korem2m.com"
-//		temp = read_ee(EE_PAGE0, cnt);
-//		if( temp!='#' )
-//			out_sbuf(temp);
-//		cnt++;
-//	}while( temp!='#' );
-    
-    soutdata(page0_eeprom.map.APN);
-    
-	out_sbuf('"');
-	out_sbuf(0x0d);
-	out_sbuf(0x0a);
 //	if( wait_ok_respond(200)=='N' )
-		wait_ok_respond(200);
+		wait_ok_respond(40);
    	delay5ms(100);
     
     CREN1 = 0;
@@ -96,7 +84,7 @@ uint8_t TL_internet_init(void)
 				buffer[buffer_p] = temp;
 				if( ++buffer_p>=32 )				
 					buffer_p = 31;			
-		  		if( temp==0x0a )	//Network opened
+		  		if( temp==LF )	//Network opened
 				{
                     // #SGACT: 10.133.224.83
 					//if( buffer[0]=='#'&&buffer[1]=='S'&&buffer[2]=='G'&&buffer[3]=='A'&&buffer[4]=='C'&&buffer[5]=='T'&&buffer[6]==':' )
@@ -113,6 +101,7 @@ uint8_t TL_internet_init(void)
         CLRWDT();
         TMR3IF = 0;
   	}while(--count!=0);
+    
     TMR3IF = 0;
   	TMR3ON = 0;
     CREN1 = 0;
@@ -123,54 +112,27 @@ uint8_t TL_internet_init(void)
 //---------------------------------------------------
 uint8_t TL_connection_open(uint8_t type)
 {
-	const uint8_t netconnect[]="AT#SD=1,0,$";
-    const uint8_t net_2[]="\",0,0,1\r\n$";
-    //uint8_t const netconnect[]="AT#SD=1,0,2020,\"211.22.241.58\",0,0,1\r\n$";
-    uint8_t buffer_p,buffer[32];
-	uint8_t cnt,temp;
-	uint16_t port;
-    
+	uint8_t port[5];
+    uint8_t out_cmd[50];
+
     // Check IP address EEPROM. If # then there is no IP address has been stored.
     if(!is_ip_exists(type))
         return('E');
     
-    CREN1 = 0;
-    // AT#SD=1,0,2021,"72.197.171.234",0,0,1
-	soutdata(netconnect);
+    strncpy((char *)port, (const char *)page0_eeprom.map.PORT1, 4);
+    port[4] = '\0';
     
-    //------ port ------
-
-        // Get 2 bytes of port number
-    if( type==0x01 )
-		cnt = 0xB0;
-	else if( type==0x02 )
-		cnt = 0xB2;
-	else if( type==0x03 )
-		cnt = 0xB4;
-	else 
-        cnt = 0xB6;
-    
-    // TODO: should be either PORT1/2/3/4
-    soutdata_1(page0_eeprom.map.PORT1, 4);
-    
-    out_sbuf(',');
-    out_sbuf('"');
-    
-    //------ IP ------    
-    soutdata(page0_eeprom.map.IP1);
-    
-    CLRWDT();
-	soutdata(net_2);
-	out_sbuf(0x0d);
-	out_sbuf(0x0a);
-
+    //send_at_command("AT#SD=1,0,2020,\"12.12.201.82\",0,0,1\r\n$");  
+    sprintf((char *)out_cmd, (const char *)"AT#SD=1,0,%s,\"%s\",0,0,1\r\n$", port, page0_eeprom.map.IP1);
+    send_at_command(out_cmd);
+  
 	//Connect ok / fail
-	buffer_p = 0;
-	cnt = 200;
+//	buffer_p = 0;
+//	cnt = 200;
     RCIE = 0;
 	CREN1 = 1;
-	temp = wait_ok_respond(500);
-    return(temp);
+
+    return wait_ok_respond(40);
 }
 
 //---------------------------------------------------

@@ -73,5 +73,10 @@ uint8_t 	Respond_T_Hour = 0;
 uint8_t 	Respond_T_Day = 0;
 uint8_t 	OTA_flag = 0;
 
+
+bool timer3_timeout = false;
+
+
+
 #endif	/* TIMER_H */
 

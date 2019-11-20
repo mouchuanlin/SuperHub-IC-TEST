@@ -34,6 +34,8 @@ void UART1_init(uint32_t baudrate)
         SPBRG1 = 16;        // 115200
 
     SPBRGH1 = 0;    
+        
+    RC1IE = 1;
 }
 
 //---------------------------------------------------
@@ -107,14 +109,33 @@ void UART1_ISR(void)
         
     // RC1IE: EUSART1 Receive Interrupt Enable bit
     // RC1IF: EUSART1 Receive Interrupt Flag bit
-    if ((RC1IE == 1) && (RC1IF == 1))
-    {
-        do{
-        //    LED = ~LED;		
-            temp = RC1REG;
-        }while(RC1IF==1);
-       // RC1IF = 0;
-    }
+//    if ((RC1IE == 1) && (RC1IF == 1))
+//    {
+//        do{
+//        //    LED = ~LED;		
+//            temp = RC1REG;
+//        }while(RC1IF==1);
+//       // RC1IF = 0;
+//    }
+    
+
+    //while (RC1IF == 1 && !rx1_flag)
+    while (RC1IE == 1 && RC1IF == 1)
+    {            
+        temp = RC1REG;
+
+        // Store data in rx2_buf
+        rx1_buf[rx1_cnt] = temp;
+
+        // If exceed MAX size, save to the last spot.
+        if( rx1_cnt++ >= MAX_RX1_BUF_SIZE )
+            rx1_cnt = MAX_RX1_BUF_SIZE - 1;
+
+        // 7 bytes RF data in HEX - $ + 3byte ID + 1byte status + <CR> + <LF>
+        // TODO: This might be able to call process_RF_data() in infinite loop instead of processing in ISR.
+        if( temp == LF )      // \n
+            rx1_flag = true;    
+    };	        
 }
 
 // UART2 (to RF receiver) ISR
@@ -138,8 +159,7 @@ void UART2_ISR(void)
         // TODO: This might be able to call process_RF_data() in infinite loop instead of processing in ISR.
         if( temp == LF )      // \n
             process_RF_data();          
-    };
-     	       	
+    };	       	
 }
 
 void process_RF_data(void)

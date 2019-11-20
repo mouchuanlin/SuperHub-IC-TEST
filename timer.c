@@ -46,19 +46,13 @@ void TMR0_ISR(void)
     }	
 }
 
-//void TMR3_ISR(void)
-//{
-//	if (TMR3IF)
-//    //if (buttonPressCount != 0)
-//    {
-//
-////        reload_timer3_100ms();
-////		
-////        //process_sms_menu();    
-////
-////		process_button_push();	
-//    }    
-//}
+void TMR3_ISR(void)
+{
+	if (TMR3IF)
+    {
+        timer3_timeout = true;
+    }    
+}
 
 void handle_smoke_hub(void)
 {
@@ -276,34 +270,34 @@ void reload_timer0(void)
 //}
 
 /* Control button press timeout*/
-//void reload_timer3_2s()
-//{
-////    TMR3H = 0x30;
-////    TMR3L = 0;
-//    
-//    TMR3L = ((65535-_2seconds)%256);//for 8MHz
-//    TMR3H = ((65535-_2seconds)/256);
-//    
-//    TMR3IF = 0;
-//    TMR3IE = 1;
-//}
+void reload_timer3_2s()
+{
+//    TMR3H = 0x30;
+//    TMR3L = 0;
+    
+    TMR3L = ((65535-_2seconds)%256);//for 8MHz
+    TMR3H = ((65535-_2seconds)/256);
+    
+    TMR3IF = 0;
+    TMR3IE = 1;
+}
 
-//void reload_timer3_5s()
-//{
-////    TMR3H = 0x78;
-////    TMR3L = 0;'
-//	//disable_tmr3();
-//    TMR3L = ((65535-_5seconds)%256);//for 8MHz
-//    TMR3H = ((65535-_5seconds)/256);
-//	//enable_tmr3();
-//}
+void reload_timer3_5s()
+{
+//    TMR3H = 0x78;
+//    TMR3L = 0;'
+	//disable_tmr3();
+    TMR3L = ((65535-_5seconds)%256);//for 8MHz
+    TMR3H = ((65535-_5seconds)/256);
+	//enable_tmr3();
+}
 
-//void reload_timer3_100ms()
-//{
-//    T3CON = 0x87;
-//    TMR3L = ((65535-_100milliseconds)%256);//for 8MHz
-//    TMR3H = ((65535-_100milliseconds)/256);	
-//}
+void reload_timer3_100ms()
+{
+    T3CON = 0x87;
+    TMR3L = ((65535-_100milliseconds)%256);//for 8MHz
+    TMR3H = ((65535-_100milliseconds)/256);	
+}
 
 void reload_timer3_50ms(void)
 {

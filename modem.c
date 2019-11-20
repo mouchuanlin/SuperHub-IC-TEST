@@ -16,6 +16,17 @@
 bool modem_config_ok()
 {			
     SWDTEN = 0;
+    
+//    soutdata((uint8_t *) "AT+IPR=115200\r\n$");
+//    if (wait_ok_respond(40) != 'K')
+//		return false;
+	
+//	if (test_at() != 'K')
+//		return false;
+    
+//    test_at();
+//    check_ip_setting();
+	
 
     if (!wait_AT_cmd_response())        
 		return false;
@@ -209,8 +220,10 @@ uint8_t check_network_registration()
     // TODO: Send TEST AT commands. 
 //    send_test_AT_commands();
     
+    //test_at();
+    
     // mlin - why "AT\\Q0\r\n$"
-    soutdata((uint8_t *) "AT\\Q0\r\n$");
+    //soutdata((uint8_t *) "AT\\Q0\r\n$");
     
 //    soutdata(AT+CMGS=\"5665776987\"\r\n$");
     
@@ -219,6 +232,59 @@ uint8_t check_network_registration()
 	return true;    
 }
 
+uint8_t send_at_command(uint8_t str[])
+{
+    CREN1 = 0;
+    RC1IE = 0;
+    CREN1 = 1;
+    reload_timer3_50ms();
+    //reload_timer3_100ms();
+    //reload_timer3_2s();
+    //    rx1_flag = false;
+    //    rx1_cnt = 0;  
+    
+    soutdata((uint8_t *)str);  
+//    while (!rx1_flag)
+//        ;
+    
+     if (wait_ok_respond(40) != 'K')
+		return false;
+    
+    return true;
+//    __delay_ms(100);
+}
+
+void test_at(void)
+{
+    send_at_command((uint8_t *)"AT&F1\r\n$");   
+    send_at_command((uint8_t *)"AT+CMGF=1\r\n$");    
+    send_at_command((uint8_t *)"AT+CMEE=2\r\n$");    
+    //send_at_command((uint8_t *)"AT+CGDCONT=3,\"IP\",\"11583.mcs\"\r\n$");    
+    send_at_command((uint8_t *)"AT+CGDCONT?\r\n$");    
+    send_at_command((uint8_t *)"AT+CGMR\r\n$");    
+    send_at_command((uint8_t *)"AT+CGSN\r\n$");    
+    send_at_command((uint8_t *)"AT#SCFG=1,3,300,90,200,50\r\n$");    
+    send_at_command((uint8_t *)"AT+CGATT=1\r\n$");    
+    send_at_command((uint8_t *)"AT#SCFGEXT?\r\n$");    
+    send_at_command((uint8_t *)"AT+CREG=1\r\n$");    
+    send_at_command((uint8_t *)"AT+CREG?\r\n$");    
+    send_at_command((uint8_t *)"AT#SGACT=3,1\r\n$");    
+    send_at_command((uint8_t *)"AT+CMEE=2\r\n$");    
+    send_at_command((uint8_t *)"AT#CCID\r\n$");    
+    send_at_command((uint8_t *)"AT+CSQ\r\n$");    
+    send_at_command((uint8_t *)"AT#MONI\r\n$");    
+    send_at_command((uint8_t *)"AT+COPS?\r\n$");    
+    send_at_command((uint8_t *)"AT+CGSN\r\n$");    
+    send_at_command((uint8_t *)"AT+CNUM\r\n$");       
+    send_at_command((uint8_t *)"AT+CGMR\r\n$");    
+    send_at_command((uint8_t *)"AT+CIMI\r\n$");    
+    send_at_command((uint8_t *)"AT#BND?\r\n$");    
+    send_at_command((uint8_t *)"AT#CCID\r\n$");    
+    //send_at_command((uint8_t *)"AT#SD=1,0,2020,\"12.12.201.82\",0,0,1\r\n$");    
+    send_at_command((uint8_t *)"AT#SS\r\n$");    
+    send_at_command((uint8_t *)"AT#SH=1\r\n$");    
+    send_at_command((uint8_t *)"AT#SH=2\r\n$");    
+}
 
 void send_test_AT_commands(void)
 {
@@ -383,7 +449,7 @@ uint8_t start_sms()
     // This bit indicating if we are in button 5-1 or not.
     if( listen_sms_state==1 )    
     {
-        sms_time = read_ee(EE_PAGE0, SMS_WAIT_TIME_ADDR);   //wait SMS time
+        sms_time = page0_eeprom.map.SMS_WAIT_TIME;
         set_sms_init();    
         do{
             cnt = 12;
@@ -483,10 +549,11 @@ void start_modem(void)
     powerup_modem();
     
     // AT&F Reset AT Command Settings to Factory Default Values
-    reset_at_command_default();
+    //reset_at_command_default();
             
     // TODO: FOR DEBUGGING ONLY
-    send_test_AT_commands();
+    //send_test_AT_commands();
+//    test_at();
    
     while (!modem_config_ok())
         restart_modem();
@@ -501,7 +568,7 @@ void start_modem(void)
 
 void reset_at_command_default(void)
 {
-    soutdata((uint8_t *) "AT&F\r\n$");    
+    soutdata((uint8_t *) "AT&F1\r\n$");    
     delay5ms(20);
 }
 
@@ -588,12 +655,11 @@ void out_sbuf2(uint8_t tmp)
     TX2REG = tmp;
 }
 
-
 //---------------------------------------------------
 uint8_t wait_ok_respond(uint16_t count)
 {
   	uint8_t temp;
-    uint8_t buffer[20]={0}, buffer_p = 0;
+    uint8_t buffer[50]={0}, buffer_p = 0;
     CREN1 = 0;
     RC1IE = 0;
     CREN1 = 1;
@@ -610,12 +676,12 @@ uint8_t wait_ok_respond(uint16_t count)
                 // RCREGx
 		 	 	temp=RC1REG;
                 buffer[buffer_p] = temp;
-                if( ++buffer_p >= 20 )
-                    buffer_p = 19;
+                if( ++buffer_p >= 50 )
+                    buffer_p = 49;
                 if (temp == LF)     // 0x0A, \n
                 {
-                    if (strncmp((const char *)buffer, (const char *)"OK", 2) == 0)
-                    //if( buffer[0]=='O'&&buffer[1]=='K' )
+                    //if (strncmp((const char *)buffer, (const char *)"OK", 2) == 0)
+                    if( buffer[0]=='O'&&buffer[1]=='K' )
                         temp = 'K';
                     else if (strncmp((const char *)buffer, (const char *)"ERROR", 5) == 0)
                         temp = 'E';
@@ -630,7 +696,7 @@ uint8_t wait_ok_respond(uint16_t count)
                     buffer_p = 0;
                 }
         	}
-            check_receive_overrun();
+            //check_receive_overrun();
             
      	}while(TMR3IF==0);  // TMR3IF: TMR3 Overflow Interrupt Flag bit
         CLRWDT();

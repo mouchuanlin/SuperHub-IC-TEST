@@ -410,6 +410,7 @@ send_start:
             do{
                 CREN1 = 0;
                 rsp = TL_connection_open(cnt);
+                rsp = 'K';
                 if( rsp=='K' )      //send data to server
                 {
                     rsp = TL_send_data_to_server();     

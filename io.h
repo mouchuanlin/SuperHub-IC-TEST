@@ -208,8 +208,8 @@ uint8_t const encryption_code[16]={ 0x6c,0x31,0x6e,0x79,0x52,0x7f,0x26,0x6f,
 //--------------------
 #define BUFFER_STACK    6
 // TODO: why 220? In load_emc_number() "mov stack_buffer_data[20~159] to rsp_buffer" ????
-#define LOG_MAX_T       220
-//#define LOG_MAX_T       45
+//#define LOG_MAX_T       220
+#define LOG_MAX_T       80
 //uint8_t stack_buffer[BUFFER_STACK][LOG_MAX_T];
 
 // TODO: Need a better name for emc and stack_buffer???
@@ -277,16 +277,16 @@ uint8_t signal_val;
 // Pointer and array to store SMS message
 uint8_t key_p, key[100];
 
-typedef struct sms_key {
-    uint8_t pound_id;
-    uint8_t pound;
-    uint8_t ip[16];
-} sms_key_t;
-
-union sms_msg{
-    uint8_t     key[100];
-    sms_key_t   sms;
-};
+//typedef struct sms_key {
+//    uint8_t pound_id;
+//    uint8_t pound;
+//    uint8_t ip[16];
+//} sms_key_t;
+//
+//union sms_msg{
+//    uint8_t     key[100];
+//    sms_key_t   sms;
+//};
 
 uint8_t back_door;
 uint8_t respond_day = 0;

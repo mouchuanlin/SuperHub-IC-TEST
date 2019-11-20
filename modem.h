@@ -40,7 +40,8 @@ uint8_t check_register(uint8_t);
 uint8_t check_csq(void);
 void    send_test_AT_commands(void);
 void    reset_at_command_default(void);
-
+void    test_at(void);
+uint8_t send_at_command(uint8_t str[]);
 /*****************************************************
  * VARIABLES
  ****************************************************/
@@ -58,7 +59,7 @@ extern uint8_t  buttonPressCount;
 extern uint8_t  tmr3_cnt;
 extern state_t  myState;
 extern uint8_t  OTA_flag;
-extern bool      listen_sms_state;  
+extern bool     listen_sms_state;  
     
 
 #endif	/* MODEM_H */

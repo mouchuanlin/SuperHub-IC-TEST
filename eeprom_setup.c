@@ -22,53 +22,25 @@ uint8_t sms_setup_functions(void)
 	
 	cmd = (uint8_t) (poundH*10 + poundL);
 	
-    // ID: 1,2,3,4,35,36 - IP address
-	if ( ((cmd >= 1) && (cmd <= 4)) || (cmd == 35) || (cmd == 36) )
-		option = 0;
-    // ID: 5 access code
-	else if ( cmd == 5 )
-		option = 1;
-	else if ( (cmd == 6) || (cmd == 14) )
-		option = 2;
-	else if ( cmd == 7 )
-		option = 3;
-	else if ( cmd == 8 )
-		option = 4;
-	else if ( (cmd == 9) || (cmd == 15) || (cmd == 16) )
-		option = 5;
-	else if ( cmd == 10 )
-		option = 6;
-	else if ( cmd == 11 )
-		option = 7;
-	else if ( cmd == 12 )
-		option = 8;
-	else if ( ((cmd >= 31) && (cmd <= 34)) || (cmd == 37) )
-		option = 9;
-	else if ( cmd == 98 )
-		option = 10;
-    else if( cmd >= ID_START && cmd <= ID_END )   
-        option = 11;
-    else
-        found = false;
-    
-    if (found)
-        response = (*func_ptr[option])(cmd);
+
+//        if (found)
+//        response = (*func_ptr[option])(cmd);
     
     
-//    uint8_t junk = sizeof(sms_setup_funs)/sizeof(sms_setup_fun_t);
-//    for (index = 0 ; index < sizeof(sms_setup_funs)/sizeof(sms_setup_fun_t); index++)
-//    {
-////        response = sms_setup_funs[index].(*func_ptr())(cmd);
-////        return response
-//    }
+    uint8_t junk = sizeof(sms_setup_funs)/sizeof(sms_setup_fun_t);
+    for (index = 0 ; index < sizeof(sms_setup_funs)/sizeof(sms_setup_fun_t); index++)
+    {
+        if (cmd == sms_setup_funs[index].cmd)
+            return sms_setup_funs[index].func_ptr(cmd);
+    }
 
 	return response;
 }
 
 // This function is called to setup different IP address - IP1/2/3/4, APN, OTA.
 //  EX: 
-//      1#*#
-//      1#198.17.112.128#
+//      01#*#
+//      01#198.17.112.128#
 //      35#c2.korem2m.com#
 //      36#12.12.201.84#
 //
@@ -137,7 +109,7 @@ uint8_t set_n05(uint8_t cmd)
 	if( temp!='#' || index<0x07 )
 		return('E');
     
-//    strncpy((char *)page0_eeprom.map.ACCESS_CODE, (const char *)key[3], index - 3);
+    strncpy((char *)page0_eeprom.map.ACCESS_CODE, (const char *)&key[3], index - 3);
     update_eeprom_page0();
     
 // 	index = 0x03;
@@ -279,7 +251,7 @@ uint8_t set_n10(uint8_t cmd)
 			if( cnt==0x04 )
 				return('E');
 			cnt -= 4;	
-			addr = 0xCA;	
+			addr = UNIT_ACCT_ADDR;	
 			if( cnt<4 )
 			{
 				tp = (uint8_t) (4-cnt);
@@ -314,7 +286,7 @@ uint8_t set_n11(uint8_t cmd)
 		{
 			if( cnt==0x04 )
 				return('E');
-			addr = 0xD0;
+			addr = LINE_CARD_ADDR;
 			cnt = 0x03;
 			do{
 				temp = key[cnt++];
@@ -350,75 +322,33 @@ uint8_t set_n12_13(uint8_t cmd)
 //
 uint8_t set_n31_32_33_34_37(uint8_t cmd)
 {
-	uint8_t cnt,temp;
-	uint16_t addr;
-    
-    
-    port_no = (port_stru_t *)&key[0];
+    port_cmd_t *port_cmd = (port_cmd_t *)&key[0];
 
-	cnt = 0x03;
-	addr = 0;
-	do{
-		temp = key[cnt++];
-		if( temp=='#' )
-		{
-			if( cnt==0x04||addr<100 )
-				return('E');
-			if( cnt==9 )
-			{
-				if( key[3]=='6' )
-				{
-					if( key[4]=='5' )
-					{
-						if( key[5]=='5' )
-						{
-							if( key[6]=='3' )
-							{
-								if( key[7]>'5' )
-									return('E');
-							}else if( key[6]>'3' )
-								return('E');			
-						}else if( key[5]>'5' )
-							return('E');
-					}else if( key[4]>'5' )
-						return('E');
-				}else if( key[3]>'6' )
-					return('E');
-			}	
-			if( cmd==P_PORT1 )
-			{
-                // PORT1_ADDR
-				write_ee(EE_PAGE0, 0xB0, (addr>>8));
-				write_ee(EE_PAGE0, 0xB1, (addr&0x00ff));
-			}else if( cmd==P_PORT1 )
-			{
-                // PORT2_ADDR
-				write_ee(EE_PAGE0, 0xB2, (addr>>8));
-				write_ee(EE_PAGE0, 0xB3, (addr&0x00ff));
-			}else if( cmd==P_PORT1 )
-			{
-                // PORT3_ADDR
-				write_ee(EE_PAGE0, 0xB4, (addr>>8));
-				write_ee(EE_PAGE0, 0xB5, (addr&0x00ff));
-			}else if( cmd==P_PORT1)
-			{
-                // PORT4_ADDR
-				write_ee(EE_PAGE0, 0xB6, (addr>>8));
-				write_ee(EE_PAGE0, 0xB7, (addr&0x00ff));
-			}else if( cmd==P_PORT_OTA)
-			{
-				write_ee(EE_PAGE1, 0xF0, (addr>>8));
-				write_ee(EE_PAGE1, 0xF1, (addr&0x00ff));
-			}
-			return('K');
-		}else if( is_digit(temp) )
-		{
-			temp &= 0x0f;
-			addr = addr*10 + temp;
-		}else return('E');
-	}while(cnt<0x09);
+    if (port_cmd->pound != '#' || port_cmd->pound != '#')
+        return('E');
+    
+    for (uint8_t i = 0; i < 4; i++)
+    {
+        if (!is_digit(port_cmd->port[i]))
+             return('E');
+    }
+	
+    if( cmd == P_PORT1 )
+        strncpy((char *)page0_eeprom.map.PORT1, (const char *)port_cmd->port, 4);                 
+    else if( cmd == P_PORT2 )
+        strncpy((char *)page0_eeprom.map.PORT2, (const char *)port_cmd->port, 4);
+    else if( cmd == P_PORT3 )
+        strncpy((char *)page0_eeprom.map.PORT3, (const char *)port_cmd->port, 4);
+    else if( cmd == P_PORT4)
+        strncpy((char *)page0_eeprom.map.PORT4, (const char *)port_cmd->port, 4);        
+    else if( cmd == P_PORT_OTA)
+        strncpy((char *)page1_eeprom.map.PORT_OTA, (const char *)port_cmd->port, 4);    
+    
+   
+    update_eeprom();
+
     CLRWDT();
-	return('E');
+	return('K');
 }
 
 // This function is called to setup RF device ID in EEPROM. RF device ID from 41~56 - totally 16 entries.
@@ -437,14 +367,16 @@ uint8_t set_n41_to_56(uint8_t cmd)
     cmd -= 41;
     val = cmd;
     cmd *= 8;
+    
     // Delete ID 41 - 1111#41#*#, key[] hold SMS without access code.
     if( key[3]=='*'&&key[4]=='#' )
     {        
-        for( cnt=0;cnt<8;cnt++ )
-        {            
-            write_ee(EE_PAGE1, (uint8_t) (cmd+cnt), 0);
-            device_id_table[val][cnt] = 0;
-        }
+        strncpy((char *)page1_eeprom.map.device_id_table[val], (const char *) 0x00, 6);
+        page1_eeprom.map.device_id_table[val][6] = 0;
+        page1_eeprom.map.device_id_table[val][7] = 0;
+
+        update_eeprom_page1();
+        
         return('K');
     }
     // Only if the whole string is 10 byte and the last byte is #
@@ -465,22 +397,12 @@ uint8_t set_n41_to_56(uint8_t cmd)
         }while(++cnt<9);
         
         // Write ID to EEPROM and device_id_table
-        //  Ex : device_id_table[0] = "892C31"
-        for( cnt=0;cnt<6;cnt++ )
-        {
-            // ID starts from byte 3 - Ex 892C31
-            temp = key[cnt+3];
-            write_ee(EE_PAGE1, (uint8_t) (cmd+cnt), temp);
-            device_id_table[val][cnt] = temp;
-        }
+        strncpy((char *)page1_eeprom.map.device_id_table[val], (const char *)&key[3], 6);
+        page1_eeprom.map.device_id_table[val][6] = 0;
+        page1_eeprom.map.device_id_table[val][7] = 0;
+
+        update_eeprom_page1();
         
-        // TODO: Why write to [6]???
-        write_ee(EE_PAGE1, cmd+6, 0);
-        device_id_table[val][6] = 0;
-        
-        // TODO: Why write to [7]???
-        write_ee(EE_PAGE1, cmd+7, 0);
-        device_id_table[val][7] = 0;
         return('K');
     }
     return('E');
