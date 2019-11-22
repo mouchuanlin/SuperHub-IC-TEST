@@ -195,6 +195,8 @@ void init_pic18_eeprom(void)
 	strncpy((char *)page1_eeprom.map.IP_OTA, (const char *)IP_OTA, (size_t)sizeof(IP_OTA));
     strncpy((char *)page1_eeprom.map.PORT_OTA, (const char *)PORT_OTA, (size_t)sizeof(PORT_OTA));
     
+    // Store init value
+    store_eeprom_init_value();
 
     // Programming EEPROM to default values.
     update_eeprom();
@@ -389,4 +391,23 @@ void update_eeprom_page0(void)
 void update_eeprom_page1(void)
 {
     write_eeprom(EE_PAGE1, EE_START_ADDR, page1_eeprom.data, EE_PAGE_SIZE);
+}
+
+void store_eeprom_init_value(void)
+{    
+    for (uint16_t i = 0; i < EE_PAGE_SIZE; i++)
+    {
+        page0_init.data[i] = page0_eeprom.data[i];
+        page1_init.data[i] = page1_eeprom.data[i];
+    }
+    
+    // TODO: not sure why strncp() not working. Use loop instead for now.
+//    strncpy((char *)page0_init.data, (const char *)page0_eeprom.data, EE_PAGE_SIZE);
+//    strncpy((char *)page1_init.data, (const char *)page1_eeprom.data, EE_PAGE_SIZE);      
+}
+
+void restore_eeprom_init_value(void)
+{
+    write_eeprom(EE_PAGE0, EE_START_ADDR, page0_init.data, EE_PAGE_SIZE); 
+    write_eeprom(EE_PAGE1, EE_START_ADDR, page1_init.data, EE_PAGE_SIZE);     
 }

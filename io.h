@@ -275,7 +275,7 @@ uint8_t debug_p;
 uint8_t signal_val;
 
 // Pointer and array to store SMS message
-uint8_t key_p, key[100];
+extern uint8_t key_p, key[100];
 
 //typedef struct sms_key {
 //    uint8_t pound_id;

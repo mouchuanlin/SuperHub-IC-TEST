@@ -1,5 +1,5 @@
 //
-// eeprom_setup.c
+// file:    eeprom_setup.c
 //
 
 #include "eeprom_setup.h"
@@ -10,31 +10,53 @@
 // This function is called to perform ID# setup function from user SMS.
 uint8_t sms_setup_functions(void)
 {
-	uint8_t poundH, poundL, response='E';
-    uint8_t cmd, option;
+	uint8_t cmdH, cmdL, response = 'E';
+    uint8_t cmd, index;
     
-    uint8_t index;
-    bool    found = true;
-
+	cmdH = (uint8_t) (key[0] & 0x0F);
+	cmdL = (uint8_t) (key[1] & 0x0F);
+	cmd = (uint8_t) (cmdH*10 + cmdL);
     
-	poundH = (uint8_t) (key[0] & 0x0F);
-	poundL = (uint8_t) (key[1] & 0x0F);
-	
-	cmd = (uint8_t) (poundH*10 + poundL);
-	
-
-//        if (found)
-//        response = (*func_ptr[option])(cmd);
-    
-    
-    uint8_t junk = sizeof(sms_setup_funs)/sizeof(sms_setup_fun_t);
     for (index = 0 ; index < sizeof(sms_setup_funs)/sizeof(sms_setup_fun_t); index++)
     {
         if (cmd == sms_setup_funs[index].cmd)
+        {
             return sms_setup_funs[index].func_ptr(cmd);
+        }
     }
 
 	return response;
+}
+
+// This function is called to setup different IP address - IP1/2/3/4, APN, OTA.
+//  EX: 
+//      35#c2.korem2m.com#
+//      35#11583.mcs#
+//
+uint8_t set_n35(uint8_t cmd)
+{
+    uint8_t len;
+    uint8_t apn[32];
+
+    
+    len = strlen((const char *)key);
+    if (key[len-1] != '#')
+        return 'E';
+    else
+        key[len-1] = '\0';
+    
+    strcpy(apn, &key[3]);
+    
+    // TODO: WHY this function changed the value of cmd???
+    if (!is_valid_apn((char *)apn))
+        return 'E';
+    
+    // 35# - APN
+    strcpy((char *)page0_eeprom.map.APN, (const char *)&key[3]);
+    
+    update_eeprom();
+    
+	return 'K';
 }
 
 // This function is called to setup different IP address - IP1/2/3/4, APN, OTA.
@@ -44,49 +66,37 @@ uint8_t sms_setup_functions(void)
 //      35#c2.korem2m.com#
 //      36#12.12.201.84#
 //
-uint8_t set_n01_02_03_04_35_36(uint8_t cmd)
+uint8_t set_n01_02_03_04_36(uint8_t cmd)
 {
-	uint8_t cnt,temp,dot,addr,page;
-	
-    page = EE_PAGE0;
-    if( cmd == P_OTA )
-    {
-        page = EE_PAGE1;
-        addr = 0xD0;
-    }
-    else if( cmd == P_APN )
-		addr = 0x10;
-	else 
-        addr = (uint8_t) ((cmd <<4 )*2+0x10);
+    uint8_t len;
+    uint8_t ip[32];
 
-    // Delete device ID. Ex: 01#*#
-	if( key_p == 5 && key[3] == '*' && cmd != P_APN )
-	{
-		write_ee(EE_PAGE0, addr,'#');
-		return('K');
-	}
+    
+    len = strlen((const char *)key);
+    if (key[len-1] != '#')
+        return 'E';
+    else
+        key[len-1] = '\0';
+    
+    strcpy(ip, &key[3]);
 
-	cnt = 0x03;
-	dot = 0;
-	do{
-		temp = key[cnt++];
-	}while(temp != '#' && cnt<36);
-
-	if( cnt>=36 )
-		return('E');
-
-	cnt = 0x03;
-	do{
-		temp = key[cnt++];
-		if( cmd != 32 )
-		{
-			if( temp=='*' )
-				temp = '.';
-	  	}
-		write_ee(page,addr,temp);
-		addr++;
-	}while(temp!='#');
-	return('K');
+    if (!is_valid_ip((char *)ip))
+        return 'E';
+    
+    if (cmd == P_OTA)
+        strcpy((char *)page1_eeprom.map.IP_OTA, (const char *)&key[3]);
+    else if (cmd == P_IP1)
+        strcpy((char *)page0_eeprom.map.IP1, (const char *)&key[3]);
+    else if (cmd == P_IP2)
+        strcpy((char *)page0_eeprom.map.IP2, (const char *)&key[3]);
+    else if (cmd == P_IP3)
+        strcpy((char *)page0_eeprom.map.IP3, (const char *)&key[3]);
+    else if (cmd == P_IP4)
+        strcpy((char *)page0_eeprom.map.IP4, (const char *)&key[3]);
+        
+    update_eeprom();
+    
+	return 'K';
 }
 
 // This function is called to setup Access Code.
@@ -96,223 +106,235 @@ uint8_t set_n01_02_03_04_35_36(uint8_t cmd)
 // Access code - 4-6 digits/Char
 //  EX: 05#123456#  - 10
 //      05#1234#    - 8
+//
 uint8_t set_n05(uint8_t cmd)
 {
-	uint8_t index,temp,addr;
-	
-	index = 0x03;
-	while (temp != '#' && index < 0x09)
-    {
-		temp = key[index++];		 
-	};
-	
-	if( temp!='#' || index<0x07 )
-		return('E');
+    uint8_t len;
     
-    strncpy((char *)page0_eeprom.map.ACCESS_CODE, (const char *)&key[3], index - 3);
+    len = strlen((const char *)key);
+    if (len < 8 || len > 10)
+        return 'E';
+    
+    if (key[len-1] != '#')
+        return 'E';
+    else
+        key[len-1] = '\0';
+    
+    if (!valid_digit((char *)&key[3]))
+        return 'E';
+    
+    strncpy((char *)page0_eeprom.map.ACCESS_CODE, (const char *)&key[3], len - 4);
     update_eeprom_page0();
-    
-// 	index = 0x03;
-//    addr = 0xC0;
-//	do{
-//		temp = key[index++];
-// 	    write_ee(EE_PAGE0,addr,temp);
-//		addr++;
-//	}while(temp!='#');
-    
-    
+     
     CLRWDT();
 	return('K');
 }
 
 // This function is called to setup 06#/14#
 //  EX:
+//      06#01#
+//      14#00#
 //
 uint8_t set_n06_14(uint8_t cmd)
 {
-    uint8_t temp,addr;
-	
-    temp = key[3];
-	if( key_p==5 && (temp=='1'||temp=='0') )
-	{
-        if( cmd == 0x06 )
-            addr = 0xC7;
-        else addr = 0xBB;
-        if( temp=='1' )
-            write_ee(EE_PAGE0,addr,0x01);
-        else write_ee(EE_PAGE0,addr,0x00);
-		return('K');
-	}
-	return('E');
+    uint8_t len, num;
+    
+    len = strlen((const char *)key);
+    if (len < 5 || len > 6)
+        return 'E';
+    
+    if (key[len-1] != '#')
+        return 'E';
+    else
+        key[len-1] = '\0';
+    
+    num = atoi((const char *)&key[3]);
+    
+    if ( cmd == P_PROGRAM_ACK )
+        page0_eeprom.map.PROGRAM_ACK = num;
+    else if ( cmd == P_TP_PIN )
+        page0_eeprom.map.TP_PIN = num;
+    
+    update_eeprom_page0();
+    
+	return('K');
 }
 
 // This function is called to setup 07#
 //  EX:
 //      07#10#
+//
 uint8_t set_n07(uint8_t cmd)
 {
-	uint8_t cnt, temp, addr;
-
-	cnt = 0x03;
-	addr = 0;
-	do{
-		temp = key[cnt++];
-        
-		if( temp=='#' )
-		{
-			if( cnt==0x04 || addr>30 )
-				return('E');
-			write_ee(EE_PAGE0,0xC8,addr);
-			return('K');
-		}else if(is_digit(temp))
-		{
-			temp &=0x0f;
-			addr = (uint8_t) (addr*10 + temp);
-		}else return('E');
-	}while(cnt<0x06);
+    uint8_t len, num;
+    
+    len = strlen((const char *)key);
+    if (len < 5 || len > 6)
+        return 'E';
+    
+    if (key[len-1] != '#')
+        return 'E';
+    else
+        key[len-1] = '\0';
+    
+    num = atoi((const char *)&key[3]);
+    
+    page0_eeprom.map.TEST_FREQ = num;
+    
+    update_eeprom_page0();
+    
     CLRWDT();
-	return('E');
+	return('K');
 }
 
 // This function is called to setup 08#
+//  EX:
+//      08#12#
+//
 uint8_t set_n08(uint8_t cmd)
 {
-	uint8_t cnt,temp;
-	uint16_t addr;
-
-	cnt = 0x03;
-	addr = 0;
-	do{
-		temp = key[cnt++];
-		if( temp=='#' )
-		{
-			if( cnt==0x04 || addr>180 )
-				return('E');
-			write_ee(EE_PAGE0,0xC9,addr);
-			return('K');
-		}else if( is_digit(temp) )
-		{
-			temp &= 0x0f;
-			addr = addr*10 + temp;
-		}else return('E');
-	}while(cnt<0x07);
+    uint8_t len, num;
+    
+    len = strlen((const char *)key);
+    if (len < 5 || len > 6)
+        return 'E';
+    
+    if (key[len-1] != '#')
+        return 'E';
+    else
+        key[len-1] = '\0';
+    
+    num = atoi((const char *)&key[3]);
+    
+    page0_eeprom.map.SERVER_ACK_TIME = num;
+    
+    update_eeprom_page0();
+    
     CLRWDT();
-	return('E');
+	return('K');
 }
 
 // This function is called to setup 09#/15#/16#.
 //  EX:
+//      09#1#
+//      09#12#
 //
 uint8_t set_n09_15_16(uint8_t cmd)
 {
-	uint8_t cnt,temp;
-	uint16_t addr;
-
-	cnt = 0x03;
-	addr = 0;
-	do{
-		temp = key[cnt++];
-		if( temp=='#' )
-		{
-			if( cnt==0x00 || addr>100 )
-				return('E');
-            if( cmd==9 )
-                write_ee(EE_PAGE0,0xB8,addr);
-            else if( cmd==15 )     //17/11/08
-                write_ee(EE_PAGE0,0xBC,addr);
-            else if( cmd==16 )     //17/11/08
-                write_ee(EE_PAGE0,0xBD,addr);
-            else return('E');
-			return('K');
-		}else if( is_digit(temp))
-		{
-			temp &= 0x0f;
-			addr = addr*10 + temp;
-		}else return('E');
-	}while(cnt<0x07);
+    uint8_t len, num;
+    
+    len = strlen((const char *)key);
+    if (len < 5 || len > 6)
+        return 'E';
+    
+    if (key[len-1] != '#')
+        return 'E';
+    else
+        key[len-1] = '\0';
+    
+    num = atoi((const char *)&key[3]);
+    
+    if ( cmd == P_SMS_WAIT_TIME )
+        page0_eeprom.map.SMS_WAIT_TIME = num;
+    else if ( cmd == P_CYCLE )
+        page0_eeprom.map.CYCLE = num;
+    else if ( cmd == P_RETRY )
+        page0_eeprom.map.RETRY = num;
+    
+    update_eeprom_page0();
+        
     CLRWDT();
-	return('E');
+	return('K');
 }
 
-// This function is called to setup 10# Unit Account.
+// This function is called to setup 10# Unit Account - 4~6 digits
 //  EX:
 //      10#4007#
+//      10#123456#
 //
 uint8_t set_n10(uint8_t cmd)
 {
-	uint8_t cnt,temp,addr,tp;
+    uint8_t len;
+    
+    len = strlen((const char *)key);
+    if (len < 8 || len > 10)
+        return 'E';
+    
+    if (key[len-1] != '#')
+        return 'E';
+    else
+        key[len-1] = '\0';    
 
-	cnt = 0x03;
-	addr = 0;
-	do{
-		temp = key[cnt++];
-		if( temp=='#' )
-		{
-			if( cnt==0x04 )
-				return('E');
-			cnt -= 4;	
-			addr = UNIT_ACCT_ADDR;	
-			if( cnt<4 )
-			{
-				tp = (uint8_t) (4-cnt);
-				do{
-					write_ee(EE_PAGE0,addr,'0');
-					addr++;
-				}while(--tp!=0);
-			}
-			cnt = 0x03;
-			do{
-				temp = key[cnt++];
-				write_ee(EE_PAGE0,addr,temp);
-			}while(++addr<0xD0);
-			return('K');
-		}else if( !is_digit(temp) )
-			return('E');
-	}while(cnt<0x0a);
+    if (!valid_digit((char *)&key[3]))
+        return 'E';
+     
+    strncpy((char *)page0_eeprom.map.UNIT_ACCNT, (const char *)&key[3], len - 4);
+    
+    update_eeprom_page0();
+   
     CLRWDT();
-	return('E');
+	return('K');
 }
 
-//-----------------------------------//
+// This function is called to setup 11# Line Card - 4~6 digits
+//  EX:
+//      11#7548#
+//      11#123456#
+//
 uint8_t set_n11(uint8_t cmd)
 {
-	uint8_t cnt,temp,addr;
+    uint8_t len;
+    
+    len = strlen((const char *)key);
+    if (len < 8 || len > 10)
+        return 'E';
+    
+    if (key[len-1] != '#')
+        return 'E';
+    else
+        key[len-1] = '\0';    
 
-	cnt = 0x03;
-	addr = 0;
-	do{
-		temp = key[cnt++];
-		if( temp=='#' )
-		{
-			if( cnt==0x04 )
-				return('E');
-			addr = LINE_CARD_ADDR;
-			cnt = 0x03;
-			do{
-				temp = key[cnt++];
-				write_ee(EE_PAGE0,addr,temp);
-				addr++;
-			}while(temp!='#');
-			return('K');
-		}else if( !is_digit(temp) )
-			return('E');
-	}while(cnt<0x08);
+    if (!valid_digit((char *)&key[3]))
+        return 'E';
+     
+    strncpy((char *)page0_eeprom.map.LINE_CARD, (const char *)&key[3], len - 4);
+    
+    update_eeprom_page0();
+    
     CLRWDT();
-	return('E');
+	return('K');
 }
 
-//-----------------------------------//
+// This function is called to setup 12#/13#
+//  EX:
+//      12#12#
+//
 uint8_t set_n12_13(uint8_t cmd)
 {
-	uint8_t temp;
+    uint8_t len, num;
+    
+    len = strlen((const char *)key);
+    if (len < 8 || len > 10)
+        return 'E';
+    
+    if (key[len-1] != '#')
+        return 'E';
+    else
+        key[len-1] = '\0';    
 
-    temp = key[3];
-    if( temp<'0'||temp>'9' )
-        return('E');
-    if( key[4]!='#' )
-        return('E');
-    write_ee(EE_PAGE0,0xB9,key[3]);  
-	return('K');
+    if (!valid_digit((char *)&key[3]))
+        return 'E';
+    
+    num = atoi((const char *)&key[3]);
+     
+    if ( cmd == P_ZONE1 )
+        page0_eeprom.map.ZONE1 = num;
+    else if ( cmd == P_ZONE2 )
+        page0_eeprom.map.ZONE2 = num;
+    
+    update_eeprom_page0();    
+
+    return('K');
 }
 
 // This function is called to set PORT1/2/3/4 and OTA_Port.
@@ -344,7 +366,6 @@ uint8_t set_n31_32_33_34_37(uint8_t cmd)
     else if( cmd == P_PORT_OTA)
         strncpy((char *)page1_eeprom.map.PORT_OTA, (const char *)port_cmd->port, 4);    
     
-   
     update_eeprom();
 
     CLRWDT();
@@ -353,73 +374,66 @@ uint8_t set_n31_32_33_34_37(uint8_t cmd)
 
 // This function is called to setup RF device ID in EEPROM. RF device ID from 41~56 - totally 16 entries.
 //  EX:
+//      41#*#
 //      41#627275#
 //      42#892C31#
 //      43#333435#
 //
 uint8_t set_n41_to_56(uint8_t cmd)
 {
-    uint8_t cnt,temp,val;
+    uint8_t len, id;
     
-    // The parameter cmd is the EEPROM ID#. It starts from 41 while we want save to array[0]
-    // RF slave device ID store in EEPROM Page 1 address 0 - 8 bytes for each device.
-    cnt = 0x03;
-    cmd -= 41;
-    val = cmd;
-    cmd *= 8;
+    id = cmd - 41;
     
     // Delete ID 41 - 1111#41#*#, key[] hold SMS without access code.
-    if( key[3]=='*'&&key[4]=='#' )
+    if( key[3]=='*' && key[4]=='#' )
     {        
-        strncpy((char *)page1_eeprom.map.device_id_table[val], (const char *) 0x00, 6);
-        page1_eeprom.map.device_id_table[val][6] = 0;
-        page1_eeprom.map.device_id_table[val][7] = 0;
+        strncpy((char *)page1_eeprom.map.device_id_table[id], (const char *) 0x00, 6);
+        page1_eeprom.map.device_id_table[id][6] = 0;
+        page1_eeprom.map.device_id_table[id][7] = 0;
 
         update_eeprom_page1();
         
         return('K');
     }
+    
     // Only if the whole string is 10 byte and the last byte is #
     // Ex: 41#892C31#
-    if( key_p==10&&key[9]=='#')
-    {                
-        cnt = 3;
-        do{
-            temp = key[cnt];
-             // ID can ONLY be number (0-9) or letter (A-Z or a-z)
-            if( (temp>='0'&&temp<='9')||(temp>='A'&&temp<='F') )
-            {
-                NOP();
-            }else if( temp>='a'&&temp<='f' )
-            {
-                key[cnt] -= 0x20;
-            }else return('E');            
-        }while(++cnt<9);
+    len = strlen((char *)key);
+    if (len != 10)
+        return 'E';
+    
+    if (key[len-1] != '#')
+        return 'E';
+    else
+        key[len-1] = '\0';      
         
-        // Write ID to EEPROM and device_id_table
-        strncpy((char *)page1_eeprom.map.device_id_table[val], (const char *)&key[3], 6);
-        page1_eeprom.map.device_id_table[val][6] = 0;
-        page1_eeprom.map.device_id_table[val][7] = 0;
+    if (!valid_digit((char *)&key[3]))
+        return 'E';
+        
+    // Write ID to EEPROM and device_id_table
+    strncpy((char *)page1_eeprom.map.device_id_table[id], (const char *)&key[3], 6);
+    page1_eeprom.map.device_id_table[id][6] = 0;
+    page1_eeprom.map.device_id_table[id][7] = 0;
 
-        update_eeprom_page1();
+    update_eeprom_page1();
         
-        return('K');
-    }
-    return('E');
+    return('K');
 }
 
 // This function is called to re-init EEPROM
 //  EX:
-//      98#*#
+//      98#**#
+//
 uint8_t set_n98(uint8_t cmd)
 {
-	if( key[3]=='*'&&key[4]=='*'&&key[5]=='#' )
+	if ( key[3]=='*' && key[4] == '*' && key[5]=='#' )
 	{
-        write_ee(EE_PAGE0,0x00,0x00);
-		init_pic18_eeprom();
+        restore_eeprom_init_value();
 		return('K');
 	}
-	else return('E');
+	else 
+        return('E');
 }
 
 bool is_digit(uint8_t digit)
@@ -429,3 +443,107 @@ bool is_digit(uint8_t digit)
     else
         return false;
 }
+
+// return  true if string contain only digits, else return false.
+bool valid_digit(char *ip_str) 
+{ 
+    while (*ip_str) { 
+        if (*ip_str >= '0' && *ip_str <= '9') 
+            ++ip_str; 
+        else
+            return false; 
+    } 
+    
+    return true; 
+} 
+
+// return true if IP string is valid, else return false.
+bool is_valid_ip(char *ip) 
+{ 
+    int     num, dots = 0; 
+    char    *ip_str;
+    char    *ptr; 
+  
+    ip_str = ip;
+    
+    if (ip_str == NULL) 
+        return false; 
+  
+    // Splitting a string 
+    ptr = strtok(ip_str, DELIM); 
+  
+    if (ptr == NULL) 
+        return false; 
+  
+    while (ptr)
+    { 
+        // after parsing string, it must contain only digits.
+        if (!valid_digit(ptr)) 
+            return false; 
+  
+        num = atoi(ptr); 
+  
+        // check for valid IP.
+        if (num >= 0 && num <= 255) { 
+            // parse remaining string
+            ptr = strtok(NULL, DELIM); 
+            if (ptr != NULL) 
+                ++dots; 
+        } else
+            return false; 
+    } 
+  
+    // valid IP string must contain 3 dots
+    if (dots != 3) 
+        return false; 
+    
+    return true; 
+} 
+
+// return  true if string contain only alphabets and digits, else return false.
+bool valid_isalnum(char *apn_str) 
+{ 
+    while (*apn_str) { 
+        if (isalnum(*apn_str)) 
+            ++apn_str; 
+        else
+            return false; 
+    } 
+    
+    return true; 
+} 
+
+// return true if APN string is valid, else return false.
+bool is_valid_apn(char *apn_str) 
+{ 
+    int     dots = 0; 
+    char    *ptr; 
+    
+    if (apn_str == NULL) 
+        return false; 
+  
+    // Splitting a string 
+    ptr = strtok(apn_str, DELIM); 
+  
+    if (ptr == NULL) 
+        return false; 
+  
+    while (ptr)
+    { 
+        // after parsing string, it must contain only digits.
+        if (!valid_isalnum(ptr)) 
+            return false; 
+        else { 
+            // parse remaining string
+            ptr = strtok(NULL, DELIM); 
+            if (ptr != NULL) 
+                ++dots; 
+        } 
+    } 
+  
+    // valid APN string must contain at least 1 dot
+    if (dots < 1) 
+        return false; 
+    
+    return true; 
+} 

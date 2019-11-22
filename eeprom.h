@@ -42,6 +42,9 @@ void    update_page_info(void);
 void    update_eeprom(void);
 void    update_eeprom_page0(void);
 void    update_eeprom_page1(void);
+
+void    store_eeprom_init_value(void);
+void    restore_eeprom_init_value(void);
     
 /*****************************************************
  * VARIABLES
@@ -205,12 +208,12 @@ typedef struct pg1_eeprom_struct
 union pg0_eeprom {
     uint8_t             data[EE_PAGE_SIZE];
     pg0_eeprom_map_t    map;
-} page0_eeprom;
+} page0_eeprom, page0_init;
 
 union pg1_eeprom {
     uint8_t             data[EE_PAGE_SIZE];    
     pg1_eeprom_map_t    map;
-} page1_eeprom;
+} page1_eeprom, page1_init;
 
 
 extern bool ready_for_sending;    

@@ -4,6 +4,8 @@
 
 #include "io.h"
 
+uint8_t key_p, key[100]={0};
+
 void IO_init(void)
 {       
 //PORTA
