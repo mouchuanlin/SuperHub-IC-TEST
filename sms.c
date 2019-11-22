@@ -224,13 +224,10 @@ uint8_t read_sms(uint8_t a,uint8_t b,uint8_t c)
 						enter_cnt = '^';
 					if(++sms_p>=160 )
 			  			sms_p=159;
-					if(temp==0x0d)
+					if(temp == LF)
 					{
                         // TODO: set for length 4 now. Should be up to 7.
-                        if (strncmp((const char *)sms_buffer, (const char *)page0_eeprom.map.ACCESS_CODE, 4))
-						//if( (sms_buffer[0]==access_code[0])&&(sms_buffer[1]==access_code[1])&&(sms_buffer[2]==access_code[2])&&(sms_buffer[3]==access_code[3]) )							
-							NOP();
-						else										
+                        if (strncmp((const char *)&sms_buffer[0], (const char *)page0_eeprom.map.ACCESS_CODE, 4) != 0)										
 							break;
 						
 			  			sms_buffer[sms_p-1] = 0xcc;
@@ -338,13 +335,17 @@ uint8_t remote_setting(void)
 {
 	uint8_t temp,temp1,temp2,respond,cnt;
 	uint8_t addr_tp,off_set,off_tp;
+    uint8_t index = 0;
 
-
-    
     for (uint8_t i = 0 ; i < SMS_BUF_LEN; i++)
         sms_buffer[i] = toupper(sms_buffer[i]);
     
-	addr_tp = x_cnt; 					// record first address
+    // Find the first command index in sms_buffer
+    while (sms_buffer[index++] != '#')
+        ;
+        
+	//addr_tp = index; 					// record first address
+    addr_tp = x_cnt;
 
 	//----- function code
 	respond = 0x00;
@@ -356,7 +357,7 @@ uint8_t remote_setting(void)
 		{
 			x_cnt += 2;
 			respond = 'X';
-			// 1111##20sensor# - query sensor info
+			// 1111#20sensor# - query sensor info
 			if ( strstr((const char *)sms_buffer[x_cnt], (const char *)"SENSOR#"))
             {
                 off_set = 0;
@@ -459,6 +460,9 @@ uint8_t remote_setting(void)
 	if( respond!='R'&&respond!='E'&&respond!='L'&&respond!='X'&&respond!='W' )			// setting function
 	{
 		do{
+            for (uint8_t i = 0; i < 100; i++)
+                    key[i] = 0x00;
+            
 			key_p = 0;
 			respond = 'E';
 			do{
@@ -472,8 +476,10 @@ uint8_t remote_setting(void)
 					else if(key[2]=='#'||key[3]=='#' )
 					{					
 						respond = 'K';
-					}else respond = 'E';
-					break;
+					}
+                    else 
+                        respond = 'E';
+                        break;
 				}
 				if( key_p>=36 )
 				{
@@ -489,6 +495,7 @@ uint8_t remote_setting(void)
 			}
 		}while( (x_cnt<sms_p)&&respond=='K' );
 		
+
 		// sms ending
 		if( temp==0xcc )
 			x_cnt-=1;
@@ -747,26 +754,26 @@ uint8_t respond_setting(uint8_t type,uint8_t off_set)
     
 	off_tp = off_set;
 	page = 0;
-	if( (type>=0x01&&type<=0x05)||(type==0x10)||(type==0x11)||(type==0x35)||(type==0x36) )			//01~05,10,11,35,36
+	if( (type>=0x01&&type<=0x05)||(type==10)||(type==11)||(type==35)||(type==36) )			//01~05,10,11,35,36
 	{	
         page = 0x00;
-		if( type==0x01 )
+		if( type==P_IP1 )
 			addr = 0x30;
-		else if( type==0x02 )
+		else if( type==P_IP2 )
 			addr = 0x50;
-	  	else if( type==0x03 )
+	  	else if( type==P_IP3 )
 			addr = 0x70;
-	   	else if( type==0x04 )
+	   	else if( type==P_IP4 )
 			addr = 0x90;
-	 	else if( type==0x05 )
+	 	else if( type==P_ACCESS_CODE )
 			addr = 0xC0;
-		else if( type==0x10 )
+		else if( type==P_UNIT_ACCNT )
 			addr = 0xCA;
-        else if( type==0x11 )
+        else if( type==P_LINE_CARD )
 			addr = 0xD0;
-        else if( type==0x35 )
+        else if( type==P_APN )
 			addr = 0x10;
-	   	else if( type==0x36 )
+	   	else if( type==P_OTA )
         {
             page = 1;
 			addr = 0xD0;

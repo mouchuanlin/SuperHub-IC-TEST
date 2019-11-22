@@ -32,48 +32,23 @@ int main(int argc, char** argv)
     //init_eeprom();
     init_pic18_eeprom();
 
-    for (uint16_t i = EE_START_ADDR; i < EE_PAGE_SIZE; i++)
-    {
-        page0_eeprom.data[i] = 0x00;
-        page1_eeprom.data[i] = 0x00;
-    }
     update_page_info();
     
     // TODO: FOR page0_eeprom/page1_eeprom TESTING ONLY    
     ////////////////////////////////////////////////////////////////////////////////////    
     //eeprom_test_function(); 
+    //sms_test_function();)
     ////////////////////////////////////////////////////////////////////////////////////  
-       
-    // Powerup modem, send AT command to init modem.
-    start_modem();
-    
     
     // TODO: FOR DEBUGGING ONLY
     ////////////////////////////////
     RF_input_test();
     //process_event_queue();
-    //////////////////////////////// 
-    
-    // TODO: SMS setup TEST ONLY
-    uint8_t *test_str = "01#198.17.112.128#";
-    //uint8_t *test_str = "35#c2.korem2m.com#";
-    //char test_str[] = "36#12.12.201.84#";
-    //char test_str[] = "41#123456#";
-    //char test_str[] = "05#1234#";
-    //char test_str[] = "31#5555#";
-    //char test_str[] = "10#1234#";    
-    //char test_str[] = "11#1234#";   
-    //char test_str[] = "09#12#";  
-    //char test_str[] = "08#12#"; 
-    
-    for (uint8_t i = 0; i < sizeof(key); i++)
-        key[i] = 0x00;
-    
-    key_p = strlen((char *)test_str);
-    strncpy((char *)key, (const char *)test_str, (size_t)strlen(test_str));
-    sms_setup_functions();    
-    //////////////////////////////// 
-    
+    ////////////////////////////////     
+       
+    // Powerup modem, send AT command to init modem.
+    start_modem();
+        
     // Turn off modem/UART before going to infinite loop.
     prepare_to_sleep();
 
@@ -470,7 +445,7 @@ void prepare_to_sleep(void)
 
 void RF_input_test(void)
 {
-    test_flood_sensor_1();
+    test_flood_sensor();
 }
 
 void test_flood_sensor_1(void)
@@ -564,3 +539,26 @@ void test_smoke_sensor(void)
 //    
 //}
 
+//void sms_test_function(void)
+//{
+//    // TODO: SMS setup TEST ONLY
+//    uint8_t *test_str = "01#198.17.112.128#";
+//    //uint8_t *test_str = "35#c2.korem2m.com#";
+//    //char test_str[] = "36#12.12.201.84#";
+//    //char test_str[] = "41#123456#";
+//    //char test_str[] = "05#1234#";
+//    //char test_str[] = "31#5555#";
+//    //char test_str[] = "10#1234#";    
+//    //char test_str[] = "11#1234#";   
+//    //char test_str[] = "09#12#";  
+//    //char test_str[] = "08#12#"; 
+//    
+//    for (uint8_t i = 0; i < sizeof(key); i++)
+//        key[i] = 0x00;
+//    
+//    key_p = strlen((char *)test_str);
+//    strncpy((char *)key, (const char *)test_str, (size_t)strlen(test_str));
+//    sms_setup_functions();    
+//    //////////////////////////////// 
+//
+//}

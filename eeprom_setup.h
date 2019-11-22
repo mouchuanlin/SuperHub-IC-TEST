@@ -40,7 +40,7 @@ bool    valid_digit(char *ip_str);
 bool    is_valid_ip(char *ip_str) ;
 
 bool    is_valid_apn(char *apn_str);
-bool    valid_isalnum(char *apn_str);
+bool    valid_alnum(char *apn_str);
 
 /*****************************************************
  * VARIABLES

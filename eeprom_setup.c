@@ -408,7 +408,7 @@ uint8_t set_n41_to_56(uint8_t cmd)
     else
         key[len-1] = '\0';      
         
-    if (!valid_digit((char *)&key[3]))
+    if (!valid_alnum((char *)&key[3]))
         return 'E';
         
     // Write ID to EEPROM and device_id_table
@@ -501,7 +501,7 @@ bool is_valid_ip(char *ip)
 } 
 
 // return  true if string contain only alphabets and digits, else return false.
-bool valid_isalnum(char *apn_str) 
+bool valid_alnum(char *apn_str) 
 { 
     while (*apn_str) { 
         if (isalnum(*apn_str)) 
@@ -531,7 +531,7 @@ bool is_valid_apn(char *apn_str)
     while (ptr)
     { 
         // after parsing string, it must contain only digits.
-        if (!valid_isalnum(ptr)) 
+        if (!valid_alnum(ptr)) 
             return false; 
         else { 
             // parse remaining string

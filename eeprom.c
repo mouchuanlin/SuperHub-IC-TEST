@@ -9,6 +9,7 @@
 #include "led.h"
 #include "modem.h"
 #include "eeprom_setup.h"
+#include "sms.h"
 
 // Read EEPROM for len (mainly use for 256) bytes
 uint8_t *read_eeprom(uint8_t page, uint8_t addr, uint8_t *ptr, uint16_t len)
@@ -172,6 +173,10 @@ void init_pic18_eeprom(void)
     strncpy((char *)page0_eeprom.map.PORT3, (const char *)PORT3, (size_t)sizeof(PORT3));
     strncpy((char *)page0_eeprom.map.PORT4, (const char *)PORT4, (size_t)sizeof(PORT4));
 	strncpy((char *)page0_eeprom.map.ACCESS_CODE, (const char *)ACCESS_CODE, (size_t)sizeof(ACCESS_CODE));
+
+    // TODO: Should remove this just use page0_eeprom.
+	strncpy((char *)access_code, (const char *)ACCESS_CODE, (size_t)sizeof(ACCESS_CODE));
+    access_code[4] = '#';
 	
     page0_eeprom.map.PROGRAM_ACK = PROGRAM_ACK;
     page0_eeprom.map.TEST_FREQ = TEST_FREQ;
@@ -195,6 +200,9 @@ void init_pic18_eeprom(void)
 	strncpy((char *)page1_eeprom.map.IP_OTA, (const char *)IP_OTA, (size_t)sizeof(IP_OTA));
     strncpy((char *)page1_eeprom.map.PORT_OTA, (const char *)PORT_OTA, (size_t)sizeof(PORT_OTA));
     
+    // TODO: FOR TESTING ONLY
+    load_test_device_id();
+    
     // Store init value
     store_eeprom_init_value();
 
@@ -203,10 +211,17 @@ void init_pic18_eeprom(void)
     
     // TODO: FOR DEBUGGING ONLY
     ////////////////////////////////
-    write_test_device_id();
+    //write_test_device_id();
     ////////////////////////////////  
     
     load_default();
+}
+
+void load_test_device_id(void)
+{
+    strncpy((char *)page1_eeprom.map.device_id_table[0], (const char *)"627275", 6);
+    strncpy((char *)page1_eeprom.map.device_id_table[0], (const char *)"892C31", 6);
+    strncpy((char *)page1_eeprom.map.device_id_table[0], (const char *)"333435", 6);
 }
 
 void write_test_device_id()
@@ -372,6 +387,12 @@ uint8_t del_ID(uint8_t id)
 
 void update_page_info(void)
 {
+    for (uint16_t i = EE_START_ADDR; i < EE_PAGE_SIZE; i++)
+    {
+        page0_eeprom.data[i] = 0x00;
+        page1_eeprom.data[i] = 0x00;
+    }
+        
     // Read back from EEPROM
     read_eeprom(EE_PAGE0, EE_START_ADDR, page0_eeprom.data, EE_PAGE_SIZE);  
     read_eeprom(EE_PAGE1, EE_START_ADDR, page1_eeprom.data, EE_PAGE_SIZE);      
