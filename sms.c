@@ -349,119 +349,103 @@ uint8_t remote_setting(void)
 
 	//----- function code
 	respond = 0x00;
-	if( sms_buffer[x_cnt]=='2' )		// retrieve system config
-	{
-		x_cnt++;
-        // 20#
-		if( (sms_buffer[x_cnt]=='0') && (sms_buffer[x_cnt+1]=='#') )
-		{
-			x_cnt += 2;
-			respond = 'X';
-			// 1111#20sensor# - query sensor info
-			if ( strstr((const char *)&sms_buffer[x_cnt], (const char *)"SENSOR#"))
+
+    // 20#
+    if (strstr((const char *)&sms_buffer[0], (const char *)"20#"))
+    {
+        x_cnt += 2;
+        respond = 'X';
+        // 1111#20sensor# - query sensor info
+        if ( strstr((const char *)&sms_buffer[0], (const char *)"SENSOR#"))
+        {
+            off_set = 0;
+            for( temp1=0;temp1<16;temp1++ )
             {
-                off_set = 0;
-                for( temp1=0;temp1<16;temp1++ )
+                if( temp1==0||temp1==4||temp1==9||temp1==14)
                 {
-                    if( temp1==0||temp1==4||temp1==9||temp1==14)
+                    rsp_buffer[off_set++] ='(';
+                    if( temp1==0 )                        
+                        rsp_buffer[off_set++] ='1';                        
+                    else if( temp1==4 )
+                        rsp_buffer[off_set++] ='5';
+                    else if( temp1==9 )
                     {
-                        rsp_buffer[off_set++] ='(';
-                        if( temp1==0 )                        
-                            rsp_buffer[off_set++] ='1';                        
-                        else if( temp1==4 )
-                            rsp_buffer[off_set++] ='5';
-                        else if( temp1==9 )
-                        {
-                            rsp_buffer[off_set++] ='1';
-                            rsp_buffer[off_set++] ='0';
-                        }else if( temp1==14 )
-                        {
-                            rsp_buffer[off_set++] ='1';
-                            rsp_buffer[off_set++] ='5';
-                        }
-                        rsp_buffer[off_set++] =')';
+                        rsp_buffer[off_set++] ='1';
+                        rsp_buffer[off_set++] ='0';
+                    }else if( temp1==14 )
+                    {
+                        rsp_buffer[off_set++] ='1';
+                        rsp_buffer[off_set++] ='5';
                     }
-                    for( temp2=0;temp2<6;temp2++)
-                    {
-                        temp = read_ee(1,(temp1*8)+temp2);
-                        if( temp2==0&&temp==0 )
-                            break;
-                        rsp_buffer[off_set++] = temp;
-                    }                    
-                    rsp_buffer[off_set++] = ',';
-                }     
-                rsp_buffer[off_set-1] = 0x0d;
-            }
-			// 1111#20#all# - query all setting info
-			else if(sms_buffer[x_cnt] == 'A') 
-			{
-				x_cnt++;
-				if( sms_buffer[x_cnt] == 'L' )
-				{
-					x_cnt++;
-					if( (sms_buffer[x_cnt] == 'L') && (sms_buffer[x_cnt+1] == '#') )
-					{
-						rsp_buffer[0]='V';
-						rsp_buffer[1]='.';
-						rsp_buffer[2]= VERSION[0];
-						rsp_buffer[3]='.';
-						rsp_buffer[4]= VERSION[1];
-						rsp_buffer[5]='.';
-						rsp_buffer[6]= VERSION[2];
-						rsp_buffer[7]='-';
-						off_set = 8;
-						temp= 1;
-						do{
-							temp1 = temp/10;
-							temp2 = temp%10;
-							temp1 = (uint8_t)((temp1<<4)+temp2);
-							if( (temp1>=0x1&&temp1<=0x12)||(temp1>=0x14&&temp1<=0x16)||((temp1>=0x31)&&(temp1<=0x37)) )
-								off_set = respond_setting(temp1,off_set);
-						}while(++temp<0x38);						
-						rsp_buffer[off_set-1]=0x0d;
-				 	}else respond='E';
-				}else respond='E';
-			}else
-			{
-				// Otherwise ERROR
-				off_set = 0;
-				do{
-					temp = sms_buffer[x_cnt++];
-					temp1 = sms_buffer[x_cnt++];
-					if( !is_digit(temp) || !is_digit(temp1) )
-                    {
-                        rsp_buffer[off_set++] = 'E';
-                        rsp_buffer[off_set++] = 'r';
-                        rsp_buffer[off_set++] = 'r';
-                        rsp_buffer[off_set++] = 'o';
-                        rsp_buffer[off_set++] = 'r';
-                        rsp_buffer[off_set++] = ' ';
-						break;
-                    }
-					temp = (uint8_t) (((temp&0x0f)<<4) + (temp1&0x0f));
-					temp1 = sms_buffer[x_cnt++];
-					if( temp1=='#' )
-					{
-						off_tp = respond_setting(temp,off_set);
-						if( off_tp == off_set )
-							break;
-						off_set = off_tp;
-					}else break;
-				}while(x_cnt<sms_p);			
-				if( off_set!=0x00 )
-					rsp_buffer[off_set-1]=0x0d;
-				respond = 'X';
-			}
-	  	}
-		else x_cnt--;
-	}
+                    rsp_buffer[off_set++] =')';
+                }
+                for( temp2=0;temp2<6;temp2++)
+                {
+                    temp = read_ee(1,(temp1*8)+temp2);
+                    if( temp2==0&&temp==0 )
+                        break;
+                    rsp_buffer[off_set++] = temp;
+                }                    
+                rsp_buffer[off_set++] = ',';
+            }     
+            rsp_buffer[off_set-1] = 0x0d;
+        }
+        // 1111#20#all# - query all setting info
+        else if(strstr((const char *)&sms_buffer[0], (const char *)"ALL#")) 
+        {
+            //sprintf((char *)&rsp_buffer[0], (char *)"V.%c.%c.%c-", VERSION[0], VERSION[1], VERSION[2]);
+            rsp_buffer[0]='V';
+            rsp_buffer[1]='.';
+            rsp_buffer[2]= VERSION[0];
+            rsp_buffer[3]='.';
+            rsp_buffer[4]= VERSION[1];
+            rsp_buffer[5]='.';
+            rsp_buffer[6]= VERSION[2];
+            rsp_buffer[7]='-';
+            off_set = 8;
+            temp= 1;
+            do{
+                if( (temp >= 1 && temp <= 12)||(temp>=14 && temp<=16)||((temp >= 31)&&(temp <= 37)) )
+                    off_set = respond_setting(temp,off_set);
+            } while (++temp<38);						
+            rsp_buffer[off_set-1]=0x0d;
+        }
+        else
+        {
+            // Otherwise ERROR
+            off_set = 0;
+            do{
+                temp = sms_buffer[x_cnt++];
+                temp1 = sms_buffer[x_cnt++];
+                if( !is_digit(temp) || !is_digit(temp1) )
+                {
+                    strncpy((char *)&rsp_buffer[off_set],(const char *)"Error ", 6);
+                    off_set += 6;
+                    break;
+                }
+                temp = (uint8_t) (((temp&0x0f)<<4) + (temp1&0x0f));
+                temp1 = sms_buffer[x_cnt++];
+                if( temp1=='#' )
+                {
+                    off_tp = respond_setting(temp,off_set);
+                    if( off_tp == off_set )
+                        break;
+                    off_set = off_tp;
+                }else break;
+            }while(x_cnt<sms_p);			
+            if( off_set!=0x00 )
+                rsp_buffer[off_set-1]=0x0d;
+            respond = 'X';
+        }
+    }
+
     
 	// call function_all 
 	if( respond!='R'&&respond!='E'&&respond!='L'&&respond!='X'&&respond!='W' )			// setting function
 	{
 		do{
             for (uint8_t i = 0; i < 100; i++)
-                    key[i] = 0x00;
+                key[i] = 0x00;
             
 			key_p = 0;
 			respond = 'E';
@@ -513,11 +497,8 @@ uint8_t remote_setting(void)
 		if( respond=='E' )
 		{
 			//temp1 += sprintf(rsp_buffer+temp1,"%s"," Error");
-			rsp_buffer[temp1++] = 'E';
-			rsp_buffer[temp1++] = 'r';
-			rsp_buffer[temp1++] = 'r';
-			rsp_buffer[temp1++] = 'o';
-			rsp_buffer[temp1++] = 'r';
+            strncpy((char *)&rsp_buffer[temp1],(const char *)"Error", 5);            
+            temp1 += 5;
 		}
 		rsp_buffer[temp1] = 0x0d;
 	}
@@ -569,6 +550,7 @@ void send_respond(uint8_t type)
             CLRWDT();
 			if( a==0 )
 			{
+                
 				rsp_buffer[0] = 'N';
 				rsp_buffer[1] = 'o';
 				rsp_buffer[2] = ' ';
@@ -747,16 +729,16 @@ void send_respond(uint8_t type)
   	delay5ms(20);
 }*/
 
-uint8_t respond_setting(uint8_t type,uint8_t off_set)
+uint8_t respond_setting(uint8_t type, uint8_t off_set)
 {
 	uint8_t addr,temp,off_tp,page,cnt;
 	uint16_t data_int;
     
 	off_tp = off_set;
-	page = 0;
-	if( (type>=0x01&&type<=0x05)||(type==10)||(type==11)||(type==35)||(type==36) )			//01~05,10,11,35,36
+	page = EE_PAGE0;
+	if( (type>=1 && type <= 5) || (type==10) || (type==11) || (type==35) || (type==36) )			//01~05,10,11,35,36
 	{	
-        page = 0x00;
+        page = EE_PAGE0;
 		if( type==P_IP1 )
 			addr = IP1_ADDR;
 		else if( type==P_IP2 )
@@ -775,7 +757,7 @@ uint8_t respond_setting(uint8_t type,uint8_t off_set)
 			addr = APN_ADDR;
 	   	else if( type==P_OTA )
         {
-            page = 1;
+            page = EE_PAGE1;
 			addr = IP_OTA_ADDR;
         }
 		cnt = 0;
@@ -786,99 +768,68 @@ uint8_t respond_setting(uint8_t type,uint8_t off_set)
 		   	rsp_buffer[off_set++] = temp;
 		}while( ++cnt<32 );
         CLRWDT();
-		if( off_set==off_tp )
-			rsp_buffer[off_set++] = 'N';
+		if( off_set==off_tp )			
+            rsp_buffer[off_set++] = 'N';
 		rsp_buffer[off_set++] = ',';
-	}else if( (type==0x06)||(type==0x14) )		//06,14
+	}
+    else if( (type == P_PROGRAM_ACK) || (type == P_TP_PIN) )		//06,14
 	{
-        page = 0x00;
-        if( type==0x06 )
-            addr = 0xC7;
-        else addr = 0xBB;
+        page = EE_PAGE0;
+        if( type == P_PROGRAM_ACK )
+            addr = PROGRAM_ACK_ADDR;
+        else 
+            addr = TP_PIN_ADDR;
+        
 		temp = read_ee(page,addr);
         if( temp==0x00 )
             temp = '0';
         else temp = '1';
         rsp_buffer[off_set++] = temp;
 		rsp_buffer[off_set++] = ',';	
-	}else if( type==0x12 )      //||(type==0x13) )		//12,13
+	}
+    else if (type == P_ZONE1)      //||(type==0x13) )		//12,13
 	{
-        page = 0x00;
-        if( type==0x12 )
-            addr = 0xB9;
+        page = EE_PAGE0;
+        if( type == P_ZONE1 )
+            addr = ZONE1_ADDR;
       //  else addr = 0xBA;   
         temp = read_ee(page,addr);     
      //   if( temp >=10 )
       //      rsp_buffer[off_set++] = ((temp/10)+0x30);
         rsp_buffer[off_set++] = temp;//((temp%10)+0x30);
 		rsp_buffer[off_set++] = ',';	
-	}else if( (type==0x31)||(type==0x32)||(type==0x33)||(type==0x34)||(type==0x37) )	//31,32,33,34,37
+	}
+    else if ( (type == P_PORT1) || (type == P_PORT2) || (type == P_PORT3) || (type == P_PORT4) || (type == P_PORT_OTA) )	//31,32,33,34,37
 	{
-		if( type==0x31 )
-		{
-			data_int = (uint8_t) (read_ee(EE_PAGE0,0xB0)<<8);
-			data_int += read_ee(EE_PAGE0,0xB1);
-		}else if( type==0x32)
-		{
-			data_int = (uint8_t) (read_ee(EE_PAGE0,0xB2)<<8);
-			data_int += read_ee(EE_PAGE0,0xB3);
-		}else if( type==0x33)
-		{
-			data_int = (uint8_t) (read_ee(EE_PAGE0,0xB4)<<8);
-			data_int += read_ee(EE_PAGE0,0xB5);
-		}else if( type==0x34 )
-		{
-			data_int = (uint8_t) (read_ee(EE_PAGE0,0xB6)<<8);
-			data_int += read_ee(EE_PAGE0,0xB7);
-		}else if( type==0x37 )
-        {
-            data_int = (uint8_t) (read_ee(EE_PAGE1,0xF0)<<8);
-			data_int += read_ee(EE_PAGE1,0xF1);
-        }else data_int = 0;
-		cnt = 0;
-		temp = data_int/10000;
-		if( temp!=0 )
-		{	
-			cnt = 1;
-			rsp_buffer[off_set++] = (uint8_t) (temp+0x30);
-		}
-		data_int %= 10000;
-		temp = data_int/1000;
-		if( temp!=0||cnt==1 )
-		{
-			cnt = 1;
-			rsp_buffer[off_set++] = (uint8_t) (temp+0x30);
-		}
-		data_int %= 1000;
-		temp = data_int/100;
-		if( temp!=0||cnt==1 )
-		{
-			cnt = 1;
-			rsp_buffer[off_set++] = (uint8_t) (temp+0x30);
-		}
-		data_int %= 100;
-		temp = data_int/10;
-		if( temp!=0||cnt==1 )
-		{
-			cnt = 1;
-			rsp_buffer[off_set++] = (uint8_t) (temp+0x30);
-		}
-		temp = data_int%10;
-		rsp_buffer[off_set++] = (uint8_t) (temp+0x30);
+		if ( type == P_PORT1 )
+            strncpy((char *)&rsp_buffer[off_set], (const char *)page0_eeprom.map.PORT1, 4);
+		else if ( type == P_PORT2 )
+            strncpy((char *)&rsp_buffer[off_set], (const char *)page0_eeprom.map.PORT2, 4);
+		else if ( type == P_PORT3 )
+            strncpy((char *)&rsp_buffer[off_set], (const char *)page0_eeprom.map.PORT3, 4);
+		else if ( type == P_PORT4 )
+            strncpy((char *)&rsp_buffer[off_set], (const char *)page0_eeprom.map.PORT4, 4);        
+		else if ( type == P_PORT_OTA )
+            strncpy((char *)&rsp_buffer[off_set], (const char *)page1_eeprom.map.PORT_OTA, 4);         
+        
+        off_set += 4;
+        
 		rsp_buffer[off_set++] = ',';
-	}else if( (type==0x07)||(type==0x08)||(type==0x09)||(type==0x15)||(type==0x16) ) //07,08,09,15,16
+	}
+    else if( (type == P_TEST_FREQ) || (type == P_SERVER_ACK_TIME) || (type == P_SMS_WAIT_TIME) || (type == P_CYCLE) || (type == P_RETRY) ) //07,08,09,15,16
 	{	
         page = 0x00;
-		if( type==0x07 )
-			addr = 0xC8;
-	   	else if( type==0x08 ) 
-            addr = 0xC9;
-        else if( type==0x09 ) 
-            addr = 0xB8;        
-        else if( type==0x15 ) 
-            addr = 0xBC; 
+		if( type == P_TEST_FREQ )
+			addr = TESTING_FREQ_ADDR;
+	   	else if( type == P_SERVER_ACK_TIME ) 
+            addr = SERVER_ACK_TIME_ADDR;
+        else if( type == P_SMS_WAIT_TIME ) 
+            addr = SMS_WAIT_TIME_ADDR;        
+        else if( type == P_CYCLE ) 
+            addr = CYCLE_ADDR; 
         else //if( type==0x16 ) 
-            addr = 0xBD; 
+            addr = RETRY_TIMES_ADDR; 
+        
 		off_tp = off_set;
 		temp = read_ee(page,addr);
 		addr = temp/100;
