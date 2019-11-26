@@ -220,8 +220,8 @@ void init_pic18_eeprom(void)
 void load_test_device_id(void)
 {
     strncpy((char *)page1_eeprom.map.device_id_table[0], (const char *)"627275", 6);
-    strncpy((char *)page1_eeprom.map.device_id_table[0], (const char *)"892C31", 6);
-    strncpy((char *)page1_eeprom.map.device_id_table[0], (const char *)"333435", 6);
+    strncpy((char *)page1_eeprom.map.device_id_table[1], (const char *)"892C31", 6);
+    strncpy((char *)page1_eeprom.map.device_id_table[2], (const char *)"333435", 6);
 }
 
 void write_test_device_id()

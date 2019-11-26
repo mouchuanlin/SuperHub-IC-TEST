@@ -358,7 +358,7 @@ uint8_t remote_setting(void)
 			x_cnt += 2;
 			respond = 'X';
 			// 1111#20sensor# - query sensor info
-			if ( strstr((const char *)sms_buffer[x_cnt], (const char *)"SENSOR#"))
+			if ( strstr((const char *)&sms_buffer[x_cnt], (const char *)"SENSOR#"))
             {
                 off_set = 0;
                 for( temp1=0;temp1<16;temp1++ )
@@ -758,30 +758,30 @@ uint8_t respond_setting(uint8_t type,uint8_t off_set)
 	{	
         page = 0x00;
 		if( type==P_IP1 )
-			addr = 0x30;
+			addr = IP1_ADDR;
 		else if( type==P_IP2 )
-			addr = 0x50;
+			addr = IP2_ADDR;
 	  	else if( type==P_IP3 )
-			addr = 0x70;
-	   	else if( type==P_IP4 )
+			addr = IP3_ADDR;
+	   	else if( type==IP4_ADDR )
 			addr = 0x90;
 	 	else if( type==P_ACCESS_CODE )
-			addr = 0xC0;
+			addr = ACCESS_CODE_ADDR;
 		else if( type==P_UNIT_ACCNT )
-			addr = 0xCA;
+			addr = UNIT_ACCT_ADDR;
         else if( type==P_LINE_CARD )
-			addr = 0xD0;
+			addr = LINE_CARD_ADDR;
         else if( type==P_APN )
-			addr = 0x10;
+			addr = APN_ADDR;
 	   	else if( type==P_OTA )
         {
             page = 1;
-			addr = 0xD0;
+			addr = IP_OTA_ADDR;
         }
 		cnt = 0;
 		do{
 			temp = read_ee(page, (uint8_t) (addr+cnt));
-			if( temp=='#'||temp==0x0c )
+			if( temp=='#'|| temp==0x0c || temp == '\0')
 				break;
 		   	rsp_buffer[off_set++] = temp;
 		}while( ++cnt<32 );

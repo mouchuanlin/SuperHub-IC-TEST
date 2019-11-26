@@ -41,8 +41,8 @@ bool modem_config_ok()
     
     //--------- Alarm or Report ---------    
 alarm_start:    
-	if (!start_send_alarm())
-		return false;
+//	if (!start_send_alarm())
+//		return false;
 
     // In OTA_BOOT mode, there is no need to do anything else.
     if (myState == OTA_BOOT)
@@ -452,21 +452,21 @@ uint8_t start_sms()
         sms_time = page0_eeprom.map.SMS_WAIT_TIME;
         set_sms_init();    
         do{
-            cnt = 12;
-            do{
-                rsp = 16;
-                do{
-                    delayseconds(1);
-                    if(!is_event_que_empty())     
-                        deque_event(); 
-                    
-                    // Need bail out call start_send_alarm() to send data
-                    if( stack_buffer[0].map.state != 0 && retry_count==0 && IP_type==1 )   
-                    {                   
-                       //goto alarm_start;
-					   return false;
-                    }
-                }while(--rsp!=0);
+           cnt = 12;
+           do{
+//               rsp = 16;
+//               do{
+//                   delayseconds(1);
+//                   if(!is_event_que_empty())     
+//                       deque_event(); 
+//                   
+//                   // Need bail out call start_send_alarm() to send data
+//                   if( stack_buffer[0].map.state != 0 && retry_count==0 && IP_type==1 )   
+//                   {                   
+//                      //goto alarm_start;
+//					   return false;
+//                   }
+//               }while(--rsp!=0);
                 
               //  LED = 0;
                 check_sms();
@@ -549,7 +549,7 @@ void start_modem(void)
     powerup_modem();
     
     // AT&F Reset AT Command Settings to Factory Default Values
-    //reset_at_command_default();
+    reset_at_command_default();
             
     // TODO: FOR DEBUGGING ONLY
     //send_test_AT_commands();

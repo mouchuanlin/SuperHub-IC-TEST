@@ -45,7 +45,7 @@ uint8_t set_n35(uint8_t cmd)
     else
         key[len-1] = '\0';
     
-    strcpy(apn, &key[3]);
+    strcpy((char *)apn, (const char *)&key[3]);
     
     // TODO: WHY this function changed the value of cmd???
     if (!is_valid_apn((char *)apn))
@@ -78,7 +78,7 @@ uint8_t set_n01_02_03_04_36(uint8_t cmd)
     else
         key[len-1] = '\0';
     
-    strcpy(ip, &key[3]);
+    strcpy((char *)ip, (const char *)&key[3]);
 
     if (!is_valid_ip((char *)ip))
         return 'E';
