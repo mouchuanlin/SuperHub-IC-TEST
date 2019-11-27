@@ -387,12 +387,9 @@ uint8_t del_ID(uint8_t id)
 
 void update_page_info(void)
 {
-    for (uint16_t i = EE_START_ADDR; i < EE_PAGE_SIZE; i++)
-    {
-        page0_eeprom.data[i] = 0x00;
-        page1_eeprom.data[i] = 0x00;
-    }
-        
+    memset( page0_eeprom.data, 0x00, EE_PAGE_SIZE );
+    memset( page1_eeprom.data, 0x00, EE_PAGE_SIZE );
+     
     // Read back from EEPROM
     read_eeprom(EE_PAGE0, EE_START_ADDR, page0_eeprom.data, EE_PAGE_SIZE);  
     read_eeprom(EE_PAGE1, EE_START_ADDR, page1_eeprom.data, EE_PAGE_SIZE);      

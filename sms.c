@@ -9,6 +9,7 @@
 #include "modem.h"
 #include "timer.h"
 
+// Max SMS length
 #define SMS_BUF_LEN     160
 uint8_t sms_p,sms_buffer[SMS_BUF_LEN]; 
 uint8_t time[9];
@@ -39,7 +40,7 @@ uint8_t check_sms(void)
 {
   	const uint8_t cmgl[]="AT+CMGL=\"ALL\"\r\n$";
   	uint8_t temp, a, b, c;
-    uint8_t buffer[160];
+    uint8_t buffer[SMS_BUF_LEN];
     uint8_t buffer_p = 0;
     uint16_t count;
     
@@ -147,7 +148,7 @@ uint8_t read_sms(uint8_t a,uint8_t b,uint8_t c)
 	uint8_t enter_cnt=0;
     
     CREN1 = 0;
-	memset( sms_buffer,0xff,sizeof(sms_buffer) );
+	memset( sms_buffer, 0x00, sizeof(sms_buffer) );
 	memset( time,'0',sizeof(time) );
     temp = 0;
 	
@@ -222,15 +223,15 @@ uint8_t read_sms(uint8_t a,uint8_t b,uint8_t c)
 					sms_buffer[sms_p] = temp;
 					if( temp=='^' )
 						enter_cnt = '^';
-					if(++sms_p>=160 )
-			  			sms_p=159;
+					if(++sms_p >= SMS_BUF_LEN )
+			  			sms_p = SMS_BUF_LEN - 1;
 					if(temp == LF)
 					{
                         // TODO: set for length 4 now. Should be up to 7.
                         if (strncmp((const char *)&sms_buffer[0], (const char *)page0_eeprom.map.ACCESS_CODE, 4) != 0)										
 							break;
 						
-			  			sms_buffer[sms_p-1] = 0xcc;
+			  			//sms_buffer[sms_p-1] = 0xcc;
 						
 			 	 		crt=check_remote();
 			  			if(crt=='K')				//setup function
@@ -414,27 +415,16 @@ uint8_t remote_setting(void)
         {
             // Otherwise ERROR
             off_set = 0;
-            do{
-                temp = sms_buffer[x_cnt++];
-                temp1 = sms_buffer[x_cnt++];
-                if( !is_digit(temp) || !is_digit(temp1) )
-                {
-                    strncpy((char *)&rsp_buffer[off_set],(const char *)"Error ", 6);
-                    off_set += 6;
+            for (index = 0; index < sizeof(sms_buffer); index++)
+            {
+                if (sms_buffer[index] == CR || sms_buffer[index] == LF)
                     break;
-                }
-                temp = (uint8_t) (((temp&0x0f)<<4) + (temp1&0x0f));
-                temp1 = sms_buffer[x_cnt++];
-                if( temp1=='#' )
-                {
-                    off_tp = respond_setting(temp,off_set);
-                    if( off_tp == off_set )
-                        break;
-                    off_set = off_tp;
-                }else break;
-            }while(x_cnt<sms_p);			
-            if( off_set!=0x00 )
-                rsp_buffer[off_set-1]=0x0d;
+                
+                rsp_buffer[index] = sms_buffer[index];                
+            }
+            //strncpy((char *)&rsp_buffer[off_set], (const char *)&sms_buffer[0], sizeof(sms_buffer));
+            //off_set += sizeof(sms_buffer);
+            strncpy((char *)&rsp_buffer[index],(const char *)" Error\r\n", sizeof(" Error\r\n"));
             respond = 'X';
         }
     }
@@ -444,15 +434,14 @@ uint8_t remote_setting(void)
 	if( respond!='R'&&respond!='E'&&respond!='L'&&respond!='X'&&respond!='W' )			// setting function
 	{
 		do{
-            for (uint8_t i = 0; i < 100; i++)
-                key[i] = 0x00;
+            memset(key, 0x00, 100);            
             
 			key_p = 0;
 			respond = 'E';
 			do{
 				temp = sms_buffer[x_cnt++];
 				key[key_p++] = temp;
-				if( temp==','||temp==0xcc )
+				if( temp==','||temp== '\0' )
 				{
 					key[key_p-1] = '#';
 					if( key_p<5 )
@@ -481,7 +470,7 @@ uint8_t remote_setting(void)
 		
 
 		// sms ending
-		if( temp==0xcc )
+		if( temp=='\0' )
 			x_cnt-=1;
 	}
 	
